@@ -4,4 +4,4 @@
 .vscode
 *.pcap*
 *.BAK
-.*dSYM
+*.dSYM
