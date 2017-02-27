@@ -21,10 +21,11 @@ void printUsage()
 }
 
 
-void handler(RawPacket* packet, PcapLiveDevice* dev, void* cookie)
+bool handler(RawPacket* packet, PcapLiveDevice* dev, void* cookie)
 {    
     if (++pkts == pktsToRcv)
-	    shouldStop=1;
+	    return true;
+    return false;
 }
 
 
@@ -40,10 +41,9 @@ int benchmark(char *interface)
             throw "open() failed.";
 
         clock_type::time_point start = clock_type::now();
-        if (!dev->startCapture(handler, NULL))
+        if (!dev->startCaptureBlockingMode(handler, NULL, 0))
             throw "startCapture() failed.";
-	    while (!shouldStop)
-		    ;
+
         auto end = clock_type::now();
         clock_type::duration duration = end - start;
 
@@ -51,7 +51,6 @@ int benchmark(char *interface)
         using std::chrono::duration_cast;
         cout << appName << " " << pkts << " " << duration_cast<milliseconds>(duration).count() << "ms " << endl;
 
-        dev->stopCapture();
         dev->close();
     }
     catch(const char *msg) {
