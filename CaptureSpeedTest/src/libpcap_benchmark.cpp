@@ -3,10 +3,8 @@
 #include <pcap.h>
 #include <cstring>
 
-
 using namespace std;
 using clock_type = chrono::high_resolution_clock;
-
 
 #ifndef PCAP_ERRBUF_SIZE
 #define PCAP_ERRBUF_SIZE (256)
@@ -27,10 +25,6 @@ void handler(u_char *args, const struct pcap_pkthdr *header, const u_char *bytes
 {    
     pkts++;   
 }
-
-
-
-
 
 
 

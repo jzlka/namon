@@ -1,6 +1,5 @@
 #include <iostream>     //  cout, cerr
 #include <chrono>       //  duration, duration_cast, milliseconds
-#include <string>       //  string
 #include "PcapLiveDevice.h"
 #include "PcapLiveDeviceList.h"
 
@@ -9,7 +8,6 @@ using namespace pcpp;
 using std::cout;
 using std::endl;
 using std::cerr;
-using std::string;
 using clock_type = std::chrono::high_resolution_clock;
 
 bool shouldStop = 0;
@@ -25,12 +23,8 @@ void printUsage()
 
 void handler(RawPacket* packet, PcapLiveDevice* dev, void* cookie)
 {    
-	cout << pkts << " ";
     if (++pkts == pktsToRcv)
-	{ 
-        cout << "should stop" << endl;
 	    shouldStop=1;
-	}
 }
 
 

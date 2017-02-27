@@ -1,6 +1,5 @@
 #include <iostream>     //  cout, cerr
 #include <chrono>       //  duration, duration_cast, milliseconds
-#include <string>       //  string
 #include "PcapLiveDevice.h"
 #include "PcapLiveDeviceList.h"
 #include "PfRingDeviceList.h"
@@ -9,7 +8,6 @@ using namespace pcpp;
 using std::cout;
 using std::endl;
 using std::cerr;
-using std::string;
 using clock_type = std::chrono::high_resolution_clock;
 
 bool shouldStop = 0;
@@ -28,10 +26,6 @@ void handler(RawPacket* packets, uint32_t numOfPackets, uint8_t threadId, PfRing
     if (++pkts == pktsToRcv)
 	    shouldStop=1;
 }
-
-
-
-
 
 
 int benchmark(char *interface)
