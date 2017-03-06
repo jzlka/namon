@@ -1,14 +1,14 @@
 /** 
  *  @file		pcapng_headers.hpp
- *	@brief		Network Traffic Capturing With Application Tags
+ *  @brief      Network Traffic Capturing With Application Tags
  *  @details    Bachelor's Thesis, FIT VUT Brno
- *	@author		Jozef Zuzelka (xzuzel00)
- *	Mail:		xzuzel00@stud.fit.vutbr.cz
- *	Created:	06.03.2017 13:33
- *	Edited:		06.03.2017 17:21
- * 	Version:	1.0.0
- *	g++:		Apple LLVM version 8.0.0 (clang-800.0.42.1)
- *	@todo       change tool name in shb_userappl
+ *  @author     Jozef Zuzelka (xzuzel00)
+ *  Mail:       xzuzel00@stud.fit.vutbr.cz
+ *  Created:    06.03.2017 13:33
+ *  Edited:		06.03.2017 17:37
+ *  Version:    1.0.0
+ *  g++:        Apple LLVM version 8.0.0 (clang-800.0.42.1)
+ *  @todo       change tool name in shb_userappl
  */
 
 #pragma once

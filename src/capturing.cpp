@@ -1,11 +1,11 @@
 /** 
- *  @file		capturing.cpp
+ *  @file       capturing.cpp
  *  @brief      Network Traffic Capturing With Application Tags
  *  @details    Bachelor's Thesis, FIT VUT Brno
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    18.02.2017 22:45
- *  Edited:		06.03.2017 17:36
+ *  Edited:     06.03.2017 17:45
  *  Version:    1.0.0
  *  g++:        Apple LLVM version 8.0.0 (clang-800.0.42.1)
  */
