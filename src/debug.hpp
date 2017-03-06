@@ -1,12 +1,12 @@
 /** 
- *  @file		debug.hpp
- *	@brief		Network Traffic Capturing With Application Tags
+ *  @file       debug.hpp
+ *  @brief      Network Traffic Capturing With Application Tags
  *  @details    Bachelor's Thesis, FIT VUT Brno
- *	@author		Jozef Zuzelka (xzuzel00)
- *	Mail:		xzuzel00@stud.fit.vutbr.cz
- *	Created:	26.09.2016 23:59
- *	Edited:		06.03.2017 16:59
- *	g++:		Apple LLVM version 8.0.0 (clang-800.0.42.1)
+ *  @author     Jozef Zuzelka (xzuzel00)
+ *  Mail:       xzuzel00@stud.fit.vutbr.cz
+ *  Created:    26.09.2016 23:59
+ *  Edited:     06.03.2017 17:47
+ *  g++:        Apple LLVM version 8.0.0 (clang-800.0.42.1)
  */
 
 #pragma once
@@ -37,10 +37,10 @@ void DEBUG(DebugLevel dbgLevel, const char * file, const int line, const char * 
         (std::cerr << ... << args) << std::endl;
     }
 }
-#else	//	DEBUG_BUILD
+#else   //  DEBUG_BUILD
 template <typename ... Ts>
 void DEBUG(Ts&&... )
 {
 }
-#endif	// DEBUG_BUILD
+#endif  // DEBUG_BUILD
 
