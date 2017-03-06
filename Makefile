@@ -29,13 +29,11 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.cpp
 
 all: directories $(BIN)
 
-$(BIN): dependents $(OBJ) 
-	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
+$(BIN): $(OBJ) 
+	$(CXX) -o $@ $^ $(LDFLAGS)
 
 directories:
 	@mkdir -p $(OBJDIR)
-dependents:
-	cd ./ #$(somewhere) && $(MAKE) libs
 
 debug: CXXFLAGS += -O0 -g -DDEBUG_BUILD
 debug: clean all
