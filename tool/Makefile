@@ -50,7 +50,7 @@ test: all
 
 # -------------------------------------
 pack: clean
-	tar czf xzuzel00.tar.gz src/ Makefile README doxygen.conf
+	tar czf xzuzel00.tar.gz src/ Makefile README.md doxygen.conf
 #	zip -r xzuzel00.zip src/ README.txt Makefile doxygen.conf
 
 doxygen:
