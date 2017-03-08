@@ -5,7 +5,7 @@
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    18.02.2017 22:45
- *  Edited:     06.03.2017 17:45
+ *  Edited:     08.03.2017 01:10
  *  Version:    1.0.0
  *  g++:        Apple LLVM version 8.0.0 (clang-800.0.42.1)
  */
@@ -59,7 +59,7 @@ const unsigned char     PROTO_UDP   =    17;
 const unsigned char     PROTO_TCP   =    6 ;
 
 extern int shouldStop;
-const char * dev = nullptr;
+const char * g_dev = nullptr;
 ofstream oFile;
 
 
@@ -72,15 +72,15 @@ int startCapture(const char *oFilename)
     try
     {
         // if the interface wasn't specified by user open the first active one
-        if (dev == nullptr && (dev = pcap_lookupdev(errbuf)) == nullptr)
+        if (g_dev == nullptr && (g_dev = pcap_lookupdev(errbuf)) == nullptr)
             throw pcap_ex("Can't open input device.",errbuf);
         
-        if ((handle = pcap_open_live(dev, BUFSIZ, 0, 1000, errbuf)) == NULL)
+        if ((handle = pcap_open_live(g_dev, BUFSIZ, 0, 1000, errbuf)) == NULL)
             throw pcap_ex("pcap_open_live() failed.",errbuf);
         if (pcap_setnonblock(handle, 1, errbuf) == -1)
             throw pcap_ex("pcap_setnonblock() failed.",errbuf);
 
-        DEBUG(DebugLevel::INFO, __FILE__, __LINE__, __func__, "Capturing device '", dev, "' was opened.");
+        DEBUG(DebugLevel::INFO, __FILE__, __LINE__, __func__, "Capturing device '", g_dev, "' was opened.");
 
         // Open the output file
         oFile.open(oFilename);
@@ -89,7 +89,7 @@ int startCapture(const char *oFilename)
         
         DEBUG(DebugLevel::INFO, __FILE__, __LINE__, __func__, "Output file '", oFilename, "' was opened.");
         
-        initOFile();
+        initOFile(oFile);
 
         while (!shouldStop)
             pcap_dispatch(handle, -1, packetHandler, NULL);

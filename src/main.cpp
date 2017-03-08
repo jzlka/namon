@@ -5,7 +5,7 @@
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    18.02.2017 08:03
- *  Edited:     06.03.2017 17:48
+ *  Edited:     08.03.2017 01:07
  *  Version:    1.0.0
  *  g++:        Apple LLVM version 8.0.0 (clang-800.0.42.1)
  *  @todo       change tool name
@@ -23,7 +23,7 @@
 
 using namespace std;
 
-extern const char * dev;
+extern const char * g_dev;
 DebugLevel generalDebugLevel = DebugLevel::INFO;
 
 
@@ -59,7 +59,7 @@ int main (int argc, char *argv[])
         switch (opt)
         {
             case 0:                     break;
-            case 'i':   dev = optarg;   break;
+            case 'i':   g_dev = optarg;   break;
             case 'w':   oFilename = optarg; break;
             case 'h':   printUsage();   return EXIT_SUCCESS;
             default:    printUsage();   return EXIT_FAILURE;
