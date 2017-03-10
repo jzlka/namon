@@ -5,7 +5,7 @@
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    18.02.2017 22:45
- *  Edited:     10.03.2017 04:26
+ *  Edited:     10.03.2017 14:21
  *  Version:    1.0.0
  *  g++:        Apple LLVM version 8.0.0 (clang-800.0.42.1)
  */
@@ -104,6 +104,7 @@ int startCapture(const char *oFilename)
 //        if (pcap_loop(handle, -1, packetHandler, NULL) == -1)
 //            throw "pcap_loop() failed";   //pcap_breakloop()?
 
+        rb.notifyCondVar(); // notify thread, it should end
         t1.join();
         pcap_close(handle);
     }

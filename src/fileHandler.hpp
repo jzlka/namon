@@ -5,7 +5,7 @@
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    06.03.2017 14:50
- *  Edited:     09.03.2017 21:26
+ *  Edited:     10.03.2017 14:20
  *  Version:    1.0.0
  *  g++:        Apple LLVM version 8.0.0 (clang-800.0.42.1)
  *  @bug
@@ -43,7 +43,7 @@ public:
     RingBuffer( size_t cap ) : buffer(cap) {}
     bool empty() const { return size == 0; }
     bool full() const { return size == buffer.size(); }
-    bool receivedPacket() { return m_rcvdPacket || stop(); }
+    bool receivedPacket() { D("checking var"); return m_rcvdPacket || stop(); }
 
     void push(const pcap_pkthdr *header, const u_char *packet)
     {
@@ -63,9 +63,11 @@ public:
         buffer[last].setPacketData(packet);
         ++last;
 
+        D("push locking");
         std::lock_guard<std::mutex> guard(m_mutex);
         m_rcvdPacket = true;
         m_condVar.notify_one();
+        D("push releasing");
     }
 
     void pop()
@@ -84,15 +86,23 @@ public:
         log(LogLevel::INFO, "Writing to the output file started.");
         while (!stop())
         {
+            D("write locking");
             std::unique_lock<std::mutex> mlock(m_mutex);
             m_condVar.wait(mlock, std::bind(&RingBuffer::receivedPacket, this));
             mlock.unlock();
             while(!empty())
             {
+                D("write writing");
                 buffer[first].write(oFile); // FIXME mutex needed
                 pop();
             }
+            D("write releasing");
         }
         log(LogLevel::INFO, "Writing to the output file stopped.");
+    }
+    
+    void notifyCondVar()
+    {
+        m_condVar.notify_one();
     }
 };
