@@ -5,7 +5,7 @@
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    06.03.2017 13:33
- *  Edited:     08.03.2017 04:40
+ *  Edited:     10.03.2017 04:00
  *  Version:    1.0.0
  *  g++:        Apple LLVM version 8.0.0 (clang-800.0.42.1)
  *  @todo       change tool name in shb_userappl
@@ -13,9 +13,13 @@
 
 #pragma once
 
-#include <cstdint>          //  uint32_t, uint16_t, uint64_t, int8_t
-#include <fstream>          //  ofstream
-#include <string>           //  string
+#include <cstdint>              //  uint32_t, uint16_t, uint64_t, int8_t
+#include <fstream>              //  ofstream
+#include <string>               //  string
+#include <netinet/if_ether.h>   //  ETHER_MAX_LEN
+#include "debug.hpp"            //  D()
+
+using namespace std;
 
 extern const char * g_dev;
 
@@ -59,7 +63,7 @@ class SectionHeaderBlock {
     uint32_t blockTotalLength2      = blockTotalLength;
 
 public:
-    SectionHeaderBlock(std::string & os) 
+    SectionHeaderBlock(string & os) 
     { 
         const int len = os.length();
         options.shb_os.optionLength = len;
@@ -75,7 +79,7 @@ public:
         delete [] options.shb_os.optionValue;
     }
 
-    void write(std::ofstream & file)
+    void write(ofstream & file)
     { 
         char * tmpPtr = reinterpret_cast<char*>(this);
         size_t partToWrite = 4+4+4+2+2+8+2+2;
@@ -129,7 +133,7 @@ class InterfaceDescriptionBlock {
     uint32_t blockTotalLength2      = blockTotalLength;
 
 public:
-    InterfaceDescriptionBlock(std::string & os) 
+    InterfaceDescriptionBlock(string & os) 
     { 
         int len = os.length();
         options.if_os.optionLength = len;
@@ -145,7 +149,7 @@ public:
         delete [] options.if_os.optionValue;
     }
     
-    void write(std::ofstream & file)
+    void write(ofstream & file)
     { 
         char * tmpPtr = reinterpret_cast<char*>(this);
         size_t partToWrite = 4+4+2+2+4+2+2;
@@ -176,19 +180,38 @@ public:
 
 class EnhancedPacketBlock {
     uint32_t blockType              = 0x00000006;
-    uint32_t blockTotalLength       = 0;    // TODO
+    uint32_t blockTotalLength       = sizeof(*this)-sizeof(packetData);    // will be updated in write()
     uint32_t interfaceID            = 0;
-    uint32_t timestampHi            = 0;    // TODO
-    uint32_t timestampLo            = 0;    // TODO
-    uint32_t capturedPacketLength   = 0;    // TODO
-    uint32_t originalPacketLength   = 0;    // TODO
-    int64_t packetData              = -1;  // not specified
+    uint32_t timestampHi            = 0;
+    uint32_t timestampLo            = 0;
+    uint32_t capturedPacketLength   = 0;
+    uint32_t originalPacketLength   = 0;
+    const u_char * packetData       = nullptr;
     uint32_t blockTotalLength2      = blockTotalLength;
 public:
     EnhancedPacketBlock() 
-        { }
-    void write(std::ofstream & file)
-        { file.write(reinterpret_cast<char*>(this),sizeof(*this)); }
+        { packetData = new u_char[ETHER_MAX_LEN]; }
+    ~EnhancedPacketBlock()
+        { delete [] packetData; }
+
+    void setTimestamp(long timestamp) { timestampLo = timestamp; timestampHi = timestamp >> 4; }
+    void setCapturedPacketLength(uint32_t len) { capturedPacketLength = len; }
+    void setOriginalPacketLength(uint32_t len) { originalPacketLength = len; }
+    void setPacketData(const u_char *ptr) { memcpy((void*)packetData, ptr, capturedPacketLength); }
+    void write(ofstream & file)
+    { 
+        const char padding = 0;
+        int paddingLen = computePaddingLen(capturedPacketLength, 4);
+        blockTotalLength += capturedPacketLength + paddingLen;
+        blockTotalLength2 = blockTotalLength;
+
+        file.write(reinterpret_cast<char*>(this), sizeof(*this)-sizeof(blockTotalLength2)-sizeof(packetData));
+        file.write(reinterpret_cast<const char*>(packetData), capturedPacketLength);
+        while(paddingLen--)
+            file.write(&padding, sizeof(padding));
+        file.write(reinterpret_cast<char*>(&blockTotalLength2), sizeof(blockTotalLength2));
+        blockTotalLength2 = blockTotalLength = sizeof(*this)-sizeof(packetData);    // restore default size of empty block
+    }
 };
 
 
@@ -202,7 +225,7 @@ class CustomBlock {
 public:
     CustomBlock() 
         { }
-    void write(std::ofstream & file)
+    void write(ofstream & file)
         { file.write(reinterpret_cast<char*>(this),sizeof(*this)); }
 };
 

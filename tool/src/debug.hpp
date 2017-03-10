@@ -5,7 +5,7 @@
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    26.09.2016 23:59
- *  Edited:     06.03.2017 17:47
+ *  Edited:     10.03.2017 04:13
  *  g++:        Apple LLVM version 8.0.0 (clang-800.0.42.1)
  */
 
@@ -16,31 +16,44 @@
 #define CLR  "\x1B[0m"
 #define RED  "\x1B[31m"
 
-enum class DebugLevel : uint8_t
+extern std::mutex m_debugPrint;
+
+enum class LogLevel : uint8_t
 {
-    ERROR    = 0,
+    INFO     = 0,
     WARNING  = 1,
-    INFO     = 2,
+    ERROR    = 2,
+    NONE     = 3,
 };
 
-extern DebugLevel generalDebugLevel;
-const char * const msgPrefix[] = { "[EE]", "[WW]", "[II]" };
+extern LogLevel generalLogLevel;
+const char * const msgPrefix[] = { "[II]", "[WW]", "[EE]", "" };
 
 
 #ifdef DEBUG_BUILD
+
+#define D(...) \
+    do { \
+    std::lock_guard<std::mutex> guard(m_debugPrint); \
+    std::cerr << "DEBUG: " << __FILE__ << ":" << __LINE__ << ":<" << RED << __func__ <<  CLR << ">: "; \
+    std::cerr << __VA_ARGS__ << std::endl; \
+    } while (0)
 template <typename ... Ts>
-void DEBUG(DebugLevel dbgLevel, const char * file, const int line, const char * func, Ts&&... args)
+void log(LogLevel ll, Ts&&... args)
 {
-    if (dbgLevel <= generalDebugLevel)
+    if (ll >= generalLogLevel)
     {
-        std::cerr << "DEBUG: " << file << ":" << line << ":<" << RED << func <<  CLR << ">: " << msgPrefix[static_cast<int>(dbgLevel)] << " ";
+        std::lock_guard<std::mutex> guard(m_debugPrint);
+        std::cerr << msgPrefix[static_cast<int>(ll)] << " ";
         (std::cerr << ... << args) << std::endl;
     }
 }
+
 #else   //  DEBUG_BUILD
+
+#define D(...)
 template <typename ... Ts>
-void DEBUG(Ts&&... )
-{
-}
+void log(Ts&&... ) {}
+
 #endif  // DEBUG_BUILD
 

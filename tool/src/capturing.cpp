@@ -5,7 +5,7 @@
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    18.02.2017 22:45
- *  Edited:     08.03.2017 01:10
+ *  Edited:     10.03.2017 04:26
  *  Version:    1.0.0
  *  g++:        Apple LLVM version 8.0.0 (clang-800.0.42.1)
  */
@@ -18,6 +18,7 @@
 #include "cache.hpp"            //  
 #include "fileHandler.hpp"      //  initOFile()
 #include "capturing.hpp"
+#include "main.hpp"             //  stop()
 
 #if defined(__linux__)
 #include "tool_linux.hpp"
@@ -46,19 +47,15 @@
 //#include <ws2tcpip.h>
 #endif
 
+#define RING_BUFFER_SIZE    1024
 
-using std::ofstream;
-using std::cerr;
-using std::cout;
-using std::endl;
-using std::string;
+using namespace std;
 
 
 const unsigned char     IPV6_SIZE   =    40;
 const unsigned char     PROTO_UDP   =    17;
 const unsigned char     PROTO_TCP   =    6 ;
 
-extern int shouldStop;
 const char * g_dev = nullptr;
 ofstream oFile;
 
@@ -80,22 +77,34 @@ int startCapture(const char *oFilename)
         if (pcap_setnonblock(handle, 1, errbuf) == -1)
             throw pcap_ex("pcap_setnonblock() failed.",errbuf);
 
-        DEBUG(DebugLevel::INFO, __FILE__, __LINE__, __func__, "Capturing device '", g_dev, "' was opened.");
+        log(LogLevel::INFO, "Capturing device '", g_dev, "' was opened.");
 
         // Open the output file
         oFile.open(oFilename);
         if (!oFile)
             throw "Can't open output file: '" + string(oFilename) + "'";
         
-        DEBUG(DebugLevel::INFO, __FILE__, __LINE__, __func__, "Output file '", oFilename, "' was opened.");
+        log(LogLevel::INFO, "Output file '", oFilename, "' was opened.");
         
+        // Write Section Header Block and Interface Description Block to the file
         initOFile(oFile);
 
-        while (!shouldStop)
-            pcap_dispatch(handle, -1, packetHandler, NULL);
+        // Create ring buffer and run writing to file in a new thread
+        RingBuffer rb(RING_BUFFER_SIZE);
+        thread t1 ([&rb]() { rb.write(); });
+
+        //Create cache and periodically refresh it in a new thread;
+        //new cache;
+        //run new thread  refreshCache();
+        
+        void *arg_arr[2] = { &rb, /*&cache*/nullptr};
+
+        while (!stop())
+            pcap_dispatch(handle, -1, packetHandler, reinterpret_cast<u_char*>(arg_arr));
 //        if (pcap_loop(handle, -1, packetHandler, NULL) == -1)
 //            throw "pcap_loop() failed";   //pcap_breakloop()?
 
+        t1.join();
         pcap_close(handle);
     }
     catch(pcap_ex &e)
@@ -110,18 +119,20 @@ int startCapture(const char *oFilename)
         cerr << "ERROR: " << msg << endl;
         return EXIT_FAILURE;
     }
-    return shouldStop;
+    return stop();
 }
 
-void packetHandler(u_char *args, const struct pcap_pkthdr *header, const u_char *packet)
+void packetHandler(u_char *arg_array, const struct pcap_pkthdr *header, const u_char *packet)
 {    
-    savePacket();
-   
     static Netflow n;
     static unsigned int ip_size;
+    static ether_header *eth_hdr;
+    void ** arg_arr = reinterpret_cast<void**>(arg_array);
 
-    static ether_header *eth_hdr = (ether_header*) packet;
-
+    eth_hdr = (ether_header*) packet;
+    RingBuffer *rb = reinterpret_cast<RingBuffer *>(arg_arr[0]);
+    rb->push(header, packet);
+    
     // Parse IP header
     if (parseIp(n, ip_size, (void*)(packet + ETHER_HDR_LEN), eth_hdr->ether_type))
         return;
@@ -130,7 +141,7 @@ void packetHandler(u_char *args, const struct pcap_pkthdr *header, const u_char 
     if (parsePorts(n, (void*)(packet + ETHER_HDR_LEN + ip_size)))
         return;
 
-    DEBUG(DebugLevel::INFO, __FILE__, __LINE__, __func__, "srcPort:",ntohs(n.getSrcPort()),", dstPort:",ntohs(n.getDstPort()),", proto:",n.getProto());
+    D("srcPort:" << ntohs(n.getSrcPort()) << ", dstPort:" << ntohs(n.getDstPort()) << ", proto:" << n.getProto());
     //hash5Tuple(n);
 
     if (/*map.count(hash) == */NULL)
@@ -151,7 +162,7 @@ inline int parseIp(Netflow &n, unsigned int &ip_size, void * const ip_hdr, const
         ip_size = ipv4_hdr->ip_hl *4; // the length of the internet header in 32 bit words
         if (ip_size < 20)
         {
-            std::cerr << "Incorrect IPv4 header received.\n";//debug(WARNING, "Incorrect IPv4 header received. Time: %d", time);
+            log(LogLevel::WARNING, "Incorrect IPv4 header received.");
             return EXIT_FAILURE;
         }
         n.setSrcIp((void*)(&ipv4_hdr->ip_src));
@@ -181,7 +192,7 @@ inline int parsePorts(Netflow &n, void *hdr)
         unsigned tcp_size = tcp_hdr->th_off *4; // number of 32 bit words in the TCP header
         if (tcp_size < 20)
         {
-            std::cerr << "Incorrect TCP header received.\n";//debug(WARNING, "Incorrect TCP header received. Time: %d", time);
+            log(LogLevel::WARNING, "Incorrect TCP header received.");
             return EXIT_FAILURE;
         }
         n.setSrcPort(tcp_hdr->th_sport);
@@ -193,7 +204,7 @@ inline int parsePorts(Netflow &n, void *hdr)
         unsigned udp_size = udp_hdr->uh_ulen; // length in bytes of the UDP header and UDP data
         if (udp_size < 8)
         {
-            std::cerr << "Incorrect UDP packet received.\n";//debug(WARNING, "Incorrect UDP packet received. Time: %d", time);
+            log(LogLevel::WARNING, "Incorrect UDP packet received.");
             return EXIT_FAILURE;
         }
         n.setSrcPort(udp_hdr->uh_sport);
