@@ -5,7 +5,7 @@
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    18.02.2017 08:03
- *  Edited:     08.03.2017 01:07
+ *  Edited:     09.03.2017 19:59
  *  Version:    1.0.0
  *  g++:        Apple LLVM version 8.0.0 (clang-800.0.42.1)
  *  @todo       change tool name
@@ -14,17 +14,22 @@
 
 #include <iostream>             //  EXIT_*, cout, cerr
 #include <getopt.h>             //  getopt_long()
+
 #if defined(__linux__)
-#include <signal.h>     //  signal(), SIGINT, SIGTERM, SIGABRT, SIGSEGV
+#include <signal.h>             //  signal(), SIGINT, SIGTERM, SIGABRT, SIGSEGV
 #endif
+
 #include "capturing.hpp"        //  startCapture()
 #include "debug.hpp"
 #include "main.hpp"
 
 using namespace std;
 
+LogLevel generalLogLevel = LogLevel::INFO;  // TODO -v,-vv,-vvv parameters
+int shouldStop = false;
+mutex m_debugPrint;
+mutex m_shouldStopVar;
 extern const char * g_dev;
-DebugLevel generalDebugLevel = DebugLevel::INFO;
 
 
 static struct option longopts[] = 
@@ -70,9 +75,17 @@ int main (int argc, char *argv[])
 }
 
 
+bool stop()
+{
+    lock_guard<mutex> guard(m_shouldStopVar);
+    return shouldStop;
+}
+
+
 void signalHandler(int signum)
 {
     cerr << "Interrupt signal (" << signum << ") received.\n";
+    lock_guard<mutex> guard(m_shouldStopVar);
     shouldStop = signum;
 }
 
