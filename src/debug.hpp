@@ -5,7 +5,7 @@
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    26.09.2016 23:59
- *  Edited:     11.03.2017 03:23
+ *  Edited:     11.03.2017 03:50
  *  g++:        Apple LLVM version 8.0.0 (clang-800.0.42.1)
  */
 
@@ -31,9 +31,9 @@ const char * const msgPrefix[] = { "[II]", "[WW]", "[EE]", "" };
 
 inline void printArray(const unsigned char *bitArray, const unsigned int dataSize)
 {
-    std::cerr << "Data (" << dataSize << "): " ;
+    std::cerr << "Data (" << dataSize << "): ";
     for (unsigned int i=0; i != dataSize; i++)
-        std::cerr << std::hex << (bitArray[i]>>4) << (bitArray[i]&0x0f);
+        std::cerr << std::hex << (bitArray[i]>>4) << (bitArray[i]&0x0f) << std::dec;
     std::cerr << std::endl;
 }
 
