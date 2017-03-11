@@ -5,7 +5,7 @@
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    26.02.2017 23:13
- *  Edited:     06.03.2017 17:45
+ *  Edited:     11.03.2017 06:22
  *  Version:    1.0.0
  *  g++:        Apple LLVM version 8.0.0 (clang-800.0.42.1)
  */
@@ -24,13 +24,11 @@ class Netflow  // rozlisovat ipv4 a ipv6 (rozne velkosti adries)
     unsigned short srcPort;
     unsigned short dstPort;
     unsigned char proto;
-    char *interface = nullptr;
-    int startTime;
-    int endTime;
+    const char *interface = nullptr;
+    long startTime;
+    long endTime;
 public:
-    Netflow(void *SrcIp, void *DstIp, int SrcPort, int DstPort, int Proto, int StartTime) : 
-        srcIp(SrcIp), dstIp(DstIp), srcPort(SrcPort), dstPort(DstPort), proto(Proto), startTime(StartTime)
-    { }
+    Netflow(const char *intf) { interface = intf; }
     Netflow() {}
     unsigned char getIpVersion()                { return ipVersion; }
     void setIpVersion(unsigned char ipV)        { ipVersion = ipV; }
@@ -47,14 +45,10 @@ public:
     //char *getInterface()                        { return interface; }
     void setInterface(char *newInt)             { interface = newInt; }
     //int getStartTime()                          { return startTime;    }
-    void setStartTime(int newTime)              { startTime = newTime; }
+    void setStartTime(long newTime)             { startTime = newTime; }
     //int getEndTime()                            { return endTime;    }
-    void setEndTime(int newTime)                { endTime = newTime; }
+    void setEndTime(long newTime)               { endTime = newTime; }
 };
- /* {
- *   std::ofstream file("myfile.bin", std::ios::binary);
- *     file.write(data, 100);
- *     }
- * }
+/*
  * std::ofstream("myfile.bin", std::ios::binary).write(data, 100);
  */

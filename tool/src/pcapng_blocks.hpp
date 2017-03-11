@@ -5,7 +5,7 @@
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    06.03.2017 13:33
- *  Edited:     10.03.2017 04:00
+ *  Edited:     11.03.2017 05:53
  *  Version:    1.0.0
  *  g++:        Apple LLVM version 8.0.0 (clang-800.0.42.1)
  *  @todo       change tool name in shb_userappl
@@ -202,7 +202,7 @@ public:
     { 
         const char padding = 0;
         int paddingLen = computePaddingLen(capturedPacketLength, 4);
-        blockTotalLength += capturedPacketLength + paddingLen;
+        blockTotalLength += capturedPacketLength + paddingLen;  // because of += everytime when write() is called, we have to restore default length before the function returns
         blockTotalLength2 = blockTotalLength;
 
         file.write(reinterpret_cast<char*>(this), sizeof(*this)-sizeof(blockTotalLength2)-sizeof(packetData));
@@ -210,7 +210,7 @@ public:
         while(paddingLen--)
             file.write(&padding, sizeof(padding));
         file.write(reinterpret_cast<char*>(&blockTotalLength2), sizeof(blockTotalLength2));
-        blockTotalLength2 = blockTotalLength = sizeof(*this)-sizeof(packetData);    // restore default size of empty block
+        blockTotalLength = sizeof(*this)-sizeof(packetData);    // restore default size of empty block
     }
 };
 
