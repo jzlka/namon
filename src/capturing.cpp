@@ -5,7 +5,7 @@
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    18.02.2017 22:45
- *  Edited:     11.03.2017 03:50
+ *  Edited:     11.03.2017 06:25
  *  Version:    1.0.0
  *  g++:        Apple LLVM version 8.0.0 (clang-800.0.42.1)
  */
@@ -15,10 +15,10 @@
 #include <pcap.h>               //  pcap_lookupdev(), pcap_open_live(), pcap_dispatch(), pcap_close()
 #include "netflow.hpp"          //  Netflow
 #include "debug.hpp"            //  DEBUG()
-#include "cache.hpp"            //  
 #include "fileHandler.hpp"      //  initOFile()
-#include "capturing.hpp"
 #include "main.hpp"             //  stop()
+#include "cache.hpp"            //  
+#include "capturing.hpp"
 
 #if defined(__linux__)
 #include "tool_linux.hpp"
@@ -52,7 +52,11 @@
 using namespace std;
 
 
+// https://www.iana.org/assignments/ieee-802-numbers/ieee-802-numbers.xhtml
+// https://wiki.wireshark.org/Ethernet
 const unsigned char     IPV6_SIZE   =    40;
+const unsigned char     PROTO_IPV4  =    0x08;
+const unsigned char     PROTO_IPV6  =    0x86;
 const unsigned char     PROTO_UDP   =    17;
 const unsigned char     PROTO_TCP   =    6 ;
 
@@ -77,14 +81,12 @@ int startCapture(const char *oFilename)
             throw pcap_ex("pcap_open_live() failed.",errbuf);
         if (pcap_setnonblock(handle, 1, errbuf) == -1)
             throw pcap_ex("pcap_setnonblock() failed.",errbuf);
-
         log(LogLevel::INFO, "Capturing device '", g_dev, "' was opened.");
 
         // Open the output file
         oFile.open(oFilename);
         if (!oFile)
             throw "Can't open output file: '" + string(oFilename) + "'";
-        
         log(LogLevel::INFO, "Output file '", oFilename, "' was opened.");
         
         // Write Section Header Block and Interface Description Block to the file
@@ -92,7 +94,7 @@ int startCapture(const char *oFilename)
 
         // Create ring buffer and run writing to file in a new thread
         RingBuffer rb(RING_BUFFER_SIZE);
-        thread t1 ([&rb]() { rb.write(); });
+        thread t1 ( [&rb]() { rb.write(); } );
 
         //Create cache and periodically refresh it in a new thread;
         //new cache;
@@ -110,7 +112,6 @@ int startCapture(const char *oFilename)
         t1.join();
     
         log(LogLevel::INFO, "Dropped '", g_droppedPackets, "' packets.");
-
         pcap_close(handle);
     }
     catch(pcap_ex &e)
@@ -128,12 +129,14 @@ int startCapture(const char *oFilename)
     return stop();
 }
 
+
 void packetHandler(u_char *arg_array, const struct pcap_pkthdr *header, const u_char *packet)
 {    
-    static Netflow n;
+    static Netflow n(g_dev);
     static unsigned int ip_size;
     static ether_header *eth_hdr;
     void ** arg_arr = reinterpret_cast<void**>(arg_array);
+    n.setStartTime(header->ts.tv_usec);
 
     eth_hdr = (ether_header*) packet;
     RingBuffer *rb = reinterpret_cast<RingBuffer *>(arg_arr[0]);
@@ -151,7 +154,7 @@ void packetHandler(u_char *arg_array, const struct pcap_pkthdr *header, const u_
     if (parsePorts(n, (void*)(packet + ETHER_HDR_LEN + ip_size)))
         return;
 
-    D("srcPort:" << ntohs(n.getSrcPort()) << ", dstPort:" << ntohs(n.getDstPort()) << ", proto:" << (int)n.getProto());
+    D("srcPort:" << n.getSrcPort() << ", dstPort:" << n.getDstPort() << ", proto:" << (int)n.getProto());
     //hash5Tuple(n);
 
     if (/*map.count(hash) == */NULL)
@@ -164,11 +167,10 @@ void packetHandler(u_char *arg_array, const struct pcap_pkthdr *header, const u_
     //map[hash][3]->setEndTime(header->ts.tv_usec);
 }
 
+
 inline int parseIp(Netflow &n, unsigned int &ip_size, void * const ip_hdr, const unsigned short ether_type)
 {
-    // https://www.iana.org/assignments/ieee-802-numbers/ieee-802-numbers.xhtml
-    // https://wiki.wireshark.org/Ethernet
-    if (ether_type == 0x08)
+    if (ether_type == PROTO_IPV4)
     {
         const ip * const ipv4_hdr = (ip*)ip_hdr;
         ip_size = ipv4_hdr->ip_hl *4; // the length of the internet header in 32 bit words
@@ -179,21 +181,24 @@ inline int parseIp(Netflow &n, unsigned int &ip_size, void * const ip_hdr, const
         }
         n.setSrcIp((void*)(&ipv4_hdr->ip_src));
         n.setDstIp((void*)(&ipv4_hdr->ip_dst));
+        n.setIpVersion(4);
         n.setProto(ipv4_hdr->ip_p);
     }
-    else if (ether_type == 0x86)
+    else if (ether_type == PROTO_IPV6)
     {
         const ip6_hdr * const ipv6_hdr = (ip6_hdr*)ip_hdr;
         ip_size = IPV6_SIZE;
         n.setSrcIp((void*)(&ipv6_hdr->ip6_src));
         n.setDstIp((void*)(&ipv6_hdr->ip6_dst));
+        n.setIpVersion(6);
         n.setProto(ipv6_hdr->ip6_nxt);
     }
     else    // TODO what to do with 802.3?
-        n.setProto(0); // we don't care about the value, because we ignore everything except 6 (TCP) and 17 (UDP).
+        n.setProto(0); // Netflow structure is reused with next packet so we have to delete old value. We don't care about the value, because we ignore everything except 6 (TCP) and 17 (UDP).
     // NOTE: we can't determine app for IGMP, ICMP, etc. https://en.wikipedia.org/wiki/List_of_IP_protocol_numbers
     return EXIT_SUCCESS;
 }
+
 
 inline int parsePorts(Netflow &n, void *hdr)
 {
@@ -206,8 +211,8 @@ inline int parsePorts(Netflow &n, void *hdr)
             log(LogLevel::WARNING, "Incorrect TCP header received.");
             return EXIT_FAILURE;
         }
-        n.setSrcPort(tcp_hdr->th_sport);
-        n.setDstPort(tcp_hdr->th_dport);
+        n.setSrcPort(ntohs(tcp_hdr->th_sport));
+        n.setDstPort(ntohs(tcp_hdr->th_dport));
     }
     else if (n.getProto() == PROTO_UDP)
     {
@@ -218,8 +223,8 @@ inline int parsePorts(Netflow &n, void *hdr)
             log(LogLevel::WARNING, "Incorrect UDP packet received.");
             return EXIT_FAILURE;
         }
-        n.setSrcPort(udp_hdr->uh_sport);
-        n.setDstPort(udp_hdr->uh_dport);
+        n.setSrcPort(ntohs(udp_hdr->uh_sport));
+        n.setDstPort(ntohs(udp_hdr->uh_dport));
     }   
     else
         return EXIT_FAILURE;
