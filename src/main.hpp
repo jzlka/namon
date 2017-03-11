@@ -5,7 +5,7 @@
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    18.02.2017 22:52
- *  Edited:     09.03.2017 19:59
+ *  Edited:     11.03.2017 15:21
  *  Version:    1.0.0
  *  g++:        Apple LLVM version 8.0.0 (clang-800.0.42.1)
  */
@@ -18,3 +18,4 @@
 bool stop();
 void signalHandler(int signum);
 void printUsage();
+void setLogLevel(char *ll);
