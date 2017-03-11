@@ -5,7 +5,7 @@
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    18.02.2017 22:45
- *  Edited:     10.03.2017 14:44
+ *  Edited:     11.03.2017 03:50
  *  Version:    1.0.0
  *  g++:        Apple LLVM version 8.0.0 (clang-800.0.42.1)
  */
@@ -58,6 +58,7 @@ const unsigned char     PROTO_TCP   =    6 ;
 
 const char * g_dev = nullptr;
 ofstream oFile;
+unsigned long g_droppedPackets;
 
 
 
@@ -104,9 +105,12 @@ int startCapture(const char *oFilename)
 //        if (pcap_loop(handle, -1, packetHandler, NULL) == -1)
 //            throw "pcap_loop() failed";   //pcap_breakloop()?
 
-        this_thread::sleep_for(chrono::seconds(1));
+        this_thread::sleep_for(chrono::seconds(1)); // because of possible deadlock, get some time to return from RingBuffer::receivedPacket() to condVar.wait()
         rb.notifyCondVar(); // notify thread, it should end
         t1.join();
+    
+        log(LogLevel::INFO, "Dropped '", g_droppedPackets, "' packets.");
+
         pcap_close(handle);
     }
     catch(pcap_ex &e)
@@ -133,7 +137,11 @@ void packetHandler(u_char *arg_array, const struct pcap_pkthdr *header, const u_
 
     eth_hdr = (ether_header*) packet;
     RingBuffer *rb = reinterpret_cast<RingBuffer *>(arg_arr[0]);
-    rb->push(header, packet);
+    if(rb->push(header, packet))
+    {
+        g_droppedPackets++;
+        return; //TODO ok?
+    }
     
     // Parse IP header
     if (parseIp(n, ip_size, (void*)(packet + ETHER_HDR_LEN), eth_hdr->ether_type))
@@ -143,7 +151,7 @@ void packetHandler(u_char *arg_array, const struct pcap_pkthdr *header, const u_
     if (parsePorts(n, (void*)(packet + ETHER_HDR_LEN + ip_size)))
         return;
 
-    D("srcPort:" << ntohs(n.getSrcPort()) << ", dstPort:" << ntohs(n.getDstPort()) << ", proto:" << n.getProto());
+    D("srcPort:" << ntohs(n.getSrcPort()) << ", dstPort:" << ntohs(n.getDstPort()) << ", proto:" << (int)n.getProto());
     //hash5Tuple(n);
 
     if (/*map.count(hash) == */NULL)
@@ -158,7 +166,9 @@ void packetHandler(u_char *arg_array, const struct pcap_pkthdr *header, const u_
 
 inline int parseIp(Netflow &n, unsigned int &ip_size, void * const ip_hdr, const unsigned short ether_type)
 {
-    if (ether_type == ETHERTYPE_IP)
+    // https://www.iana.org/assignments/ieee-802-numbers/ieee-802-numbers.xhtml
+    // https://wiki.wireshark.org/Ethernet
+    if (ether_type == 0x08)
     {
         const ip * const ipv4_hdr = (ip*)ip_hdr;
         ip_size = ipv4_hdr->ip_hl *4; // the length of the internet header in 32 bit words
@@ -170,9 +180,8 @@ inline int parseIp(Netflow &n, unsigned int &ip_size, void * const ip_hdr, const
         n.setSrcIp((void*)(&ipv4_hdr->ip_src));
         n.setDstIp((void*)(&ipv4_hdr->ip_dst));
         n.setProto(ipv4_hdr->ip_p);
-        return EXIT_SUCCESS;
     }
-    else if (ether_type == ETHERTYPE_IPV6)
+    else if (ether_type == 0x86)
     {
         const ip6_hdr * const ipv6_hdr = (ip6_hdr*)ip_hdr;
         ip_size = IPV6_SIZE;
@@ -180,7 +189,7 @@ inline int parseIp(Netflow &n, unsigned int &ip_size, void * const ip_hdr, const
         n.setDstIp((void*)(&ipv6_hdr->ip6_dst));
         n.setProto(ipv6_hdr->ip6_nxt);
     }
-    else
+    else    // TODO what to do with 802.3?
         n.setProto(0); // we don't care about the value, because we ignore everything except 6 (TCP) and 17 (UDP).
     // NOTE: we can't determine app for IGMP, ICMP, etc. https://en.wikipedia.org/wiki/List_of_IP_protocol_numbers
     return EXIT_SUCCESS;
@@ -203,7 +212,7 @@ inline int parsePorts(Netflow &n, void *hdr)
     else if (n.getProto() == PROTO_UDP)
     {
         const struct udphdr *udp_hdr = (struct udphdr*)hdr;
-        unsigned udp_size = udp_hdr->uh_ulen; // length in bytes of the UDP header and UDP data
+        unsigned short udp_size = udp_hdr->uh_ulen; // length in bytes of the UDP header and UDP data
         if (udp_size < 8)
         {
             log(LogLevel::WARNING, "Incorrect UDP packet received.");
@@ -212,5 +221,7 @@ inline int parsePorts(Netflow &n, void *hdr)
         n.setSrcPort(udp_hdr->uh_sport);
         n.setDstPort(udp_hdr->uh_dport);
     }   
+    else
+        return EXIT_FAILURE;
     return EXIT_SUCCESS;
 }
