@@ -5,7 +5,7 @@
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    18.02.2017 22:45
- *  Edited:     11.03.2017 06:25
+ *  Edited:     12.03.2017 14:04
  *  Version:    1.0.0
  *  g++:        Apple LLVM version 8.0.0 (clang-800.0.42.1)
  */
@@ -54,11 +54,12 @@ using namespace std;
 
 // https://www.iana.org/assignments/ieee-802-numbers/ieee-802-numbers.xhtml
 // https://wiki.wireshark.org/Ethernet
-const unsigned char     IPV6_SIZE   =    40;
-const unsigned char     PROTO_IPV4  =    0x08;
-const unsigned char     PROTO_IPV6  =    0x86;
-const unsigned char     PROTO_UDP   =    17;
-const unsigned char     PROTO_TCP   =    6 ;
+const unsigned char     IPV6_SIZE       =   40;
+const unsigned char     PROTO_IPV4      =   0x08;
+const unsigned char     PROTO_IPV6      =   0x86;
+const unsigned char     PROTO_UDP       =   0x11;
+const unsigned char     PROTO_TCP       =   0x06;
+const unsigned char     PROTO_UDPLITE   =   0x88;
 
 const char * g_dev = nullptr;
 ofstream oFile;
@@ -202,31 +203,37 @@ inline int parseIp(Netflow &n, unsigned int &ip_size, void * const ip_hdr, const
 
 inline int parsePorts(Netflow &n, void *hdr)
 {
-    if (n.getProto() == PROTO_TCP)
+    switch(n.getProto())
     {
-        const struct tcphdr *tcp_hdr = (struct tcphdr*)hdr;
-        unsigned tcp_size = tcp_hdr->th_off *4; // number of 32 bit words in the TCP header
-        if (tcp_size < 20)
+        case PROTO_TCP:
         {
-            log(LogLevel::WARNING, "Incorrect TCP header received.");
-            return EXIT_FAILURE;
+            const struct tcphdr *tcp_hdr = (struct tcphdr*)hdr;
+            unsigned tcp_size = tcp_hdr->th_off *4; // number of 32 bit words in the TCP header
+            if (tcp_size < 20)
+            {
+                log(LogLevel::WARNING, "Incorrect TCP header received.");
+                return EXIT_FAILURE;
+            }
+            n.setSrcPort(ntohs(tcp_hdr->th_sport));
+            n.setDstPort(ntohs(tcp_hdr->th_dport));
+            break;
         }
-        n.setSrcPort(ntohs(tcp_hdr->th_sport));
-        n.setDstPort(ntohs(tcp_hdr->th_dport));
+        case PROTO_UDP:
+        case PROTO_UDPLITE: // structure of first 4 bytes is the same (srcPort and dstPort) 
+        {
+            const struct udphdr *udp_hdr = (struct udphdr*)hdr;
+            unsigned short udp_size = udp_hdr->uh_ulen; // length in bytes of the UDP header and UDP data
+            if (udp_size < 8)
+            {
+                log(LogLevel::WARNING, "Incorrect UDP packet received.");
+                return EXIT_FAILURE;
+            }
+            n.setSrcPort(ntohs(udp_hdr->uh_sport));
+            n.setDstPort(ntohs(udp_hdr->uh_dport));
+            break;
+        }   
+        default:
+            return EXIT_FAILURE;
     }
-    else if (n.getProto() == PROTO_UDP)
-    {
-        const struct udphdr *udp_hdr = (struct udphdr*)hdr;
-        unsigned short udp_size = udp_hdr->uh_ulen; // length in bytes of the UDP header and UDP data
-        if (udp_size < 8)
-        {
-            log(LogLevel::WARNING, "Incorrect UDP packet received.");
-            return EXIT_FAILURE;
-        }
-        n.setSrcPort(ntohs(udp_hdr->uh_sport));
-        n.setDstPort(ntohs(udp_hdr->uh_dport));
-    }   
-    else
-        return EXIT_FAILURE;
     return EXIT_SUCCESS;
 }
