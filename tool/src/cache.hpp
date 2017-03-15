@@ -5,7 +5,7 @@
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    02.03.2017 04:32
- *  Edited:     15.03.2017 13:10
+ *  Edited:     15.03.2017 18:21
  *  Version:    1.0.0
  *  g++:        Apple LLVM version 8.0.0 (clang-800.0.42.1)
  *  @todo       secure TEntry::map with mutex
@@ -37,16 +37,12 @@
 using clock_type = std::chrono::high_resolution_clock;
 
 
-//auto lvlCompareTEntry = { 
-//        [n](Netflow &nToFind){ return n->getSrcPort() == nToFind.getSrcPort(); }, };
-//lvlCompareTEntry
-
 
 enum class NodeType { ENTRY, TREE };
-enum class TreeLevel { LOCAL_PORT=0, PROTO=1, LOCAL_IP=2, REMOTE_IP=3, REMOTE_PORT=4};
+enum TreeLevel { LOCAL_PORT=0, PROTO=1, LOCAL_IP=2, REMOTE_IP=3, REMOTE_PORT=4};
 
 // ++TreeLevel
-TreeLevel& operator++( TreeLevel &l ) 
+inline TreeLevel& operator++( TreeLevel &l ) 
 {
     if ( l == TreeLevel::REMOTE_PORT )
         l = static_cast<TreeLevel>(0);
@@ -55,8 +51,8 @@ TreeLevel& operator++( TreeLevel &l )
     return l;
 }
 
-// Colors++
-TreeLevel operator++( TreeLevel &t, int ) 
+// TreeLevel++
+inline TreeLevel operator++( TreeLevel &t, int ) 
 {
     TreeLevel result = t;
     ++t;
@@ -79,12 +75,14 @@ protected:
     NodeType nt;
     TreeLevel level = TreeLevel::LOCAL_PORT;
 public:
+    virtual ~TEntryOrTTree()        {}
     bool isEntry()                  { return nt == NodeType::ENTRY; }
     bool isTree()                   { return nt == NodeType::TREE; }
     void setLevel(TreeLevel l)      { level = l; }
     void incLevel()                 { level++; }
     //void decLevel()                 { level--; }
     TreeLevel getLevel()            { return level; }
+    virtual bool levelCompare(Netflow *n) =0;
 };
 
 
@@ -96,11 +94,12 @@ class TEntry : public TEntryOrTTree
 public:
     TEntry()                        { nt = NodeType::ENTRY; }
     TEntry(TreeLevel l)             { level = l; nt = NodeType::ENTRY; }
+    void setString()                { /* TODO */ }
     std::string &getAppName()       { return appName; }
     void setInode(int i)            { inode = i; }
     int getInode()                  { return inode; }
     Netflow *getNetflowPtr()        { return n; }
-    bool (*levelCompare)(Netflow *n1, Netflow *n2) = nullptr;
+    bool levelCompare(Netflow *n1);
 };
 
 
@@ -118,7 +117,7 @@ public:
     void setIp(void *Ip)         { cv.ip = Ip; }
     void setProto(unsigned char p)  { cv.proto = p; }
     void setCommonValue(Netflow *n);
-    bool (*levelCompare)(CommonValue *cv, Netflow *n) = nullptr;
+    bool levelCompare(Netflow *n);
 };
 
 

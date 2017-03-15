@@ -5,7 +5,7 @@
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    26.02.2017 23:52
- *  Edited:     15.03.2017 13:13
+ *  Edited:     15.03.2017 17:55
  *  Version:    1.0.0
  *  g++:        Apple LLVM version 8.0.0 (clang-800.0.42.1)
  *  @todo       when inserting set levels in TTree and TEntry
@@ -38,26 +38,7 @@ extern const int shouldStop;
 
 
 
-inline bool cmpSrcPort(Netflow *n1, Netflow *n2);
-inline bool cmpDstPort(Netflow *n1, Netflow *n2);
-inline bool cmpSrcIp(Netflow *n1, Netflow *n2);
-inline bool cmpDstIp(Netflow *n1, Netflow *n2);
-inline bool cmpProto(Netflow *n1, Netflow *n2);
-typedef bool (*levelCompareTEntry)(Netflow *n1, Netflow *n2);
-levelCompareTEntry callbacksTEntry[] = {cmpSrcPort, cmpProto, cmpSrcIp, cmpDstIp, cmpDstPort};
-inline bool cmpSrcPort(CommonValue *cv, Netflow *n);
-inline bool cmpDstPort(CommonValue *cv, Netflow *n);
-inline bool cmpSrcIp(CommonValue *cv, Netflow *n);
-inline bool cmpDstIp(CommonValue *cv, Netflow *n);
-inline bool cmpProto(CommonValue *cv, Netflow *n);
-typedef bool (*levelCompareTTree)(CommonValue *cv, Netflow *n);
-levelCompareTTree callbacksTTree[] = {cmpSrcPort, cmpProto, cmpSrcIp, cmpDstIp, cmpDstPort};
 
-std::function<bool(Netflow*,Netflow*)> x;
-levelCompareTEntry callbacksTEntryLambdas[] = {
-    [](Netflow *n1, Netflow *n2){return false;}, 
-    [](Netflow *n1, Netflow *n2){return false;}
-};
 
 
 /*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*
@@ -75,6 +56,97 @@ levelCompareTEntry callbacksTEntryLambdas[] = {
  *                                 class TEntry                               *
  *                                                                            *
  *++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+bool TEntry::levelCompare(Netflow *n1)
+{
+    switch(level)
+    {
+        case TreeLevel::LOCAL_PORT:
+        {
+            if (n->getDir() == Directions::INBOUND)
+                return n->getDstPort() == n1->getDstPort();
+            else
+                return n->getSrcPort() == n1->getSrcPort();
+        }
+        case TreeLevel::PROTO:
+        {
+            return n->getProto() == n1->getProto();
+        }
+        case TreeLevel::LOCAL_IP:
+        {
+            if (n->getIpVersion() == 4)
+            {
+                in_addr *tmpPtr, *tmpPtr2;
+                if (n->getDir() == Directions::INBOUND)
+                {
+                    tmpPtr = static_cast<in_addr*>(n->getDstIp());
+                    tmpPtr2 = static_cast<in_addr*>(n1->getDstIp());
+                }
+                else
+                {
+                    tmpPtr = static_cast<in_addr*>(n->getSrcIp());
+                    tmpPtr2 = static_cast<in_addr*>(n1->getSrcIp());
+                }
+                return memcmp(tmpPtr, tmpPtr2, sizeof(struct in_addr));
+            }
+            else
+            {
+                in6_addr *tmpPtr, *tmpPtr2;
+                if (n->getDir() == Directions::INBOUND)
+                {
+                    tmpPtr = static_cast<in6_addr*>(n->getDstIp());
+                    tmpPtr2 = static_cast<in6_addr*>(n1->getDstIp());
+
+                }
+                else
+                {
+                    tmpPtr = static_cast<in6_addr*>(n->getSrcIp());
+                    tmpPtr2 = static_cast<in6_addr*>(n1->getSrcIp());
+                }
+                return memcmp(tmpPtr, tmpPtr2, sizeof(struct in6_addr));
+            }
+        }
+        case TreeLevel::REMOTE_IP:
+        {
+            if (n->getIpVersion() == 4)
+            {
+                in_addr *tmpPtr, *tmpPtr2;
+                if (n->getDir() == Directions::INBOUND)
+                {
+                    tmpPtr = static_cast<in_addr*>(n->getSrcIp());
+                    tmpPtr2 = static_cast<in_addr*>(n1->getSrcIp());
+                }
+                else
+                {
+                    tmpPtr = static_cast<in_addr*>(n->getDstIp());
+                    tmpPtr2 = static_cast<in_addr*>(n1->getDstIp());
+                }
+                return memcmp(tmpPtr, tmpPtr2, sizeof(struct in_addr));
+            }
+            else
+            {
+                in6_addr *tmpPtr, *tmpPtr2;
+                if (n->getDir() == Directions::INBOUND)
+                {
+                    tmpPtr = static_cast<in6_addr*>(n->getSrcIp());
+                    tmpPtr2 = static_cast<in6_addr*>(n1->getSrcIp());
+                }
+                else
+                {
+                    tmpPtr = static_cast<in6_addr*>(n->getDstIp());
+                    tmpPtr2 = static_cast<in6_addr*>(n1->getDstIp());
+                }
+                return memcmp(tmpPtr, tmpPtr2, sizeof(struct in6_addr));
+            }
+        }
+        case TreeLevel::REMOTE_PORT:
+        {
+            if (n->getDir() == Directions::INBOUND)
+                return n->getSrcPort() == n1->getSrcPort();
+            else
+                return n->getDstPort() == n1->getDstPort();
+        }
+    }
+}
 
 
 
@@ -88,7 +160,7 @@ TEntryOrTTree * TTree::find(Netflow &n)
 {
     for (auto ptr : v)
     {
-        if (ptr->levelCompare(&cv, &n))
+        if (ptr->levelCompare(&n))
         {
             if (ptr->isEntry())
             {
@@ -114,7 +186,7 @@ void TTree::insert(TEntry *entry)
     {
         for (auto ptr : v)
         {
-            if (ptr->isEntry() && ptr->levelCompare(*entry->getNetflowPtr()))
+            if (ptr->isEntry() && ptr->levelCompare(entry->getNetflowPtr()))
             {
                 TEntry *oldEntry = static_cast<TEntry*>(ptr);
                 // Create a new tree
@@ -185,6 +257,90 @@ void TTree::setCommonValue(Netflow *n)
 }
 
 
+bool TTree::levelCompare(Netflow *n)
+{
+    switch(level)
+    {
+        case TreeLevel::LOCAL_PORT:
+        {
+            if (n->getDir() == Directions::INBOUND)
+                return cv.port == n->getDstPort();
+            else
+                return cv.port == n->getSrcPort();
+        }
+        case TreeLevel::PROTO:
+        {
+            return cv.proto == n->getProto();
+        }
+        case TreeLevel::LOCAL_IP:
+        {
+            if (n->getIpVersion() == 4)
+            {
+                in_addr *tmpPtr, *tmpPtr2;
+                if (n->getDir() == Directions::INBOUND)
+                {
+                    tmpPtr = static_cast<in_addr*>(cv.ip);
+                    tmpPtr2 = static_cast<in_addr*>(n->getDstIp());
+                }
+                else
+                {
+                    tmpPtr = static_cast<in_addr*>(cv.ip);
+                    tmpPtr2 = static_cast<in_addr*>(n->getSrcIp());
+                }
+                return memcmp(tmpPtr, tmpPtr2, sizeof(struct in_addr));
+            }
+            else
+            {
+                in6_addr *tmpPtr, *tmpPtr2;
+                if (n->getDir() == Directions::INBOUND)
+                {
+                    tmpPtr = static_cast<in6_addr*>(cv.ip);
+                    tmpPtr2 = static_cast<in6_addr*>(n->getDstIp());
+                }
+                else
+                {
+                    tmpPtr = static_cast<in6_addr*>(cv.ip);
+                    tmpPtr2 = static_cast<in6_addr*>(n->getSrcIp());
+                }
+                return memcmp(tmpPtr, tmpPtr2, sizeof(struct in6_addr));
+            }
+        }
+        case TreeLevel::REMOTE_IP:
+        {
+            if (n->getIpVersion() == 4)
+            {
+                in_addr *tmpPtr = static_cast<in_addr*>(cv.ip);
+                in_addr *tmpPtr2;
+                if (n->getDir() == Directions::INBOUND)
+                    tmpPtr2 = static_cast<in_addr*>(n->getSrcIp());
+                else
+                    tmpPtr2 = static_cast<in_addr*>(n->getDstIp());
+
+                return memcmp(tmpPtr, tmpPtr2, sizeof(struct in_addr));
+            }
+            else
+            {
+                in6_addr *tmpPtr = static_cast<in6_addr*>(cv.ip);
+                in6_addr *tmpPtr2;
+                if (n->getDir() == Directions::INBOUND)
+                    tmpPtr2 = static_cast<in6_addr*>(n->getSrcIp());
+                else
+                    tmpPtr2 = static_cast<in6_addr*>(n->getDstIp());
+
+                return memcmp(tmpPtr, tmpPtr2, sizeof(struct in6_addr));
+            }
+        }
+        case TreeLevel::REMOTE_PORT:
+        {
+            if (n->getDir() == Directions::INBOUND)
+                return cv.port == n->getSrcPort();
+            else
+                return cv.port == n->getDstPort();
+        }
+    }
+}
+
+
 
 
 /*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*
@@ -238,7 +394,8 @@ void Cache::insert(TEntry *newEntry)
                 iter->second = new TTree(oldEntry->getLevel());
                 static_cast<TTree*>(iter->second)->setPort(oldEntry->getNetflowPtr()->getSrcPort());
                 // Insert an old entry with the new one
-                static_cast<TTree*>(iter->second)->insert(oldEntry, newEntry);
+                static_cast<TTree*>(iter->second)->insert(oldEntry);
+                static_cast<TTree*>(iter->second)->insert(newEntry);
             }
         }
     }

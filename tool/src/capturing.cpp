@@ -5,7 +5,7 @@
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    18.02.2017 22:45
- *  Edited:     14.03.2017 15:04
+ *  Edited:     15.03.2017 18:01
  *  Version:    1.0.0
  *  g++:        Apple LLVM version 8.0.0 (clang-800.0.42.1)
  *  @todo       set direction in netflow
@@ -164,7 +164,7 @@ void packetHandler(u_char *arg_array, const struct pcap_pkthdr *header, const u_
     // find out if it belongs to this computer (promiscuous mode)
 
     TEntryOrTTree *cacheRecord = cache->find(n);
-    if (cacheRecord->isEntry())
+    if (cacheRecord != nullptr && cacheRecord->isEntry())
         static_cast<TEntry *>(cacheRecord)->getNetflowPtr()->setEndTime(header->ts.tv_usec);
     else    // either TTree or nullptr
         ;// TODO what to do? vector of unknown netflows?
