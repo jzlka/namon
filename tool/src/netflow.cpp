@@ -1,10 +1,10 @@
 /** 
  *  @file       netflow.cpp
- *  @brief      Network structure source file
+ *  @brief      Netflow structure source file
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    15.03.2017 23:27
- *  Edited:     16.03.2017 00:41
+ *  Edited:     16.03.2017 00:46
  *  Version:    1.0.0
  */
 
