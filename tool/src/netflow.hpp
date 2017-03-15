@@ -5,7 +5,7 @@
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    26.02.2017 23:13
- *  Edited:     14.03.2017 15:12
+ *  Edited:     15.03.2017 03:17
  *  Version:    1.0.0
  *  g++:        Apple LLVM version 8.0.0 (clang-800.0.42.1)
  */
@@ -37,9 +37,9 @@ public:
     void setDir(Directions d)                   { dir = d; }
     unsigned char getIpVersion()                { return ipVersion; }
     void setIpVersion(unsigned char ipV)        { ipVersion = ipV; }
-    //void *getSrcIp()                            { return srcIp;  }
+    void *getSrcIp()                            { return srcIp;  }
     void setSrcIp(void *newIp)                  { srcIp = newIp; }
-    //void *getDstIp()                            { return dstIp;  }
+    void *getDstIp()                            { return dstIp;  }
     void setDstIp(void *newIp)                  { dstIp = newIp; }
     unsigned short getSrcPort()                 { return srcPort;    }
     void setSrcPort(unsigned short newPort)     { srcPort = newPort; }
