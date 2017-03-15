@@ -5,19 +5,22 @@
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    26.02.2017 23:13
- *  Edited:     11.03.2017 06:22
+ *  Edited:     14.03.2017 15:12
  *  Version:    1.0.0
  *  g++:        Apple LLVM version 8.0.0 (clang-800.0.42.1)
  */
 
 #pragma once
 
-#include <string>       //  string
+#include <string>           //  string
+#include <netinet/in.h>     //  in_addr, in6_addr
 
+enum class Directions { OUTBOUND, INBOUND };
 
 
 class Netflow  // rozlisovat ipv4 a ipv6 (rozne velkosti adries)
 {
+    Directions dir;
     unsigned char ipVersion;
     void *srcIp = nullptr;
     void *dstIp = nullptr;
@@ -30,6 +33,8 @@ class Netflow  // rozlisovat ipv4 a ipv6 (rozne velkosti adries)
 public:
     Netflow(const char *intf) { interface = intf; }
     Netflow() {}
+    Directions getDir()                         { return dir; }
+    void setDir(Directions d)                   { dir = d; }
     unsigned char getIpVersion()                { return ipVersion; }
     void setIpVersion(unsigned char ipV)        { ipVersion = ipV; }
     //void *getSrcIp()                            { return srcIp;  }
@@ -46,8 +51,22 @@ public:
     void setInterface(char *newInt)             { interface = newInt; }
     //int getStartTime()                          { return startTime;    }
     void setStartTime(long newTime)             { startTime = newTime; }
-    //int getEndTime()                            { return endTime;    }
+    int getEndTime()                            { return endTime;    }
     void setEndTime(long newTime)               { endTime = newTime; }
+
+    bool operator==(const Netflow& other) const
+    {
+        if(srcPort == other.srcPort && dstPort == other.dstPort && proto == other.proto)
+        {
+            if (ipVersion == 4)
+                return memcmp(static_cast<in_addr*>(srcIp), static_cast<in_addr*>(other.srcIp), sizeof(struct in_addr)) &&
+                       memcmp(static_cast<in_addr*>(dstIp), static_cast<in_addr*>(other.dstIp), sizeof(struct in_addr));
+            else
+                return memcmp(static_cast<in6_addr*>(srcIp), static_cast<in6_addr*>(other.srcIp), sizeof(struct in6_addr)) &&
+                       memcmp(static_cast<in6_addr*>(dstIp), static_cast<in6_addr*>(other.dstIp), sizeof(struct in6_addr));
+        }
+        return false;
+    }
 };
 /*
  * std::ofstream("myfile.bin", std::ios::binary).write(data, 100);

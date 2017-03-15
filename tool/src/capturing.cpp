@@ -5,19 +5,22 @@
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    18.02.2017 22:45
- *  Edited:     12.03.2017 14:04
+ *  Edited:     14.03.2017 15:04
  *  Version:    1.0.0
  *  g++:        Apple LLVM version 8.0.0 (clang-800.0.42.1)
+ *  @todo       set direction in netflow
+ *  @todo       set startTime in netflow
  */
 
 #include <iostream>             //  cerr, endl
 #include <fstream>              //  fstream
+#include <map>                  //  map
 #include <pcap.h>               //  pcap_lookupdev(), pcap_open_live(), pcap_dispatch(), pcap_close()
 #include "netflow.hpp"          //  Netflow
 #include "debug.hpp"            //  DEBUG()
 #include "fileHandler.hpp"      //  initOFile()
 #include "main.hpp"             //  stop()
-#include "cache.hpp"            //  
+#include "cache.hpp"            //  TEntryOrTTree
 #include "capturing.hpp"
 
 #if defined(__linux__)
@@ -98,10 +101,11 @@ int startCapture(const char *oFilename)
         thread t1 ( [&rb]() { rb.write(); } );
 
         //Create cache and periodically refresh it in a new thread;
-        //new cache;
-        //run new thread  refreshCache();
+        Cache cache;
+        thread t2 ( [&cache]() { cache.periodicUpdate(); } );
+        // TODO wait for cache to initialize
         
-        void *arg_arr[2] = { &rb, /*&cache*/nullptr};
+        void *arg_arr[2] = { &rb, &cache};
 
         while (!stop())
             pcap_dispatch(handle, -1, packetHandler, reinterpret_cast<u_char*>(arg_arr));
@@ -110,6 +114,7 @@ int startCapture(const char *oFilename)
 
         this_thread::sleep_for(chrono::seconds(1)); // because of possible deadlock, get some time to return from RingBuffer::receivedPacket() to condVar.wait()
         rb.notifyCondVar(); // notify thread, it should end
+        t2.join();
         t1.join();
     
         log(LogLevel::INFO, "Dropped '", g_droppedPackets, "' packets.");
@@ -140,7 +145,8 @@ void packetHandler(u_char *arg_array, const struct pcap_pkthdr *header, const u_
     n.setStartTime(header->ts.tv_usec);
 
     eth_hdr = (ether_header*) packet;
-    RingBuffer *rb = reinterpret_cast<RingBuffer *>(arg_arr[0]);
+    Cache *cache = static_cast<Cache *>(arg_arr[1]);    // TODO: global variable?
+    RingBuffer *rb = static_cast<RingBuffer *>(arg_arr[0]);    // TODO: global variable?
     if(rb->push(header, packet))
     {
         g_droppedPackets++;
@@ -155,17 +161,18 @@ void packetHandler(u_char *arg_array, const struct pcap_pkthdr *header, const u_
     if (parsePorts(n, (void*)(packet + ETHER_HDR_LEN + ip_size)))
         return;
 
-    D("srcPort:" << n.getSrcPort() << ", dstPort:" << n.getDstPort() << ", proto:" << (int)n.getProto());
-    //hash5Tuple(n);
+    // find out if it belongs to this computer (promiscuous mode)
 
-    if (/*map.count(hash) == */NULL)
-    {
-        //netflow *n = new netflow(srcIp,dstIp,srcPort,dstPort,proto);
-        //appname = determineApp(n); // predat uzol
-        //map[hash] = tuple(appname,inode,n);
-        //n.setStartTime(header->ts.tv_usec);
-    }
-    //map[hash][3]->setEndTime(header->ts.tv_usec);
+    TEntryOrTTree *cacheRecord = cache->find(n);
+    if (cacheRecord->isEntry())
+        static_cast<TEntry *>(cacheRecord)->getNetflowPtr()->setEndTime(header->ts.tv_usec);
+    else    // either TTree or nullptr
+        ;// TODO what to do? vector of unknown netflows?
+    // We can't call to update cache because in this second there can be thousands
+    // of the same packets and everyone would call to update cache.
+    // We have to save startTime
+
+    D("srcPort:" << n.getSrcPort() << ", dstPort:" << n.getDstPort() << ", proto:" << (int)n.getProto());
 }
 
 
