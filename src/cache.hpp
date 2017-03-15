@@ -5,7 +5,7 @@
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    02.03.2017 04:32
- *  Edited:     15.03.2017 02:03
+ *  Edited:     15.03.2017 13:10
  *  Version:    1.0.0
  *  g++:        Apple LLVM version 8.0.0 (clang-800.0.42.1)
  *  @todo       secure TEntry::map with mutex
@@ -43,18 +43,48 @@ using clock_type = std::chrono::high_resolution_clock;
 
 
 enum class NodeType { ENTRY, TREE };
+enum class TreeLevel { LOCAL_PORT=0, PROTO=1, LOCAL_IP=2, REMOTE_IP=3, REMOTE_PORT=4};
+
+// ++TreeLevel
+TreeLevel& operator++( TreeLevel &l ) 
+{
+    if ( l == TreeLevel::REMOTE_PORT )
+        l = static_cast<TreeLevel>(0);
+    using IntType = typename std::underlying_type<TreeLevel>::type;
+    l = static_cast<TreeLevel>( static_cast<IntType>(l) + 1 );
+    return l;
+}
+
+// Colors++
+TreeLevel operator++( TreeLevel &t, int ) 
+{
+    TreeLevel result = t;
+    ++t;
+    return result;
+}
+
+
+typedef union {
+    unsigned short port;
+    void *ip;
+    unsigned char proto;
+} CommonValue;
+
+
+
 
 class TEntryOrTTree
 {
 protected:
     NodeType nt;
-    unsigned char level = 0;
+    TreeLevel level = TreeLevel::LOCAL_PORT;
 public:
     bool isEntry()                  { return nt == NodeType::ENTRY; }
     bool isTree()                   { return nt == NodeType::TREE; }
-    void setLevel(unsigned char l)  { level = l; }
-    unsigned char getLevel()        { return level; }
-    bool (*levelCompare)(Netflow &n) = nullptr;
+    void setLevel(TreeLevel l)      { level = l; }
+    void incLevel()                 { level++; }
+    //void decLevel()                 { level--; }
+    TreeLevel getLevel()            { return level; }
 };
 
 
@@ -64,32 +94,31 @@ class TEntry : public TEntryOrTTree
     int inode;
     Netflow *n;
 public:
-    TEntry(unsigned char l=0)       { level = l; nt = NodeType::ENTRY; }
+    TEntry()                        { nt = NodeType::ENTRY; }
+    TEntry(TreeLevel l)             { level = l; nt = NodeType::ENTRY; }
     std::string &getAppName()       { return appName; }
     void setInode(int i)            { inode = i; }
     int getInode()                  { return inode; }
     Netflow *getNetflowPtr()        { return n; }
+    bool (*levelCompare)(Netflow *n1, Netflow *n2) = nullptr;
 };
 
 
 class TTree : public TEntryOrTTree
 {
-    union {
-        unsigned short port;
-        in_addr *ip;
-        in6_addr *ip6;
-        unsigned char proto;
-    } commonValue;
+    CommonValue cv;
     std::vector<TEntryOrTTree*> v;
 public:
-    TTree(unsigned char l)          { level = l; nt = NodeType::TREE; }
+    TTree(TreeLevel l)              { level = l; nt = NodeType::TREE; }
+    ~TTree()                        { for (auto ptr : v) { delete ptr; } v.clear(); }
     TEntryOrTTree *find(Netflow &n);
-    void insert(TEntry &entry);
-    void insert(TEntry &oldEntry, TEntry &entry);
-    void setPort(unsigned short p)  { commonValue.port = p; }
-    void setIp(in_addr *Ip)         { commonValue.ip = Ip; }
-    void setIp6(in6_addr *Ip6)      { commonValue.ip6 = Ip6; }
-    void setProto(unsigned char p)  { commonValue.proto = p; }
+    void insert(TEntry *entry);
+    void insert(TEntry *oldEntry, TEntry *entry);
+    void setPort(unsigned short p)  { cv.port = p; }
+    void setIp(void *Ip)         { cv.ip = Ip; }
+    void setProto(unsigned char p)  { cv.proto = p; }
+    void setCommonValue(Netflow *n);
+    bool (*levelCompare)(CommonValue *cv, Netflow *n) = nullptr;
 };
 
 
@@ -101,6 +130,6 @@ public:
     Cache()                         { ::initCache(this); lastUpdate = clock_type::now(); }
     ~Cache()                        { delete cache; }
     TEntryOrTTree *find(Netflow &n);
-    void insert(TEntry &e);
+    void insert(TEntry *e);
     void periodicUpdate();
 };
