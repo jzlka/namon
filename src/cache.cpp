@@ -1,14 +1,11 @@
 /** 
  *  @file       cache.cpp
- *  @brief      Network Traffic Capturing With Application Tags
- *  @details    Bachelor's Thesis, FIT VUT Brno
+ *  @brief      Cache implementation sources
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    26.02.2017 23:52
- *  Edited:     15.03.2017 17:55
+ *  Edited:     16.03.2017 03:43
  *  Version:    1.0.0
- *  g++:        Apple LLVM version 8.0.0 (clang-800.0.42.1)
- *  @todo       when inserting set levels in TTree and TEntry
  */
 
 #include <iostream>             //  cout, endl;
@@ -35,9 +32,7 @@ using std::chrono::seconds;
 using std::chrono::duration_cast;
 
 extern const int shouldStop;
-
-
-
+const int UPDATE_INTERVAL = 5;
 
 
 
@@ -46,8 +41,30 @@ extern const int shouldStop;
  *                           class TEntryOrTree                               *
  *                                                                            *
  *++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+inline bool TEntryOrTTree::isEntry()
+{ 
+    return nt == NodeType::ENTRY; 
+}
 
+inline bool TEntryOrTTree::isTree()
+{ 
+    return nt == NodeType::TREE; 
+}
 
+inline void TEntryOrTTree::setLevel(TreeLevel l)
+{ 
+    level = l; 
+}
+
+inline void TEntryOrTTree::incLevel()
+{ 
+    level++; 
+}
+
+inline TreeLevel TEntryOrTTree::getLevel()
+{ 
+    return level; 
+}
 
 
 
@@ -56,6 +73,47 @@ extern const int shouldStop;
  *                                 class TEntry                               *
  *                                                                            *
  *++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+TEntry::TEntry(TreeLevel l)
+{ 
+    level = l; 
+    nt = NodeType::ENTRY; 
+}
+
+TEntry::~TEntry()
+{ 
+    delete n; 
+}
+
+inline void TEntry::setAppName(string &name)
+{ 
+    appName.assign(name); 
+}
+
+inline string const & TEntry::getAppName()
+{ 
+    return appName; 
+}
+
+inline void TEntry::setInode(int i)
+{ 
+    inode = i; 
+}
+
+inline int TEntry::getInode()
+{ 
+    return inode; 
+}
+
+inline void TEntry::setNetflowPtr(Netflow *newNetflow)
+{
+    n = newNetflow;
+}
+
+inline Netflow * TEntry::getNetflowPtr()
+{ 
+    return n; 
+}
+
 bool TEntry::levelCompare(Netflow *n1)
 {
     switch(level)
@@ -150,12 +208,31 @@ bool TEntry::levelCompare(Netflow *n1)
 
 
 
-
 /*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*
  *                                                                            *
  *                                  class TTree                               *
  *                                                                            *
  *++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+TTree::TTree(TreeLevel l)              
+{ 
+    level = l; 
+    nt = NodeType::TREE; 
+}
+
+TTree::~TTree()                        
+{ 
+    for (auto ptr : v)
+        delete ptr; 
+    v.clear(); 
+    if (level == TreeLevel::LOCAL_IP || level == TreeLevel::REMOTE_IP)
+    {
+        if (ipVersion == 4)
+            delete static_cast<in_addr*>(cv.ip);
+        else
+            delete static_cast<in6_addr*>(cv.ip);
+    }
+}
+
 TEntryOrTTree * TTree::find(Netflow &n)
 {
     for (auto ptr : v)
@@ -175,13 +252,14 @@ TEntryOrTTree * TTree::find(Netflow &n)
     return this;
 }
 
-
 void TTree::insert(TEntry *entry)
 {
     TEntryOrTTree *found = find(*entry->getNetflowPtr());
     // If the same entry already exists
     if (found->isEntry()) 
         log(LogLevel::ERROR, "TTree::insert called two times with the same Netflow.");// TODO what to do?
+    // ^^^ in this case we do not update endTime because insert() is used while creating a new tree 
+    // and in this case there mustn't be two same Netflow structures (that would mean two same sockets)
     else
     {
         for (auto ptr : v)
@@ -200,16 +278,30 @@ void TTree::insert(TEntry *entry)
             }
             // else if isTree() or it doesn't have same lvl value just ignore it
             // We ignore TTree because find returns TTree with the closest match
-            // so we don't have to go deeplier in the tree.
+            // so we don't have to go deeplier in the tree (Node we are interested
+            // in is a TEntry).
         }
         // If there is no element with the same value on its level then add a new one
-        // TODO create now one and copy or just insert?
-        //TEntry *newEntry = new TEntry();
-        //*newEntry = entry;
         entry->setLevel(found->getLevel());
         entry->incLevel();
         v.push_back(entry);
     }
+}
+
+inline void TTree::setPort(unsigned short p)
+{ 
+    cv.port = p; 
+}
+
+inline void TTree::setIp(void *Ip, unsigned char ipV)
+{ 
+    ipVersion = ipV;
+    cv.ip = Ip; 
+}
+
+inline void TTree::setProto(unsigned char p)
+{ 
+    cv.proto = p; 
 }
 
 void TTree::setCommonValue(Netflow *n)
@@ -231,18 +323,20 @@ void TTree::setCommonValue(Netflow *n)
         }
         case TreeLevel::LOCAL_IP:
         {
+            unsigned char ipVersion = n->getIpVersion();
             if (n->getDir() == Directions::INBOUND)
-                setIp(n->getDstIp());
+                setIp(n->getDstIp(), ipVersion);
             else
-                setIp(n->getSrcIp());
+                setIp(n->getSrcIp(), ipVersion);
             break;
         }
         case TreeLevel::REMOTE_IP:
         {
+            unsigned char ipVersion = n->getIpVersion();
             if (n->getDir() == Directions::INBOUND)
-                setIp(n->getSrcIp());
+                setIp(n->getSrcIp(), ipVersion);
             else
-                setIp(n->getDstIp());
+                setIp(n->getDstIp(), ipVersion);
             break;
         }
         case TreeLevel::REMOTE_PORT:
@@ -255,7 +349,6 @@ void TTree::setCommonValue(Netflow *n)
         }
     }
 }
-
 
 bool TTree::levelCompare(Netflow *n)
 {
@@ -274,7 +367,9 @@ bool TTree::levelCompare(Netflow *n)
         }
         case TreeLevel::LOCAL_IP:
         {
-            if (n->getIpVersion() == 4)
+            if (n->getIpVersion() != ipVersion)
+                return false;
+            if (ipVersion == 4 )
             {
                 in_addr *tmpPtr, *tmpPtr2;
                 if (n->getDir() == Directions::INBOUND)
@@ -307,7 +402,9 @@ bool TTree::levelCompare(Netflow *n)
         }
         case TreeLevel::REMOTE_IP:
         {
-            if (n->getIpVersion() == 4)
+            if (n->getIpVersion() != ipVersion)
+                return false;
+            if (ipVersion == 4 )
             {
                 in_addr *tmpPtr = static_cast<in_addr*>(cv.ip);
                 in_addr *tmpPtr2;
@@ -342,18 +439,30 @@ bool TTree::levelCompare(Netflow *n)
 
 
 
-
 /*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*
  *                                                                            *
  *                                  class Cache                               *
  *                                                                            *
  *++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+Cache::Cache()                         
+{ 
+    ::initCache(this);  // Somewhere is defined another initCache(), but I don't know where (it is not mine)
+}
+
+Cache::~Cache()                        
+{ 
+    for (auto ptr : *cache)
+        delete ptr.second;
+    delete cache; 
+}
+
 TEntryOrTTree *Cache::find(Netflow &n)
 {
     unsigned short localPort = (n.getDir() == Directions::INBOUND ? n.getDstPort() : n.getSrcPort());
     auto iter = (*cache).find(localPort);
+    // if the netflow record either exists in the cache or there is a netflow with the same local port
     if (iter != (*cache).end())
-    {   // the netflow record either exists in the cache or there is a netflow with the same local port
+    {
         if (iter->second->isTree())
             return static_cast<TTree*>(iter->second)->find(n);
         else    // isEntry -> record exists
@@ -370,7 +479,6 @@ TEntryOrTTree *Cache::find(Netflow &n)
         return nullptr;
 }
 
-
 void Cache::insert(TEntry *newEntry)
 {
     Netflow *newNetflow = newEntry->getNetflowPtr();
@@ -385,9 +493,11 @@ void Cache::insert(TEntry *newEntry)
         else    // isEntry -> record already exists
         {
             TEntry *oldEntry = static_cast<TEntry*>(iter->second);
-            // If the same netflow record already exists, update endTime
+            // If the same netflow record already exists (compares just relevant variables)
             if (*(oldEntry->getNetflowPtr()) == *newNetflow)
-                oldEntry->getNetflowPtr()->setEndTime(newNetflow->getEndTime());
+                log(LogLevel::ERROR, "Cache::insert called two times with the same Netflow.");// TODO what to do?
+            // ^^^ in this case we do not update endTime because insert() is used while creating a new tree 
+            // and in this case there mustn't be two same Netflow structures (that would mean two same sockets)
             else
             {
                 // Create a new tree
@@ -401,20 +511,18 @@ void Cache::insert(TEntry *newEntry)
     }
     else
     {
-        //TEntry *newEntry = new TEntry(TreeLevel::LOCAL_PORT);
         newEntry->setLevel(TreeLevel::LOCAL_PORT);
         (*cache)[localPort] = newEntry;
     }
 }
-
 
 void Cache::periodicUpdate()
 {
     while(!shouldStop)
     {
         // If it has been already updated (e.g. because of cache miss) don't update it
-        if(duration_cast<seconds>(clock_type::now()-lastUpdate) >= seconds(5))  
-            this_thread::sleep_for(seconds(5));
+        if(duration_cast<seconds>(clock_type::now()-lastUpdate) >= seconds(UPDATE_INTERVAL))  
+            this_thread::sleep_for(seconds(UPDATE_INTERVAL));
         // If shoudStop was set during sleep
         if(!shouldStop)
             break;
@@ -422,5 +530,6 @@ void Cache::periodicUpdate()
         //map<unsigned short, TEntryOrTTree*> *newCache = new map<unsigned short, TEntryOrTTree*>;
         //::initCache(this);
         //diff();
+        // TODO
     }
 }
