@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    26.02.2017 23:52
- *  Edited:     16.03.2017 03:43
+ *  Edited:     16.03.2017 04:16
  *  Version:    1.0.0
  */
 
@@ -41,30 +41,6 @@ const int UPDATE_INTERVAL = 5;
  *                           class TEntryOrTree                               *
  *                                                                            *
  *++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
-inline bool TEntryOrTTree::isEntry()
-{ 
-    return nt == NodeType::ENTRY; 
-}
-
-inline bool TEntryOrTTree::isTree()
-{ 
-    return nt == NodeType::TREE; 
-}
-
-inline void TEntryOrTTree::setLevel(TreeLevel l)
-{ 
-    level = l; 
-}
-
-inline void TEntryOrTTree::incLevel()
-{ 
-    level++; 
-}
-
-inline TreeLevel TEntryOrTTree::getLevel()
-{ 
-    return level; 
-}
 
 
 
@@ -73,47 +49,6 @@ inline TreeLevel TEntryOrTTree::getLevel()
  *                                 class TEntry                               *
  *                                                                            *
  *++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
-TEntry::TEntry(TreeLevel l)
-{ 
-    level = l; 
-    nt = NodeType::ENTRY; 
-}
-
-TEntry::~TEntry()
-{ 
-    delete n; 
-}
-
-inline void TEntry::setAppName(string &name)
-{ 
-    appName.assign(name); 
-}
-
-inline string const & TEntry::getAppName()
-{ 
-    return appName; 
-}
-
-inline void TEntry::setInode(int i)
-{ 
-    inode = i; 
-}
-
-inline int TEntry::getInode()
-{ 
-    return inode; 
-}
-
-inline void TEntry::setNetflowPtr(Netflow *newNetflow)
-{
-    n = newNetflow;
-}
-
-inline Netflow * TEntry::getNetflowPtr()
-{ 
-    return n; 
-}
-
 bool TEntry::levelCompare(Netflow *n1)
 {
     switch(level)
@@ -213,13 +148,7 @@ bool TEntry::levelCompare(Netflow *n1)
  *                                  class TTree                               *
  *                                                                            *
  *++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
-TTree::TTree(TreeLevel l)              
-{ 
-    level = l; 
-    nt = NodeType::TREE; 
-}
-
-TTree::~TTree()                        
+TTree::~TTree() 
 { 
     for (auto ptr : v)
         delete ptr; 
@@ -286,22 +215,6 @@ void TTree::insert(TEntry *entry)
         entry->incLevel();
         v.push_back(entry);
     }
-}
-
-inline void TTree::setPort(unsigned short p)
-{ 
-    cv.port = p; 
-}
-
-inline void TTree::setIp(void *Ip, unsigned char ipV)
-{ 
-    ipVersion = ipV;
-    cv.ip = Ip; 
-}
-
-inline void TTree::setProto(unsigned char p)
-{ 
-    cv.proto = p; 
 }
 
 void TTree::setCommonValue(Netflow *n)
