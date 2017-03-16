@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    26.02.2017 23:13
- *  Edited:     16.03.2017 00:42
+ *  Edited:     16.03.2017 00:59
  *  Version:    1.0.0
  */
 
@@ -26,7 +26,7 @@ enum class Directions {
 
 /*!
  * @class Netflow
- * Netflow class contains information about packet needed to uniqely determine
+ * Netflow class contains information about packet needed to uniquely determine
  * a netflow it belongs to.
  */
 class Netflow
