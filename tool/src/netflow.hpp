@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    26.02.2017 23:13
- *  Edited:     16.03.2017 00:59
+ *  Edited:     16.03.2017 01:56
  *  Version:    1.0.0
  */
 
@@ -26,7 +26,7 @@ enum class Directions {
 
 /*!
  * @class Netflow
- * Netflow class contains information about packet needed to uniquely determine
+ * @brief Netflow class contains information about packet needed to uniquely determine
  * a netflow it belongs to.
  */
 class Netflow
@@ -34,13 +34,13 @@ class Netflow
     Directions dir;                     //!< Packet direction
     unsigned char ipVersion;            //!< IP header version
     /*!
-     * Pointer to a source IP structure
-     * Type of the pointer is determined using #Netflow::ipVersion
+     * @brief   Pointer to a source IP structure
+     * @details Type of the pointer is determined using #Netflow::ipVersion
      */
     void *srcIp = nullptr;
     /*!
-     * Pointer to a destnation IP structure
-     * Type of the pointer is determined using #Netflow::ipVersion
+     * @brief   Pointer to a destnation IP structure
+     * @details Type of the pointer is determined using #Netflow::ipVersion
      */
     void *dstIp = nullptr;
     unsigned short srcPort;             //!< Source port
@@ -51,106 +51,126 @@ class Netflow
     long endTime;                       //!< Time of the last packet which belongs to this netflow
 public:
     /*!
-     * Constructor
-     * @param[in]  intf     Interface used to capture packets
-     */
-    Netflow(const char *intf);
-    /*!
-     * Constructor
+     * @brief Defalut constructor that sets interface to #g_dev
      */
     Netflow();
     /*!
-     * Destructor
+     * @brief       Constructor that sets interface to the parameter
+     * @param[in]   intf     Interface used to capture packets
+     */
+    Netflow(const char *intf);
+    /*!
+     * @brief   Destructor cleans memory pointed by #Netflow::srcIP and #Netflow::dstIp pointers
      */
     ~Netflow();
-    /*! Get method for #Netflow::dir
+    /*! 
+     * @brief   Get method for #Netflow::dir
      * @return  Packet direction
      */
     Directions getDir();
-    /*! Set method for #Netflow::dir
-     * param[in]  d         Packet direction
+    /*! 
+     * @brief       Set method for #Netflow::dir
+     * @param[in]   d         Packet direction
      */
     void setDir(Directions d);
-    /*! Get method for #Netflow::ipVersion
-     * return  IP header version
+    /*! 
+     * @brief   Get method for #Netflow::ipVersion
+     * @return  IP header version
      */
     unsigned char getIpVersion();
-    /*! Set method for #Netflow::ipVersion
-     * param[in]  ipV       IP header version
+    /*! 
+     * @brief       Set method for #Netflow::ipVersion
+     * @param[in]   ipV       IP header version
      */
     void setIpVersion(unsigned char ipV);
-    /*! Get method for #Netflow::srcIp
-     * return  Pointer to source IP structure
+    /*! 
+     * @brief   Get method for #Netflow::srcIp
+     * @return  Pointer to source IP structure
      */
     void *getSrcIp();
-    /*! Set method for #Netflow::srcIp
-     * @pre  newIp must point to a valid in*_addr structure
-     * @post Memory pointed by newIp must exist as long as Netflow object exists.
-     *       Then it will be freed in destructor.
-     * param[in]  newIp     Source IP structure pointer
+    /*! 
+     * @brief       Set method for #Netflow::srcIp
+     * @pre         newIp must point to a valid in*_addr structure
+     * @post        Memory pointed by newIp must exist as long as Netflow object exists.
+     *              Then it will be freed in destructor.
+     * @param[in]   newIp     Source IP structure pointer
      */
     void setSrcIp(void *newIp);
-    /*! Get method for #Netflow::dstIp
-     * return  Pointer to destination IP structure
+    /*! 
+     * @brief   Get method for #Netflow::dstIp
+     * @return  Pointer to destination IP structure
      */
     void *getDstIp();
-    /*! Set method for #Netflow::dstIp
-     * @pre  newIp must point to a valid in*_addr structure.
-     * @post Memory pointed by newIp must exist as long as Netflow object exists.
-     *       Then it will be freed in destructor.
-     * param[in]  newIp     Destination IP structure pointer
+    /*! 
+     * @brief       Set method for #Netflow::dstIp
+     * @pre         newIp must point to a valid in*_addr structure.
+     * @post        Memory pointed by newIp must exist as long as Netflow object exists.
+     *              Then it will be freed in destructor.
+     * @param[in]   newIp     Destination IP structure pointer
      */
     void setDstIp(void *newIp);
-    /*! Get method for #Netflow::srcPort
-     * return  Source port
+    /*! 
+     * @brief   Get method for #Netflow::srcPort
+     * @return  Source port
      */
     unsigned short getSrcPort();
-    /*! Set method for #Netflow::srcPort
-     * param[in]  newPort   Source port
+    /*! 
+     * @brief       Set method for #Netflow::srcPort
+     * @param[in]   newPort   Source port
      */
     void setSrcPort(unsigned short newPort);
-    /*! Get method for #Netflow::dstPort
-     * return  Destination port
+    /*! 
+     * @brief   Get method for #Netflow::dstPort
+     * @return  Destination port
      */
     unsigned short getDstPort();
-    /*! Set method for #Netflow::dstPort
-     * param[in]  newPort   Destination port
+    /*! 
+     * @brief       Set method for #Netflow::dstPort
+     * param[in]    newPort   Destination port
      */
     void setDstPort(unsigned short newPort);
-    /*! Get method for #Netflow::proto
-     * return  Layer 4 protocol
+    /*! 
+     * @brief   Get method for #Netflow::proto
+     * @return  Layer 4 protocol
      */
     unsigned char getProto();
-    /*! Set method for #Netflow::proto
-     * param[in]  newProto  Layer 4 protocol
+    /*! 
+     * @brief       Set method for #Netflow::proto
+     * @param[in]   newProto  Layer 4 protocol
      */
     void setProto(unsigned char newProto);
-    /*! Get method for #Netflow::interface
-     * return  Interface which was used to capture packets
+    /*! 
+     * @brief   Get method for #Netflow::interface
+     * @return  Interface which was used to capture packets
      */
     const char *getInterface();
-    /*! Set method for #Netflow::interface
-     * param[in]  newInt    Interface which was used to capture packets
+    /*! 
+     * @brief       Set method for #Netflow::interface
+     * @param[in]   newInt    Interface which was used to capture packets
      */
     void setInterface(char *newInt);
-    /*! Get method for #Netflow::startTime
-     * return  Time of the first packet which belongs to this netflow
+    /*! 
+     * @brief   Get method for #Netflow::startTime
+     * @return  Time of the first packet which belongs to this netflow
      */
     int getStartTime();
-    /*! Set method for #Netflow::startTime
-     * param[in]  newTime   Time of the first packet which belongs to this netflow
+    /*! 
+     * @brief       Set method for #Netflow::startTime
+     * @param[in]   newTime   Time of the first packet which belongs to this netflow
      */
     void setStartTime(long newTime);
-    /*! Get method for #Netflow::endTime
-     * return  Time of the last packet which belongs to this netflow
+    /*! 
+     * @brief   Get method for #Netflow::endTime
+     * @return  Time of the last packet which belongs to this netflow
      */
     int getEndTime();
-    /*! Set method for #Netflow::endTime
-     * param[in]  newTime   Time of the last packet which belongs to this netflow
+    /*! 
+     * @brief       Set method for #Netflow::endTime
+     * @param[in]   newTime   Time of the last packet which belongs to this netflow
      */
     void setEndTime(long newTime);
     /*!
-     * Overloaded equality opretor
+     * @brief   Overloaded equality opretor
      */
     bool operator==(const Netflow& other) const;
 };
