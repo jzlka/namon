@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    26.02.2017 23:13
- *  Edited:     16.03.2017 04:05
+ *  Edited:     16.03.2017 06:41
  *  Version:    1.0.0
  */
 
@@ -12,6 +12,7 @@
 
 #include <string>           //  string
 #include <netinet/in.h>     //  in_addr, in6_addr
+#include <arpa/inet.h>      //  inet_ntop()
 
 
 
@@ -176,4 +177,8 @@ public:
      * @details Compares just netflow relevant variables
      */
     bool operator==(const Netflow& other) const;
+    /*!
+     * @brief   Function prints content of the Netflow structure
+     */
+    void print();
 };

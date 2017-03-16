@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    26.02.2017 23:52
- *  Edited:     16.03.2017 04:16
+ *  Edited:     16.03.2017 07:10
  *  Version:    1.0.0
  */
 
@@ -26,6 +26,7 @@
 #if defined(WIN32) || defined(WINx64) || (defined(__MSDOS__) || defined(__WIN32__))
 #include "tool_win.hpp"
 #endif
+
 
 using namespace std;
 using std::chrono::seconds;
@@ -139,6 +140,15 @@ bool TEntry::levelCompare(Netflow *n1)
                 return n->getDstPort() == n1->getDstPort();
         }
     }
+}
+
+void TEntry::print()
+{
+    cout << "[" << level << "] " << appName << " (" << inode << ")  ";
+    if (n != nullptr)
+        n->print();
+    else
+        cout << endl;
 }
 
 
@@ -350,6 +360,41 @@ bool TTree::levelCompare(Netflow *n)
     }
 }
 
+void TTree::print()
+{
+    cout << "[" << level << "] <";
+    switch(level)
+    {
+        case TreeLevel::LOCAL_PORT:
+        case TreeLevel::REMOTE_PORT:
+            cout << cv.port;
+            break;
+        case TreeLevel::PROTO:
+            cout << cv.proto;
+            break;
+        case TreeLevel::LOCAL_IP:
+        case TreeLevel::REMOTE_IP:
+        {
+            if (ipVersion == 4)
+            {
+                char str[INET_ADDRSTRLEN];
+                inet_ntop(AF_INET, cv.ip, str, INET_ADDRSTRLEN);
+                cout << str;
+            }
+            else
+            {
+                char str[INET6_ADDRSTRLEN];
+                inet_ntop(AF_INET6, cv.ip, str, INET6_ADDRSTRLEN);
+                cout << str;
+            }
+            break;
+        }
+    }
+    cout << ">" << endl;
+    
+    for (auto ptr : v)
+        ptr->print();
+}
 
 
 /*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*
@@ -445,4 +490,12 @@ void Cache::periodicUpdate()
         //diff();
         // TODO
     }
+}
+
+void Cache::print()
+{
+    cout << lastUpdate.time_since_epoch().count();
+
+    for (auto m : *cache)
+        m.second->print();
 }

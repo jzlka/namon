@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    02.03.2017 04:32
- *  Edited:     16.03.2017 04:16
+ *  Edited:     16.03.2017 07:07
  *  Version:    1.0.0
  *  @todo       secure TEntry::map with mutex
  */
@@ -81,9 +81,9 @@ inline TreeLevel operator++( TreeLevel &t, int )
  * @brief An union which stores a values which are compared at different levels
  */
 typedef union {
-    unsigned short port;  //!< Source or destination port
-    void *ip;             //!< Source or destination IPv4 or IPv6 address
-    unsigned char proto;  //!< Layer 4 protocol
+    unsigned short port;    //!< Source or destination port
+    void *ip =nullptr;      //!< Source or destination IPv4 or IPv6 address
+    unsigned char proto;    //!< Layer 4 protocol
 } CommonValue;
 
 
@@ -130,6 +130,10 @@ public:
      * @return      Comparison result
      */
     virtual bool levelCompare(Netflow *n) =0;
+    /*!
+     * @brief   Function prints content of the class
+     */
+    virtual void print() =0;
 };
 
 
@@ -141,11 +145,11 @@ public:
 class TEntry : public TEntryOrTTree
 {
     string appName;                 //!< Application name to which n belongs
-    int inode;                      //!< Inode number of #Tentry::appname 's socket
-    Netflow *n;                     //!< Pointer to a netflow information
+    int inode =0;                   //!< Inode number of #Tentry::appname 's socket
+    Netflow *n = nullptr;           //!< Pointer to a netflow information
 public:
     /*!
-     * @brief       Constructor that sets level to parameter l and 
+ es   * @brief       Constructor that sets level to parameter l and 
      *               #TEntryOrTTree::nt to #NodeType::ENTRY
      * @param[in]   l   Level in the tree
      */
@@ -158,7 +162,7 @@ public:
      * @brief       Set method for #TEntry::appName
      * @param[in]   name    Application name
      */
-    void setAppName(string &name)           { appName.assign(name); }
+    void setAppName(string &name)           { appName = name; }
     /*!
      * @brief   Get method for #TEntry::appName
      * @return  Application name
@@ -193,6 +197,10 @@ public:
      * @return      Comparison result
      */
     bool levelCompare(Netflow *n1);
+    /*!
+     * @brief   Function prints content of the class
+     */
+    void print();
 };
 
 
@@ -269,6 +277,10 @@ public:
      * @return      Comparison result
      */
     bool levelCompare(Netflow *n);
+    /*!
+     * @brief   Function prints content of the class
+     */
+    void print();
 };
 
 
@@ -313,4 +325,8 @@ public:
      * @brief       Function cycles until #shouldStop is set and periodically updates cache
      */
     void periodicUpdate();
+    /*!
+     * @brief   Function prints content of the class
+     */
+    void print();
 };
