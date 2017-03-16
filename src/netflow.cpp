@@ -4,10 +4,11 @@
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    15.03.2017 23:27
- *  Edited:     16.03.2017 04:05
+ *  Edited:     16.03.2017 06:48
  *  Version:    1.0.0
  */
 
+#include <iostream>         //  cout, endl
 #include "netflow.hpp"
 
 
@@ -39,4 +40,26 @@ bool Netflow::operator==(const Netflow& other) const
                    memcmp(static_cast<in6_addr*>(dstIp), static_cast<in6_addr*>(other.dstIp), sizeof(struct in6_addr));
     }
     return false;
+}
+
+void Netflow::print()
+{
+    if (ipVersion == 4)
+    {
+        char str[INET_ADDRSTRLEN];
+        inet_ntop(AF_INET, srcIp, str, INET_ADDRSTRLEN);
+        std::cout << str << ":" << srcPort << "_";
+        inet_ntop(AF_INET, dstIp, str, INET_ADDRSTRLEN);
+        std::cout << str << ":" << dstPort;
+    }
+    else
+    {
+        char str[INET6_ADDRSTRLEN];
+        inet_ntop(AF_INET6, srcIp, str, INET6_ADDRSTRLEN);
+        std::cout << str << ":" << srcPort << "_";
+        inet_ntop(AF_INET6, dstIp, str, INET6_ADDRSTRLEN);
+        std::cout << str << ":" << dstPort;
+    }
+    std::cout << " " << proto << " " << interface;
+    std::cout << " " << startTime << "-" << endTime << std::endl;
 }
