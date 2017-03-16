@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    26.02.2017 23:13
- *  Edited:     16.03.2017 01:56
+ *  Edited:     16.03.2017 03:48
  *  Version:    1.0.0
  */
 
@@ -123,7 +123,7 @@ public:
      * @brief   Get method for #Netflow::dstPort
      * @return  Destination port
      */
-    unsigned short getDstPort();
+    inline unsigned short getDstPort();
     /*! 
      * @brief       Set method for #Netflow::dstPort
      * param[in]    newPort   Destination port
@@ -170,7 +170,8 @@ public:
      */
     void setEndTime(long newTime);
     /*!
-     * @brief   Overloaded equality opretor
+     * @brief   Overloaded equality operator
+     * @details Compares just netflow relevant variables
      */
     bool operator==(const Netflow& other) const;
 };
