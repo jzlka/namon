@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    02.03.2017 04:32
- *  Edited:     16.03.2017 03:45
+ *  Edited:     16.03.2017 04:16
  *  Version:    1.0.0
  *  @todo       secure TEntry::map with mutex
  */
@@ -101,29 +101,29 @@ public:
     /*!
      * @brief A virtual d'tor
      */
-    virtual ~TEntryOrTTree() {};
+    virtual ~TEntryOrTTree()        {};
     /*!
      * @return  True if the node is TEntry, false otherwise
      */
-    bool isEntry();
+    bool isEntry()                  { return nt == NodeType::ENTRY; }
     /*!
      * @return  True if the node is TTree, false otherwise
      */
-    bool isTree();
+    bool isTree()                   { return nt == NodeType::TREE; }
     /*!
      * @brief       Set method for #TEntryOrTTree::level
      * @param[in]   l    Level in the tree
      */
-    void setLevel(TreeLevel l);
+    void setLevel(TreeLevel l)      { level = l; }
     /*!
      * @brief   Increments stored tree level
      */
-    void incLevel();
+    void incLevel()                 { level++; }
     /*!
      * @brief   Get method for #TEntryOrTTree::level
      * @return  Level in the tree
      */
-    TreeLevel getLevel();
+    TreeLevel getLevel()            { return level; }
     /*!
      * @brief       Compares values important at a specific #TreeLevel
      * @param[in]   n    Pointer to a Netflow class with netflow information
@@ -149,31 +149,31 @@ public:
      *               #TEntryOrTTree::nt to #NodeType::ENTRY
      * @param[in]   l   Level in the tree
      */
-    TEntry(TreeLevel l);
+    TEntry(TreeLevel l)                     { level = l; nt = NodeType::ENTRY; }
     /*!
      * @brief   Default destructor that deletes n
      */
-    ~TEntry();
+    ~TEntry()                               { delete n; }
     /*!
      * @brief       Set method for #TEntry::appName
      * @param[in]   name    Application name
      */
-    void setAppName(string &name);
+    void setAppName(string &name)           { appName.assign(name); }
     /*!
      * @brief   Get method for #TEntry::appName
      * @return  Application name
      */
-    string const &getAppName();
+    string const & getAppName()             { return appName; }
     /*!
      * @brief       Set method for #TEntry::inode
      * @param[in]   i   Inode number
      */
-    void setInode(int i);
+    void setInode(int i)                    { inode = i; }
     /*!
      * @brief   Get method for #TEntry::inode
      * @return  Inode number
      */
-    int getInode();
+    int getInode()                          { return inode; }
     /*!
      * @brief       Set method for #TEntry::n
      * @pre         newNetflow must be a valid Netflow pointer
@@ -181,12 +181,12 @@ public:
      *              Then it will be freed in a destructor.
      * @param[in]   newNetflow  Pointer to new Netflow class
      */
-    void setNetflowPtr(Netflow *newNetflow);
+    void setNetflowPtr(Netflow *newNetflow) { n = newNetflow; }
     /*!
      * @brief   Get method for #TEntry::n
      * @return  Pointer to Netflow class
      */
-    Netflow *getNetflowPtr();
+    Netflow * getNetflowPtr()               { return n; }
     /*!
      * @brief       Compares values important at a specific #TreeLevel
      * @param[in]   n1  Pointer to a Netflow class with netflow information
@@ -212,7 +212,7 @@ public:
      *              #TEntryOrTTree::nt to #NodeType::TREE
      * @param[in]   l   Level in the tree
      */
-    TTree(TreeLevel l);
+    TTree(TreeLevel l)                      { level = l; nt = NodeType::TREE; }
     /*!
      * @brief   Default d'tor that cycles through #TTree::v vector and frees used memory. 
      *          Then clears vector v.
@@ -242,7 +242,7 @@ public:
      * @brief       Set method for #TTree::cv::port
      * @param[in]   p   Source or destination port which is common in this subtree
      */
-    void setPort(unsigned short p);
+    void setPort(unsigned short p)              { cv.port = p; }
     /*!
      * @brief       Set method for #TTree::cv::ip
      * @pre         Ip must be a valid in*_addr pointer
@@ -251,12 +251,12 @@ public:
      * @param[in]   Ip  Pointer to source or destination IPv4 or IPv6 header which is common in this subtree
      * @param[in]   ipV IP header version
      */
-    void setIp(void *Ip, unsigned char ipV);
+    void setIp(void *Ip, unsigned char ipV)     { ipVersion = ipV; cv.ip = Ip; }
     /*!
      * @brief       Set method for #TTree::cv::proto
      * @param[in]   p   Layer 4 protocol which is common in this subtree
      */
-    void setProto(unsigned char p);
+    void setProto(unsigned char p)              { cv.proto = p; }
     /*!
      * @brief       Set method for #TTree::cv union
      * @pre         n is a valid pointer
