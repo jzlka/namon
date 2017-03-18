@@ -1,33 +1,24 @@
 /** 
- *  @file		capturing.cpp
+ *  @file       capturing.cpp
  *  @brief      Network traffic capture sources
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    18.02.2017 22:45
- *  Edited:		17.03.2017 12:37
+ *  Edited:     19.03.2017 00:38
  *  Version:    1.0.0
- *  @todo       set direction in netflow
- *  @todo       set startTime in netflow
  */
 
-#include <iostream>             //  cerr, endl
-#include <fstream>              //  fstream
 #include <map>                  //  map
 #include <pcap.h>               //  pcap_lookupdev(), pcap_open_live(), pcap_dispatch(), pcap_close()
-#include "netflow.hpp"          //  Netflow
-#include "debug.hpp"            //  DEBUG()
 #include "fileHandler.hpp"      //  initOFile()
 #include "cache.hpp"            //  TEntryOrTTree
+#include "netflow.hpp"          //  Netflow
+#include "debug.hpp"            //  DEBUG()
 #include "capturing.hpp"
 
 #if defined(__linux__)
 #include "tool_linux.hpp"
 #include <signal.h>             //  signal(), SIGINT, SIGTERM, SIGABRT, SIGSEGV
-#include <netinet/if_ether.h>   //  SIZE_ETHERNET, ETHERTYPE_IP, ETHERTYPE_IPV6, ether_header
-#include <netinet/ip.h>         //  ip
-#include <netinet/ip6.h>        //  ip6_hdr
-#include <netinet/tcp.h>        //  tcphdr
-#include <netinet/udp.h>        //  udphdr
 #endif
 #if defined(__FreeBSD__)
 #include "tool_bsd.hpp"
@@ -36,18 +27,21 @@
 #endif
 #if defined(__APPLE__)
 #include "tool_apple.hpp"
-#include <netinet/if_ether.h>   //  SIZE_ETHERNET, ETHERTYPE_IP, ETHERTYPE_IPV6, ether_header
-#include <netinet/ip.h>         //  ip
-#include <netinet/ip6.h>        //  ip6_hdr
-#include <netinet/tcp.h>        //  tcphdr
-#include <netinet/udp.h>        //  udphdr
 #endif
 #if defined(WIN32) || defined(WINx64) || (defined(__MSDOS__) || defined(__WIN32__))
 #include "tool_win.hpp"
 //#include <winsock2.h>
 //#include <ws2tcpip.h>
 #endif
+#if defined(__linux__) || defined(__APPLE__)
+#include <netinet/if_ether.h>   //  SIZE_ETHERNET, ETHERTYPE_IP, ETHERTYPE_IPV6, ether_header
+#include <netinet/ip.h>         //  ip
+#include <netinet/ip6.h>        //  ip6_hdr
+#include <netinet/tcp.h>        //  tcphdr
+#include <netinet/udp.h>        //  udphdr
+#endif
 
+//! Size of the ring buffer
 #define RING_BUFFER_SIZE    1024
 
 using namespace std;
@@ -55,12 +49,12 @@ using namespace std;
 
 // https://www.iana.org/assignments/ieee-802-numbers/ieee-802-numbers.xhtml
 // https://wiki.wireshark.org/Ethernet
-const unsigned char     IPV6_SIZE       =   40;
-const unsigned char     PROTO_IPV4      =   0x08;
-const unsigned char     PROTO_IPV6      =   0x86;
-const unsigned char     PROTO_UDP       =   0x11;
-const unsigned char     PROTO_TCP       =   0x06;
-const unsigned char     PROTO_UDPLITE   =   0x88;
+const unsigned char     IPV6_SIZE       =   40;     //!< Size of IPv6 header
+const unsigned char     PROTO_IPV4      =   0x08;   //!< ID of IPv4 protocol
+const unsigned char     PROTO_IPV6      =   0x86;   //!< ID of IPv6 protocol
+const unsigned char     PROTO_UDP       =   0x11;   //!< ID of UDP protocol
+const unsigned char     PROTO_TCP       =   0x06;   //!< ID of TCP protocol
+const unsigned char     PROTO_UDPLITE   =   0x88;   //!< ID of UDPLite protocol
 
 const char * g_dev = "Not specified";   //!< Capturing device
 ofstream oFile;                         //!< Output file stream
@@ -114,7 +108,7 @@ int startCapture(const char *oFilename)
         //Create cache and periodically refresh it in a new thread;
         Cache cache;
         thread t2 ( [&cache]() { cache.periodicUpdate(); } );
-        // TODO wait for cache to initialize
+        //! @todo  Wait for cache to initialize
         
         void *arg_arr[2] = { &rb, &cache};
 
@@ -156,14 +150,18 @@ void packetHandler(u_char *arg_array, const struct pcap_pkthdr *header, const u_
     n.setStartTime(header->ts.tv_usec);
 
     eth_hdr = (ether_header*) packet;
-    Cache *cache = static_cast<Cache *>(arg_arr[1]);    // TODO: global variable?
-    RingBuffer *rb = static_cast<RingBuffer *>(arg_arr[0]);    // TODO: global variable?
+    Cache *cache = static_cast<Cache *>(arg_arr[1]);            //! @todo  Change to a global variable?
+    RingBuffer *rb = static_cast<RingBuffer *>(arg_arr[0]);     //! @todo  Change to a global variable?
     if(rb->push(header, packet))
     {
         g_droppedPackets++;
-        return; //TODO ok?
+        return; //! @todo  Valid behavior?
     }
     
+    //! @todo       set #Netflow::dir in the netflow
+    //! @todo       set #Netflow::startTime in the netflow
+    //! @todo       set #Netflow::endTime in the netflow
+ 
     // Parse IP header
     if (parseIp(n, ip_size, (void*)(packet + ETHER_HDR_LEN), eth_hdr->ether_type))
         return;
@@ -172,16 +170,20 @@ void packetHandler(u_char *arg_array, const struct pcap_pkthdr *header, const u_
     if (parsePorts(n, (void*)(packet + ETHER_HDR_LEN + ip_size)))
         return;
 
-    // find out if it belongs to this computer (promiscuous mode)
+    //! @todo   Find out if it belongs to this computer (promiscuous mode)
 
     TEntryOrTTree *cacheRecord = cache->find(n);
     if (cacheRecord != nullptr && cacheRecord->isEntry())
         static_cast<TEntry *>(cacheRecord)->getNetflowPtr()->setEndTime(header->ts.tv_usec);
     else    // either TTree or nullptr
-        ;// TODO what to do? vector of unknown netflows?
-    // We can't call to update cache because in this second there can be thousands
-    // of the same packets and everyone would call to update cache.
-    // We have to save startTime
+        ;   /*! @todo   What to do? vector of unknown netflows?
+    * - We can save the Netflow into a vector of unknown netflows and before the cache is updated,
+    *    we can cycle over this vector and try to find it in a cache again.
+    * - We can ignore it.
+    * - We can search procfs and wait for the result. Then add the result into a cache.
+    * - We can set a global variable defining that cache is being updated and search procfs in a new thread.
+    *    #Netflow::endTime will be saved from next packets of the same netflow in some vector or something.
+    */
 
     D("srcPort:" << n.getSrcPort() << ", dstPort:" << n.getDstPort() << ", proto:" << (int)n.getProto());
 }
@@ -212,17 +214,17 @@ inline int parseIp(Netflow &n, unsigned int &ip_size, void * const ip_hdr, const
         const ip6_hdr * const ipv6_hdr = (ip6_hdr*)ip_hdr;
         ip_size = IPV6_SIZE;
         in6_addr* tmpSrcIpPtr = new in6_addr;
-        memcpy(tmpSrcIpPtr, &ipv6_hdr->ip6_src, sizeof(in6_addr));  // TODO is it needed to copy? packetHandler won't returnoso ipv6_hdr will be still valid when find() returns;
+        memcpy(tmpSrcIpPtr, &ipv6_hdr->ip6_src, sizeof(in6_addr));  //! @todo  Is it needed to make a copy? ipv6_hdr will be still valid when find() returns (still in packetHandler());
         in6_addr* tmpDstIpPtr = new in6_addr;
-        memcpy(tmpDstIpPtr, &ipv6_hdr->ip6_dst, sizeof(in6_addr));
+        memcpy(tmpDstIpPtr, &ipv6_hdr->ip6_dst, sizeof(in6_addr));  //! @todo  Is it needed to make a copy? ipv6_hdr will be still valid when find() returns (still in packetHandler());
         n.setSrcIp((void*)(tmpSrcIpPtr));
         n.setDstIp((void*)(tmpDstIpPtr));
         n.setIpVersion(6);
         n.setProto(ipv6_hdr->ip6_nxt);
     }
-    else    // TODO what to do with 802.3?
-        n.setIpVersion(0), n.setProto(0); // Netflow structure is reused with next packet so we have to delete old value. We don't care about the value, because we ignore everything except 6 (TCP) and 17 (UDP).
-    // NOTE: we can't determine app for IGMP, ICMP, etc. https://en.wikipedia.org/wiki/List_of_IP_protocol_numbers
+    else    //! @todo   What to do with 802.3?
+        n.setIpVersion(0), n.setProto(0); // Netflow structure is reused with next packet so we have to delete old values. We don't care about the values other than 6,17,137, because we ignore everything except 6 (TCP) and 17 (UDP).
+    //! @note   We can't determine app for IGMP, ICMP, etc. https://en.wikipedia.org/wiki/List_of_IP_protocol_numbers
     return EXIT_SUCCESS;
 }
 
@@ -278,6 +280,3 @@ void signalHandler(int signum)
     lock_guard<mutex> guard(m_shouldStopVar);
     shouldStop = signum;
 }
-
-
-

@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    16.03.2017 05:39
- *  Edited:     16.03.2017 05:47
+ *  Edited:     18.03.2017 23:52
  *  Version:    1.0.0
  */
 
@@ -12,8 +12,8 @@
 
 
 
-std::mutex m_debugPrint;
-LogLevel generalLogLevel = LogLevel::NONE;
+std::mutex m_debugPrint;                    //!< Mutex used to synchronize debug prints
+LogLevel generalLogLevel = LogLevel::NONE;  //!< General log level
 
 void setLogLevel(char *ll)
 {

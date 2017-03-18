@@ -1,14 +1,11 @@
 /** 
  *  @file       pcapng_blocks.hpp
- *  @brief      Network Traffic Capturing With Application Tags
- *  @details    Bachelor's Thesis, FIT VUT Brno
+ *  @brief      Pcap-ng block structures
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    06.03.2017 13:33
- *  Edited:     14.03.2017 16:53
+ *  Edited:     18.03.2017 23:27
  *  Version:    1.0.0
- *  g++:        Apple LLVM version 8.0.0 (clang-800.0.42.1)
- *  @todo       change tool name in shb_userappl
  */
 
 #pragma once
@@ -19,6 +16,7 @@
 #include <netinet/if_ether.h>   //  ETHER_MAX_LEN
 #include "debug.hpp"            //  D()
 
+//! Macro to hide compiler warning messages about unused variables
 #ifdef UNUSED
 /* nothing */
 #elif defined(__GNUC__)
@@ -36,6 +34,12 @@ extern const char * g_dev;
 
 
 
+/*!
+ * @brief       Computes number of padding bytes to be inserted in order to reach multiple of x
+ * @param[in]   num         Number of bytes to be padded
+ * @param[in]   multiple    Padding to multiple of
+ * @return      Number of padding bytes
+ */
 inline int computePaddingLen(int num, int multiple)
 {
     if (multiple == 0)
@@ -44,9 +48,14 @@ inline int computePaddingLen(int num, int multiple)
     return multiple - remainder;
 }
 
+
 #pragma pack(push)
 #pragma pack(1)
 
+/*!
+ * @class   SectionHeaderBlock
+ * @brief   Section header block which has to be at the beginning of each section in the file
+ */
 class SectionHeaderBlock {
     UNUSED(uint32_t blockType)              = 0x0A0D0D0A;
     UNUSED(uint32_t blockTotalLength)       = sizeof(*this) - sizeof(options.shb_os.optionValue);
@@ -63,7 +72,7 @@ class SectionHeaderBlock {
         struct {
             UNUSED(uint16_t optionCode)     = 4;
             UNUSED(uint16_t optionLength)   = 5;
-            UNUSED(char optionValue[5])     = "tool";   // TODO change
+            UNUSED(char optionValue[5])     = "tool";   //! @todo Change tool name
             UNUSED(uint8_t padding[3])      = {0};
         } shb_userappl;
         struct endOfOption {
@@ -74,6 +83,12 @@ class SectionHeaderBlock {
     UNUSED(uint32_t blockTotalLength2)      = blockTotalLength;
 
 public:
+    /*!
+     * @brief       Class constructor
+     * @details     Sets length of the #SectionHeaderBlock::options::shb_os option 
+     *               and the block length
+     * @param[in]   os  Platform and version of the OS we are capturing on
+     */
     SectionHeaderBlock(string & os) 
     { 
         const int len = os.length();
@@ -84,12 +99,17 @@ public:
         blockTotalLength += options.shb_os.optionLength + computePaddingLen(options.shb_os.optionLength, 4);
         blockTotalLength2 = blockTotalLength;
     }
-
+    /*!
+     * @brief   Deletes allocated memory
+   §  */
     ~SectionHeaderBlock()
     {
         delete [] options.shb_os.optionValue;
     }
-
+    /*!
+     * @brief       Writes whole block into the file
+     * @param[in]   file    The output file
+     */
     void write(ofstream & file)
     { 
         char * tmpPtr = reinterpret_cast<char*>(this);
@@ -110,8 +130,12 @@ public:
 
 
 
-/* There must be an Interface Description Block for each interface to which another block refers. Blocks such as an Enhanced Packet Block or an Interface Statistics Block contain an Interface ID value referring to a particular interface, and a Simple Packet Block implicitly refers to an interface with an Interface ID of 0. If the file does not contain any blocks that use an Interface ID, then the file does not need to have any IDBs.
-*/
+/*!
+ * @class   InterfaceDescriptionBlock
+ * @brief   Block with a description of the interface used to capture network traffic
+ * @details This block is mandatory if the file contains a block which refers to this device.
+ *          In our case it is EnhancedPacketBlock
+ */
 class InterfaceDescriptionBlock {
     UNUSED(uint32_t blockType)              = 0x00000001;
     UNUSED(uint32_t blockTotalLength)       = sizeof(*this) 
@@ -128,8 +152,8 @@ class InterfaceDescriptionBlock {
         } if_name;
         struct {
             UNUSED(uint16_t optionCode)     = 9;
-            UNUSED(uint16_t optionLength)   = 4;        // TODO
-            UNUSED(char optionValue[4])     = {0};      // TODO
+            UNUSED(uint16_t optionLength)   = 4;        //! @todo   Find out what value to assign
+            UNUSED(char optionValue[4])     = {0};      //! @todo   Find out what value to assign
         } if_tsresol;
         struct {
             UNUSED(uint16_t optionCode)     = 12;
@@ -144,6 +168,11 @@ class InterfaceDescriptionBlock {
     UNUSED(uint32_t blockTotalLength2)      = blockTotalLength;
 
 public:
+    /*!
+     * @brief       Class constructor that sets options lengths and block total length
+     * @todo        performed on vs performed at
+     * @param[in]   os  Platform and version of the OS, the capturing was performed on
+     */
     InterfaceDescriptionBlock(string & os) 
     { 
         int len = os.length();
@@ -154,12 +183,17 @@ public:
         blockTotalLength += options.if_name.optionLength + computePaddingLen(options.if_name.optionLength, 4) + options.if_os.optionLength + computePaddingLen(options.if_os.optionLength, 4);
         blockTotalLength2 = blockTotalLength;
     }
-
+    /*!
+     * @brief   Default destructor that deletes allocated memory used by options
+     */
     ~InterfaceDescriptionBlock()
     {
         delete [] options.if_os.optionValue;
     }
-    
+    /*!
+     * @brief       Writes the whole block into the file
+     * @param[in]   file    The output file
+     */
     void write(ofstream & file)
     { 
         char * tmpPtr = reinterpret_cast<char*>(this);
@@ -189,6 +223,10 @@ public:
 
 
 
+/*!
+ * @class   EnhancedPacketBlock
+ * @brief   Class used to store packet and information about it
+ */
 class EnhancedPacketBlock {
     UNUSED(uint32_t blockType)              = 0x00000006;
     UNUSED(uint32_t blockTotalLength)       = sizeof(*this)-sizeof(packetData);    // will be updated in write()
@@ -200,15 +238,42 @@ class EnhancedPacketBlock {
     UNUSED(const u_char * packetData)       = nullptr;
     UNUSED(uint32_t blockTotalLength2)      = blockTotalLength;
 public:
+    /*!
+     * @brief   Default c'tor that preallocates memory for packet
+     */
     EnhancedPacketBlock() 
         { packetData = new u_char[ETHER_MAX_LEN]; }
+    /*!
+     * @brief   Default d'tor that deletes preallocated packet memory
+     */
     ~EnhancedPacketBlock()
         { delete [] packetData; }
-
+    /*!
+     * @brief       Set method for #EnhancedPacketBlock::timestampHi 
+     *               and #EnhancedPacketBlock::timestampLo
+     * @param[in]   timestamp   Packet timestamp
+     */
     void setTimestamp(long timestamp) { timestampLo = timestamp; timestampHi = timestamp >> 4; }
+    /*!
+     * @brief       Set method for #EnhancedPacketBlock::capturedPacketLength
+     * @param[in]   len Captured length
+     */
     void setCapturedPacketLength(uint32_t len) { capturedPacketLength = len; }
+    /*!
+     * @brief       Set method for #EnhancedPacketBlock::originalPacketLength
+     * @param[in]   len Length of the packet as it was on the wire
+     */
     void setOriginalPacketLength(uint32_t len) { originalPacketLength = len; }
+    /*!
+     * @brief       Set method for #EnhancedPacketBlock::packetData
+     * @details     Copies a memory pointed by ptr into the preallocated space
+     * @param[in]   ptr Pointer to a received packet
+     */
     void setPacketData(const u_char *ptr) { memcpy((void*)packetData, ptr, capturedPacketLength); }
+    /*!
+     * @brief       Writes whole block into the output file
+     * @param[in]   file    The output file
+     */
     void write(ofstream & file)
     { 
         const char padding = 0;
@@ -227,6 +292,10 @@ public:
 
 
 
+/*!
+ * @class   CustomBlock
+ * @brief   Class with custom data
+ */
 class CustomBlock {
     UNUSED(uint32_t blockType)              = 0x40000BAD;
     UNUSED(uint32_t blockTotalLength)       = sizeof(*this); // TODO
@@ -234,8 +303,15 @@ class CustomBlock {
     UNUSED(int64_t customData)              = 0;        // TODO
     UNUSED(uint32_t blockTotalLength2)      = blockTotalLength;
 public:
+    /*!
+     * @brief   Default c'tor
+     */
     CustomBlock() 
         { }
+    /*!
+     * @brief       Writes the whole block into the file
+     * @param[in]   file    The output file
+     */
     void write(ofstream & file)
         { file.write(reinterpret_cast<char*>(this),sizeof(*this)); }
 };

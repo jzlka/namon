@@ -4,36 +4,24 @@
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    26.02.2017 23:52
- *  Edited:     18.03.2017 10:48
+ *  Edited:     18.03.2017 21:32
  *  Version:    1.0.0
  */
 
 #include <iostream>             //  cout, endl;
 #include <thread>               //  sleep_for
 #include "netflow.hpp"          //  Netflow
-#include "cache.hpp"            //  Cache
 #include "debug.hpp"            //  log()
-
-#if defined(__linux__)
-#include "tool_linux.hpp"       //  initCache()
-#endif
-#if defined(__FreeBSD__)
-#include "tool_bsd.hpp"
-#endif
-#if defined(__APPLE__)
-#include "tool_apple.hpp"
-#endif
-#if defined(WIN32) || defined(WINx64) || (defined(__MSDOS__) || defined(__WIN32__))
-#include "tool_win.hpp"
-#endif
+#include "cache.hpp"            //  Cache
 
 
 using namespace std;
 using std::chrono::seconds;
 using std::chrono::duration_cast;
 
+
 extern const int shouldStop;
-const int UPDATE_INTERVAL = 5;
+const int UPDATE_INTERVAL = 5;      //!< Cache will be updated every >#UPDATE_INTERVAL< seconds
 
 
 
@@ -241,7 +229,7 @@ void TTree::setCommonValue(Netflow *n)
             break;
         }
         case TreeLevel::LOCAL_IP:
-        {   // FIXME if it is called two times on the same level there will be a memory leak
+        {   //! @warning    If it is called two times on the same level, it will cause a memory leak
             unsigned char ipVersion = n->getIpVersion();
             if (ipVersion == 4)
             {
@@ -266,7 +254,7 @@ void TTree::setCommonValue(Netflow *n)
             break;
         }
         case TreeLevel::REMOTE_IP:
-        {   // FIXME if it is called two times on the same level there will be a memory leak
+        {   //! @warning    If it is called two times on the same level, it will cause a memory leak
             unsigned char ipVersion = n->getIpVersion();
             if (ipVersion == 4)
             {
@@ -485,7 +473,7 @@ void Cache::insert(TEntry *newEntry)
             TEntryOrTTree *found = static_cast<TTree*>(iter->second)->find(*newEntry->getNetflowPtr());
             // If the same entry already exists
             if (found->isEntry()) 
-                log(LogLevel::ERROR, "TTree::insert called two times with the same Netflow.");// TODO what to do?
+                log(LogLevel::ERROR, "TTree::insert called two times with the same Netflow.");//! @todo what to do?
             // ^^^ in this case we do not update endTime because insert() is used while creating a new tree 
             // and in this case there mustn't be two same Netflow structures (that would mean two same sockets)
             else
@@ -496,7 +484,7 @@ void Cache::insert(TEntry *newEntry)
             TEntry *oldEntry = static_cast<TEntry*>(iter->second);
             // If the same netflow record already exists (compares just relevant variables)
             if (*(oldEntry->getNetflowPtr()) == *newNetflow)
-                log(LogLevel::ERROR, "Cache::insert called two times with the same Netflow.");// TODO what to do?
+                log(LogLevel::ERROR, "Cache::insert called two times with the same Netflow.");//! @todo what to do?
             // ^^^ in this case we do not update endTime because insert() is used while creating a new tree 
             // and in this case there mustn't be two same Netflow structures (that would mean two same sockets)
             else
@@ -531,7 +519,7 @@ void Cache::periodicUpdate()
         //map<unsigned short, TEntryOrTTree*> *newCache = new map<unsigned short, TEntryOrTTree*>;
         //::initCache(this);
         //diff();
-        // TODO
+        //! @todo   Implement cache.diff and periodicUpdate
     }
 }
 
