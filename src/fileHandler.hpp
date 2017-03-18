@@ -1,15 +1,11 @@
 /** 
  *  @file       fileHandler.hpp
- *  @brief      Network Traffic Capturing With Application Tags
- *  @details    Bachelor's Thesis, FIT VUT Brno
+ *  @brief      File handler header file
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    06.03.2017 14:50
- *  Edited:     10.03.2017 16:51
+ *  Edited:     16.03.2017 05:54
  *  Version:    1.0.0
- *  g++:        Apple LLVM version 8.0.0 (clang-800.0.42.1)
- *  @bug
- *  @todo
  */
 
 #pragma once
@@ -21,7 +17,7 @@
 #include <thread>               //  thread()
 #include <condition_variable>   //  condition_variable
 #include <pcap.h>               //  pcap_pkthdr
-#include "main.hpp"             //  stop()
+#include "capturing.hpp"        //  stop()
 #include "pcapng_blocks.hpp"    //  EnhancedPacketBlock
 
 void initOFile(std::ofstream & oFile);
