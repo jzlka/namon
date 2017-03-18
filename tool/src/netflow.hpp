@@ -1,10 +1,10 @@
 /** 
- *  @file       netflow.hpp
+ *  @file		netflow.hpp
  *  @brief      Netflow structure header file
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    26.02.2017 23:13
- *  Edited:     16.03.2017 06:41
+ *  Edited:		17.03.2017 12:33
  *  Version:    1.0.0
  */
 
@@ -46,24 +46,24 @@ class Netflow
      * @details Type of the pointer is determined using #Netflow::ipVersion
      */
     void *dstIp = nullptr;
-    unsigned short srcPort;             //!< Source port
-    unsigned short dstPort;             //!< Destination port
-    unsigned char proto;                //!< Layer 4 protocol
-    const char *interface = nullptr;    //!< Name of the device that was used to capture packets
-    long startTime;                     //!< Time of the first packet which belongs to this netflow
-    long endTime;                       //!< Time of the last packet which belongs to this netflow
+    unsigned short srcPort =0;           //!< Source port
+    unsigned short dstPort =0;           //!< Destination port
+    unsigned char proto;                 //!< Layer 4 protocol
+    const char *interface = nullptr;     //!< Name of the device that was used to capture packets
+    long startTime =0;                   //!< Time of the first packet which belongs to this netflow
+    long endTime =0;                     //!< Time of the last packet which belongs to this netflow
 public:
     /*!
      * @brief Defalut constructor that sets interface to #g_dev
      */
-    Netflow(const char *intf) : interface(intf) {}
+    Netflow() : interface("Not specified") {}
     /*!
      * @brief       Constructor that sets interface to the parameter
      * @param[in]   intf     Interface used to capture packets
      */
-    Netflow() : interface(g_dev) {}
+    Netflow(const char *intf) : interface(intf) {}
     /*!
-     * @brief   Destructor cleans memory pointed by #Netflow::srcIP and #Netflow::dstIp pointers
+     * @brief   Destructor cleans memory pointed by #Netflow::srcIp and #Netflow::dstIp pointers
      */
     ~Netflow();
     /*! 
@@ -151,7 +151,7 @@ public:
      * @brief       Set method for #Netflow::interface
      * @param[in]   newInt    Interface which was used to capture packets
      */
-    void setInterface(char *newInt)         { interface = newInt; }
+    void setInterface(const char *newInt)   { interface = newInt; }
     /*! 
      * @brief   Get method for #Netflow::startTime
      * @return  Time of the first packet which belongs to this netflow
