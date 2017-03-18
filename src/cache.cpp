@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    26.02.2017 23:52
- *  Edited:     16.03.2017 07:10
+ *  Edited:     18.03.2017 10:48
  *  Version:    1.0.0
  */
 
@@ -80,9 +80,9 @@ bool TEntry::levelCompare(Netflow *n1)
                     tmpPtr = static_cast<in_addr*>(n->getSrcIp());
                     tmpPtr2 = static_cast<in_addr*>(n1->getSrcIp());
                 }
-                return memcmp(tmpPtr, tmpPtr2, sizeof(struct in_addr));
+                return !memcmp(tmpPtr, tmpPtr2, sizeof(struct in_addr));
             }
-            else
+            else if (n->getIpVersion() == 6)
             {
                 in6_addr *tmpPtr, *tmpPtr2;
                 if (n->getDir() == Directions::INBOUND)
@@ -96,8 +96,10 @@ bool TEntry::levelCompare(Netflow *n1)
                     tmpPtr = static_cast<in6_addr*>(n->getSrcIp());
                     tmpPtr2 = static_cast<in6_addr*>(n1->getSrcIp());
                 }
-                return memcmp(tmpPtr, tmpPtr2, sizeof(struct in6_addr));
+                return !memcmp(tmpPtr, tmpPtr2, sizeof(struct in6_addr));
             }
+            else
+                throw "Should not came in here";
         }
         case TreeLevel::REMOTE_IP:
         {
@@ -114,9 +116,9 @@ bool TEntry::levelCompare(Netflow *n1)
                     tmpPtr = static_cast<in_addr*>(n->getDstIp());
                     tmpPtr2 = static_cast<in_addr*>(n1->getDstIp());
                 }
-                return memcmp(tmpPtr, tmpPtr2, sizeof(struct in_addr));
+                return !memcmp(tmpPtr, tmpPtr2, sizeof(struct in_addr));
             }
-            else
+            else if (n->getIpVersion() == 6)
             {
                 in6_addr *tmpPtr, *tmpPtr2;
                 if (n->getDir() == Directions::INBOUND)
@@ -129,8 +131,10 @@ bool TEntry::levelCompare(Netflow *n1)
                     tmpPtr = static_cast<in6_addr*>(n->getDstIp());
                     tmpPtr2 = static_cast<in6_addr*>(n1->getDstIp());
                 }
-                return memcmp(tmpPtr, tmpPtr2, sizeof(struct in6_addr));
+                return !memcmp(tmpPtr, tmpPtr2, sizeof(struct in6_addr));
             }
+            else
+                throw "Should not came in here";
         }
         case TreeLevel::REMOTE_PORT:
         {
@@ -144,7 +148,7 @@ bool TEntry::levelCompare(Netflow *n1)
 
 void TEntry::print()
 {
-    cout << "[" << level << "] " << appName << " (" << inode << ")  ";
+    cout << string((int)level, '-') << ">[" << (int)level << "] \"" << appName << "\" (inode:" << inode << ")\t";
     if (n != nullptr)
         n->print();
     else
@@ -167,8 +171,10 @@ TTree::~TTree()
     {
         if (ipVersion == 4)
             delete static_cast<in_addr*>(cv.ip);
-        else
+        else if (ipVersion == 6)
             delete static_cast<in6_addr*>(cv.ip);
+        else
+            throw "Should not came in here";
     }
 }
 
@@ -193,38 +199,28 @@ TEntryOrTTree * TTree::find(Netflow &n)
 
 void TTree::insert(TEntry *entry)
 {
-    TEntryOrTTree *found = find(*entry->getNetflowPtr());
-    // If the same entry already exists
-    if (found->isEntry()) 
-        log(LogLevel::ERROR, "TTree::insert called two times with the same Netflow.");// TODO what to do?
-    // ^^^ in this case we do not update endTime because insert() is used while creating a new tree 
-    // and in this case there mustn't be two same Netflow structures (that would mean two same sockets)
-    else
+    for (vector<TEntryOrTTree*>::size_type i=0; i < v.size(); i++)
     {
-        for (auto ptr : v)
+        if (v[i]->isEntry() && v[i]->levelCompare(entry->getNetflowPtr()))
         {
-            if (ptr->isEntry() && ptr->levelCompare(entry->getNetflowPtr()))
-            {
-                TEntry *oldEntry = static_cast<TEntry*>(ptr);
-                // Create a new tree
-                ptr = new TTree(oldEntry->getLevel());
-                // Set common value at that level
-                static_cast<TTree*>(ptr)->setCommonValue(oldEntry->getNetflowPtr());
-                // Insert an old entry with the new one
-                static_cast<TTree*>(ptr)->insert(oldEntry);
-                static_cast<TTree*>(ptr)->insert(entry);
-                return;
-            }
-            // else if isTree() or it doesn't have same lvl value just ignore it
-            // We ignore TTree because find returns TTree with the closest match
-            // so we don't have to go deeplier in the tree (Node we are interested
-            // in is a TEntry).
+            TEntry *oldEntry = static_cast<TEntry*>(v[i]);
+            // Create a new tree
+            v[i] = new TTree(oldEntry->getLevel());
+            // Set common value at that level
+            static_cast<TTree*>(v[i])->setCommonValue(oldEntry->getNetflowPtr());
+            // Insert an old entry with the new one
+            static_cast<TTree*>(v[i])->insert(oldEntry);
+            static_cast<TTree*>(v[i])->insert(entry);
+            return;
         }
-        // If there is no element with the same value on its level then add a new one
-        entry->setLevel(found->getLevel());
-        entry->incLevel();
-        v.push_back(entry);
+        // else if isTree() or it doesn't have same lvl value just ignore it
+        // We ignore TTree because find returns TTree with the closest match
+        // so we don't have to go deeplier in the tree (Node we are interested
+        // in is a TEntry).
     }
+    // If there is no element with the same value on its level then add a new one
+    entry->setLevel(level+1);
+    v.push_back(entry);
 }
 
 void TTree::setCommonValue(Netflow *n)
@@ -245,21 +241,53 @@ void TTree::setCommonValue(Netflow *n)
             break;
         }
         case TreeLevel::LOCAL_IP:
-        {
+        {   // FIXME if it is called two times on the same level there will be a memory leak
             unsigned char ipVersion = n->getIpVersion();
-            if (n->getDir() == Directions::INBOUND)
-                setIp(n->getDstIp(), ipVersion);
+            if (ipVersion == 4)
+            {
+                in_addr *tmpIpPtr = new in_addr;
+                if (n->getDir() == Directions::INBOUND)
+                    memcpy(tmpIpPtr, n->getDstIp(), sizeof(in_addr));
+                else
+                    memcpy(tmpIpPtr, n->getSrcIp(), sizeof(in_addr));
+                setIp(tmpIpPtr, ipVersion);
+            }
+            else if (ipVersion == 6)
+            {
+                in6_addr *tmpIpPtr = new in6_addr;
+                if (n->getDir() == Directions::INBOUND)
+                    memcpy(tmpIpPtr, n->getDstIp(), sizeof(in6_addr));
+                else
+                    memcpy(tmpIpPtr, n->getSrcIp(), sizeof(in6_addr));
+                setIp(tmpIpPtr, ipVersion);
+            }
             else
-                setIp(n->getSrcIp(), ipVersion);
+                throw "Should not came in here";
             break;
         }
         case TreeLevel::REMOTE_IP:
-        {
+        {   // FIXME if it is called two times on the same level there will be a memory leak
             unsigned char ipVersion = n->getIpVersion();
-            if (n->getDir() == Directions::INBOUND)
-                setIp(n->getSrcIp(), ipVersion);
+            if (ipVersion == 4)
+            {
+                in_addr *tmpIpPtr = new in_addr;
+                if (n->getDir() == Directions::INBOUND)
+                    memcpy(tmpIpPtr, n->getSrcIp(), sizeof(in_addr));
+                else
+                    memcpy(tmpIpPtr, n->getDstIp(), sizeof(in_addr));
+                setIp(tmpIpPtr, ipVersion);
+            }
+            else if (ipVersion == 6)
+            {
+                in6_addr *tmpIpPtr = new in6_addr;
+                if (n->getDir() == Directions::INBOUND)
+                    memcpy(tmpIpPtr, n->getSrcIp(), sizeof(in6_addr));
+                else
+                    memcpy(tmpIpPtr, n->getDstIp(), sizeof(in6_addr));
+                setIp(tmpIpPtr, ipVersion);
+            }
             else
-                setIp(n->getDstIp(), ipVersion);
+                throw "Should not came in here";
             break;
         }
         case TreeLevel::REMOTE_PORT:
@@ -292,7 +320,7 @@ bool TTree::levelCompare(Netflow *n)
         {
             if (n->getIpVersion() != ipVersion)
                 return false;
-            if (ipVersion == 4 )
+            if (ipVersion == 4)
             {
                 in_addr *tmpPtr, *tmpPtr2;
                 if (n->getDir() == Directions::INBOUND)
@@ -305,9 +333,9 @@ bool TTree::levelCompare(Netflow *n)
                     tmpPtr = static_cast<in_addr*>(cv.ip);
                     tmpPtr2 = static_cast<in_addr*>(n->getSrcIp());
                 }
-                return memcmp(tmpPtr, tmpPtr2, sizeof(struct in_addr));
+                return !memcmp(tmpPtr, tmpPtr2, sizeof(struct in_addr));
             }
-            else
+            else if (ipVersion == 6)
             {
                 in6_addr *tmpPtr, *tmpPtr2;
                 if (n->getDir() == Directions::INBOUND)
@@ -320,14 +348,16 @@ bool TTree::levelCompare(Netflow *n)
                     tmpPtr = static_cast<in6_addr*>(cv.ip);
                     tmpPtr2 = static_cast<in6_addr*>(n->getSrcIp());
                 }
-                return memcmp(tmpPtr, tmpPtr2, sizeof(struct in6_addr));
+                return !memcmp(tmpPtr, tmpPtr2, sizeof(struct in6_addr));
             }
+            else
+                throw "Should not come in here";
         }
         case TreeLevel::REMOTE_IP:
         {
             if (n->getIpVersion() != ipVersion)
                 return false;
-            if (ipVersion == 4 )
+            if (ipVersion == 4)
             {
                 in_addr *tmpPtr = static_cast<in_addr*>(cv.ip);
                 in_addr *tmpPtr2;
@@ -336,9 +366,9 @@ bool TTree::levelCompare(Netflow *n)
                 else
                     tmpPtr2 = static_cast<in_addr*>(n->getDstIp());
 
-                return memcmp(tmpPtr, tmpPtr2, sizeof(struct in_addr));
+                return !memcmp(tmpPtr, tmpPtr2, sizeof(struct in_addr));
             }
-            else
+            else if (ipVersion == 6)
             {
                 in6_addr *tmpPtr = static_cast<in6_addr*>(cv.ip);
                 in6_addr *tmpPtr2;
@@ -347,8 +377,10 @@ bool TTree::levelCompare(Netflow *n)
                 else
                     tmpPtr2 = static_cast<in6_addr*>(n->getDstIp());
 
-                return memcmp(tmpPtr, tmpPtr2, sizeof(struct in6_addr));
+                return !memcmp(tmpPtr, tmpPtr2, sizeof(struct in6_addr));
             }
+            else
+                throw "Should not came in here";
         }
         case TreeLevel::REMOTE_PORT:
         {
@@ -362,15 +394,15 @@ bool TTree::levelCompare(Netflow *n)
 
 void TTree::print()
 {
-    cout << "[" << level << "] <";
+    cout << string((int)level, '-') << ">{" << (int)level << "} ";
     switch(level)
     {
         case TreeLevel::LOCAL_PORT:
         case TreeLevel::REMOTE_PORT:
-            cout << cv.port;
+            cout << "Port: <" << cv.port;
             break;
         case TreeLevel::PROTO:
-            cout << cv.proto;
+            cout << "Protocol: <" << (int)cv.proto;
             break;
         case TreeLevel::LOCAL_IP:
         case TreeLevel::REMOTE_IP:
@@ -379,14 +411,16 @@ void TTree::print()
             {
                 char str[INET_ADDRSTRLEN];
                 inet_ntop(AF_INET, cv.ip, str, INET_ADDRSTRLEN);
-                cout << str;
+                cout << "IPv4: <" << str;
             }
-            else
+            else if (ipVersion == 6)
             {
                 char str[INET6_ADDRSTRLEN];
                 inet_ntop(AF_INET6, cv.ip, str, INET6_ADDRSTRLEN);
-                cout << str;
+                cout << "IPv6: <" <<str;
             }
+            else
+                throw "Should not came in here";
             break;
         }
     }
@@ -447,7 +481,16 @@ void Cache::insert(TEntry *newEntry)
     if (iter != (*cache).end())
     {   // the netflow record either exists in the cache or there is a netflow with the same local port
         if (iter->second->isTree())
-            static_cast<TTree*>(iter->second)->insert(newEntry);
+        {
+            TEntryOrTTree *found = static_cast<TTree*>(iter->second)->find(*newEntry->getNetflowPtr());
+            // If the same entry already exists
+            if (found->isEntry()) 
+                log(LogLevel::ERROR, "TTree::insert called two times with the same Netflow.");// TODO what to do?
+            // ^^^ in this case we do not update endTime because insert() is used while creating a new tree 
+            // and in this case there mustn't be two same Netflow structures (that would mean two same sockets)
+            else
+                static_cast<TTree*>(found)->insert(newEntry);
+        }
         else    // isEntry -> record already exists
         {
             TEntry *oldEntry = static_cast<TEntry*>(iter->second);
@@ -460,7 +503,7 @@ void Cache::insert(TEntry *newEntry)
             {
                 // Create a new tree
                 iter->second = new TTree(oldEntry->getLevel());
-                static_cast<TTree*>(iter->second)->setPort(oldEntry->getNetflowPtr()->getSrcPort());
+                static_cast<TTree*>(iter->second)->setCommonValue(oldEntry->getNetflowPtr());
                 // Insert an old entry with the new one
                 static_cast<TTree*>(iter->second)->insert(oldEntry);
                 static_cast<TTree*>(iter->second)->insert(newEntry);
@@ -494,7 +537,7 @@ void Cache::periodicUpdate()
 
 void Cache::print()
 {
-    cout << lastUpdate.time_since_epoch().count();
+    cout << lastUpdate.time_since_epoch().count() << endl;
 
     for (auto m : *cache)
         m.second->print();

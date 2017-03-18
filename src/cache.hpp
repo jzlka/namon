@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    02.03.2017 04:32
- *  Edited:     16.03.2017 07:07
+ *  Edited:     18.03.2017 10:49
  *  Version:    1.0.0
  *  @todo       secure TEntry::map with mutex
  */
@@ -46,7 +46,7 @@ enum class NodeType {
 /*!
  * @brief An enum representing a level in which the node resides in a tree
  */
-enum TreeLevel { 
+enum class TreeLevel { 
     LOCAL_PORT  =0, //!< Level in which we compare local port
     PROTO       =1, //!< Level in which we compare layer 4 protocol
     LOCAL_IP    =2, //!< Level in which we compare local IP address
@@ -73,6 +73,19 @@ inline TreeLevel operator++( TreeLevel &t, int )
 {
     TreeLevel result = t;
     ++t;
+    return result;
+}
+
+/*!
+ * @brief Overloaded prefix increment operator for #TreeLevel enum
+ */
+inline TreeLevel operator+( TreeLevel &l, int a ) 
+{
+    TreeLevel result;
+    using IntType = typename std::underlying_type<TreeLevel>::type;
+    result = static_cast<TreeLevel>( static_cast<IntType>(l) + a );
+    if ( result > TreeLevel::REMOTE_PORT )
+        result = static_cast<TreeLevel>(0);
     return result;
 }
 
@@ -145,11 +158,15 @@ public:
 class TEntry : public TEntryOrTTree
 {
     string appName;                 //!< Application name to which n belongs
-    int inode =0;                   //!< Inode number of #Tentry::appname 's socket
+    int inode =0;                   //!< Inode number of #Tentry::appName 's socket
     Netflow *n = nullptr;           //!< Pointer to a netflow information
 public:
     /*!
- es   * @brief       Constructor that sets level to parameter l and 
+     * @brief   Default constructor that sets node type to #NodeType::ENTRY
+     */
+    TEntry()                                { nt = NodeType::ENTRY; }
+    /*!
+     * @brief       Constructor that sets level to parameter l and 
      *               #TEntryOrTTree::nt to #NodeType::ENTRY
      * @param[in]   l   Level in the tree
      */
@@ -162,7 +179,7 @@ public:
      * @brief       Set method for #TEntry::appName
      * @param[in]   name    Application name
      */
-    void setAppName(string &name)           { appName = name; }
+    void setAppName(const string &name)     { appName = name; }
     /*!
      * @brief   Get method for #TEntry::appName
      * @return  Application name
@@ -211,9 +228,9 @@ public:
  */
 class TTree : public TEntryOrTTree
 {
-    unsigned char ipVersion;        //<! Version of IP header stored in #TTree::cv
-    CommonValue cv;                 //<! Union which contains a value important ot node's level
-    std::vector<TEntryOrTTree*> v;  //<! Vector of pointers to subtrees
+    unsigned char ipVersion;        //!< Version of IP header stored in #TTree::cv
+    CommonValue cv;                 //!< Union which contains a value important ot node's level
+    std::vector<TEntryOrTTree*> v;  //!< Vector of pointers to subtrees
 public:
     /*!
      * @brief       Constructor that sets level to parameter l and 
@@ -247,12 +264,12 @@ public:
      */
     void insert(TEntry *entry);
     /*!
-     * @brief       Set method for #TTree::cv::port
+     * @brief       Set method for #TTree::cv
      * @param[in]   p   Source or destination port which is common in this subtree
      */
     void setPort(unsigned short p)              { cv.port = p; }
     /*!
-     * @brief       Set method for #TTree::cv::ip
+     * @brief       Set method for #TTree::cv
      * @pre         Ip must be a valid in*_addr pointer
      * @post        Memory pointed by Ip must exist as long as TTree object exists.
      *              Then it will be freed in a destructor.
@@ -261,19 +278,20 @@ public:
      */
     void setIp(void *Ip, unsigned char ipV)     { ipVersion = ipV; cv.ip = Ip; }
     /*!
-     * @brief       Set method for #TTree::cv::proto
+     * @brief       Set method for #TTree::cv
      * @param[in]   p   Layer 4 protocol which is common in this subtree
      */
     void setProto(unsigned char p)              { cv.proto = p; }
     /*!
      * @brief       Set method for #TTree::cv union
+     * @warning     If the method is called two times in one instance for the same level, memory leak will occur
      * @pre         n is a valid pointer
      * @param[in]   n   Pointer to Netflow class which contains netflow information
      */
     void setCommonValue(Netflow *n);
     /*!
      * @brief       Compares values important at a specific #TreeLevel
-     * @param[in]   n1  Pointer to a Netflow class with netflow information
+     * @param[in]   n   Pointer to a Netflow class with netflow information
      * @return      Comparison result
      */
     bool levelCompare(Netflow *n);
@@ -287,7 +305,7 @@ public:
 
 /*!
  * @class Cache
- * Cache contains time of its last update end map of open local ports
+ * Cache contains time of its last update and map of open local ports
  */
 class Cache
 {
@@ -306,6 +324,11 @@ public:
      */
     ~Cache();
     /*!
+     * @brief       Set method for #Cache::cache
+     * @param[i]    Pointer to a map in which records will be searched
+     */
+    void setCache(std::map<unsigned short,TEntryOrTTree*> *newCache) { cache = newCache; }
+    /*!
      * @brief       Function finds a Netflow record in a cache
      * @param[in]   n   Reference to a Netflow class that will find in the cache.
      * @return      Pointer to a TEntry node in a case of the exact match, 
@@ -314,11 +337,11 @@ public:
      */
     TEntryOrTTree *find(Netflow &n);
     /*!
-     * @brief       Function inserts new TEntry into cache
+     * @brief       Function inserts new TEntry into the TTree node
      * @pre         entry must be a valid TEntry pointer
      * @post        Memory pointed by entry must exist as long as Cache object exists.
      *              Then it will be freed in a destructor.
-     * @param[in]   entry   Pointer to TEntry class to be inserted into a decision tree
+     * @param[in]   e   Pointer to TEntry class to be inserted into a decision tree
      */
     void insert(TEntry *e);
     /*!
