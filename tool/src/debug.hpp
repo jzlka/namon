@@ -1,17 +1,16 @@
 /** 
  *  @file       debug.hpp
- *  @brief      Network Traffic Capturing With Application Tags
- *  @details    Bachelor's Thesis, FIT VUT Brno
+ *  @brief      Debugging functions
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    26.09.2016 23:59
- *  Edited:     11.03.2017 15:07
- *  g++:        Apple LLVM version 8.0.0 (clang-800.0.42.1)
+ *  Edited:     16.03.2017 05:48
  */
 
 #pragma once
 
 #include <iostream>     //  cerr, uint8_t
+#include <mutex>        //  mutex
 
 #define CLR  "\x1B[0m"
 #define RED  "\x1B[31m"
@@ -49,6 +48,7 @@ void log(LogLevel ll, Ts&&... args)
     }
 }
 
+void setLogLevel(char *ll);
 
 #ifdef DEBUG_BUILD
 
