@@ -1,13 +1,11 @@
 /** 
- *  @file       capturing.cpp
- *  @brief      Network Traffic Capturing With Application Tags
- *  @details    Bachelor's Thesis, FIT VUT Brno
+ *  @file		capturing.cpp
+ *  @brief      Network traffic capture sources
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    18.02.2017 22:45
- *  Edited:     15.03.2017 18:01
+ *  Edited:		17.03.2017 12:37
  *  Version:    1.0.0
- *  g++:        Apple LLVM version 8.0.0 (clang-800.0.42.1)
  *  @todo       set direction in netflow
  *  @todo       set startTime in netflow
  */
@@ -19,12 +17,12 @@
 #include "netflow.hpp"          //  Netflow
 #include "debug.hpp"            //  DEBUG()
 #include "fileHandler.hpp"      //  initOFile()
-#include "main.hpp"             //  stop()
 #include "cache.hpp"            //  TEntryOrTTree
 #include "capturing.hpp"
 
 #if defined(__linux__)
 #include "tool_linux.hpp"
+#include <signal.h>             //  signal(), SIGINT, SIGTERM, SIGABRT, SIGSEGV
 #include <netinet/if_ether.h>   //  SIZE_ETHERNET, ETHERTYPE_IP, ETHERTYPE_IPV6, ether_header
 #include <netinet/ip.h>         //  ip
 #include <netinet/ip6.h>        //  ip6_hdr
@@ -64,14 +62,27 @@ const unsigned char     PROTO_UDP       =   0x11;
 const unsigned char     PROTO_TCP       =   0x06;
 const unsigned char     PROTO_UDPLITE   =   0x88;
 
-const char * g_dev = nullptr;
-ofstream oFile;
-unsigned long g_droppedPackets;
+const char * g_dev = "Not specified";   //!< Capturing device
+ofstream oFile;                         //!< Output file stream
+unsigned long g_droppedPackets;         //!< Number of dropped packets during capture
+int shouldStop = false;                 //!< Variable which is set if program should stop
+mutex m_shouldStopVar;                  //!< Mutex used to lock #shouldStop variable
 
 
 
 int startCapture(const char *oFilename)
 {
+/*
+#ifdef WIN32
+    SetConsoleCtrlHandler((PHANDLER_ROUTINE)signalHandler, TRUE);
+#else
+*/
+    signal(SIGINT, signalHandler);      signal(SIGTERM, signalHandler);
+    signal(SIGABRT, signalHandler);     signal(SIGSEGV, signalHandler);
+/*
+#endif
+
+*/
     char errbuf[PCAP_ERRBUF_SIZE];
     pcap_t *handle;
     
@@ -187,8 +198,12 @@ inline int parseIp(Netflow &n, unsigned int &ip_size, void * const ip_hdr, const
             log(LogLevel::WARNING, "Incorrect IPv4 header received.");
             return EXIT_FAILURE;
         }
-        n.setSrcIp((void*)(&ipv4_hdr->ip_src));
-        n.setDstIp((void*)(&ipv4_hdr->ip_dst));
+        in_addr* tmpSrcIpPtr = new in_addr;
+        memcpy(tmpSrcIpPtr, &ipv4_hdr->ip_src, sizeof(in_addr));
+        in_addr* tmpDstIpPtr = new in_addr;
+        memcpy(tmpDstIpPtr, &ipv4_hdr->ip_dst, sizeof(in_addr));
+        n.setSrcIp((void*)(tmpSrcIpPtr));
+        n.setDstIp((void*)(tmpDstIpPtr));
         n.setIpVersion(4);
         n.setProto(ipv4_hdr->ip_p);
     }
@@ -196,13 +211,17 @@ inline int parseIp(Netflow &n, unsigned int &ip_size, void * const ip_hdr, const
     {
         const ip6_hdr * const ipv6_hdr = (ip6_hdr*)ip_hdr;
         ip_size = IPV6_SIZE;
-        n.setSrcIp((void*)(&ipv6_hdr->ip6_src));
-        n.setDstIp((void*)(&ipv6_hdr->ip6_dst));
+        in6_addr* tmpSrcIpPtr = new in6_addr;
+        memcpy(tmpSrcIpPtr, &ipv6_hdr->ip6_src, sizeof(in6_addr));  // TODO is it needed to copy? packetHandler won't returnoso ipv6_hdr will be still valid when find() returns;
+        in6_addr* tmpDstIpPtr = new in6_addr;
+        memcpy(tmpDstIpPtr, &ipv6_hdr->ip6_dst, sizeof(in6_addr));
+        n.setSrcIp((void*)(tmpSrcIpPtr));
+        n.setDstIp((void*)(tmpDstIpPtr));
         n.setIpVersion(6);
         n.setProto(ipv6_hdr->ip6_nxt);
     }
     else    // TODO what to do with 802.3?
-        n.setProto(0); // Netflow structure is reused with next packet so we have to delete old value. We don't care about the value, because we ignore everything except 6 (TCP) and 17 (UDP).
+        n.setIpVersion(0), n.setProto(0); // Netflow structure is reused with next packet so we have to delete old value. We don't care about the value, because we ignore everything except 6 (TCP) and 17 (UDP).
     // NOTE: we can't determine app for IGMP, ICMP, etc. https://en.wikipedia.org/wiki/List_of_IP_protocol_numbers
     return EXIT_SUCCESS;
 }
@@ -244,3 +263,21 @@ inline int parsePorts(Netflow &n, void *hdr)
     }
     return EXIT_SUCCESS;
 }
+
+
+bool stop()
+{
+    lock_guard<mutex> guard(m_shouldStopVar);
+    return shouldStop;
+}
+
+
+void signalHandler(int signum)
+{
+    log(LogLevel::WARNING, "Interrupt signal (", signum, ") received.");
+    lock_guard<mutex> guard(m_shouldStopVar);
+    shouldStop = signum;
+}
+
+
+

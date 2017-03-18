@@ -1,13 +1,11 @@
 /** 
  *  @file       capturing.hpp
- *  @brief      Network Traffic Capturing With Application Tags
- *  @details    Bachelor's Thesis, FIT VUT Brno
+ *  @brief      Network traffic capture header file
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    18.02.2017 22:48
- *  Edited:     08.03.2017 23:22
+ *  Edited:     16.03.2017 05:46
  *  Version:    1.0.0
- *  g++:        Apple LLVM version 8.0.0 (clang-800.0.42.1)
  */
 
 #pragma once
@@ -35,6 +33,8 @@ int startCapture(const char *oFilename);
 void packetHandler(u_char *args, const struct pcap_pkthdr *header, const u_char *bytes);
 inline int parseIp(Netflow &n, unsigned int &ip_size, void * const ip_hdr, const unsigned short ether_type);
 inline int parsePorts(Netflow &n, void *hdr);
+bool stop();
+void signalHandler(int signum);
 
 
 
