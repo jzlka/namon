@@ -13,15 +13,17 @@ LDFLAGS=-lpcap -pthread
 SHELL:=/bin/bash
 SRCDIR=src
 OBJDIR=obj
+TESTSDIR=tests
 BIN=tool
 SRC=$(wildcard $(SRCDIR)/*.cpp)
 OBJ=$(patsubst $(SRCDIR)/%.cpp, $(OBJDIR)/%.o, $(SRC))
+TESTS=$(patsubst %.cpp, %, $(wildcard $(TESTSDIR)/*.cpp))
 #if [ "$(uname -a | grep -i "Darwin")" == "" ]; then
 #	setcap cap_net_raw ./$(BIN)
 #else
 #	chmod +r /dev/bpf*
 
-.PHONY: test, clean, pack, doxygen, debug, directories
+.PHONY: test, clean, pack, doxygen, debug, unit-tests, directories
 
 ######################    #######################
 $(OBJDIR)/%.o: $(SRCDIR)/%.cpp
@@ -37,6 +39,11 @@ directories:
 
 debug: CXXFLAGS += -O0 -g -DDEBUG_BUILD
 debug: clean all
+
+unit-tests: CXXFLAGS += -I./src/ -DDEBUG_BUILD -g
+unit-tests: clean-tests $(TESTS)
+$(TESTS): %: %.cpp $(filter-out src/main.cpp,$(SRC))
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
 	
 
 # -------------------------------------
@@ -59,4 +66,8 @@ doxygen:
 clean: 
 	rm -f  $(BIN) xzuzel00.tar.gz .fuse_hidden*
 	rm -rf *.dSYM $(OBJDIR)
-# rm -rf doc/
+clean-tests:
+	rm -f $(TESTS)
+	rm -rf $(TESTSDIR)/*.dSYM
+clean-all: clean clean-tests
+	rm -rf doc/
