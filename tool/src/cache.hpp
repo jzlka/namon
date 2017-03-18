@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    02.03.2017 04:32
- *  Edited:     18.03.2017 10:49
+ *  Edited:     19.03.2017 00:04
  *  Version:    1.0.0
  *  @todo       secure TEntry::map with mutex
  */
@@ -31,6 +31,7 @@
 #include "tool_win.hpp"
 #endif
 
+
 using clock_type = std::chrono::high_resolution_clock;
 using std::string;
 
@@ -43,6 +44,7 @@ enum class NodeType {
     ENTRY, //!< Node is #TEntry class
     TREE   //!< Node is #TTree class
 };
+
 /*!
  * @brief An enum representing a level in which the node resides in a tree
  */
@@ -90,7 +92,7 @@ inline TreeLevel operator+( TreeLevel &l, int a )
 }
 
 /*!
- * @typedef CommonValue
+ * @union CommonValue
  * @brief An union which stores a values which are compared at different levels
  */
 typedef union {
@@ -103,7 +105,7 @@ typedef union {
 
 /*!
  * @class TEntryOrTTree
- * @brief Base class which a decision tree (cache) is made from
+ * @brief Base class which a decision tree (cache) is made of
  */
 class TEntryOrTTree
 {
@@ -153,12 +155,12 @@ public:
 
 /*!
  * @class TEntry
- * @brief Class with application name, its socket's inode and a pointer to Netflow class
+ * @brief Class with application name, its socket inode and a pointer to Netflow class
  */
 class TEntry : public TEntryOrTTree
 {
-    string appName;                 //!< Application name to which n belongs
-    int inode =0;                   //!< Inode number of #Tentry::appName 's socket
+    string appName;                 //!< Application name which #TEntry::n belongs to
+    int inode =0;                   //!< Inode number of #TEntry::appName 's socket
     Netflow *n = nullptr;           //!< Pointer to a netflow information
 public:
     /*!
@@ -172,12 +174,12 @@ public:
      */
     TEntry(TreeLevel l)                     { level = l; nt = NodeType::ENTRY; }
     /*!
-     * @brief   Default destructor that deletes n
+     * @brief   Default destructor that deletes #TEntry::n
      */
     ~TEntry()                               { delete n; }
     /*!
      * @brief       Set method for #TEntry::appName
-     * @param[in]   name    Application name
+     * @param[in]   name    New application name
      */
     void setAppName(const string &name)     { appName = name; }
     /*!
@@ -187,7 +189,7 @@ public:
     string const & getAppName()             { return appName; }
     /*!
      * @brief       Set method for #TEntry::inode
-     * @param[in]   i   Inode number
+     * @param[in]   i   New inode number
      */
     void setInode(int i)                    { inode = i; }
     /*!
@@ -205,7 +207,7 @@ public:
     void setNetflowPtr(Netflow *newNetflow) { n = newNetflow; }
     /*!
      * @brief   Get method for #TEntry::n
-     * @return  Pointer to Netflow class
+     * @return  Pointer to a new Netflow class
      */
     Netflow * getNetflowPtr()               { return n; }
     /*!
@@ -229,18 +231,18 @@ public:
 class TTree : public TEntryOrTTree
 {
     unsigned char ipVersion;        //!< Version of IP header stored in #TTree::cv
-    CommonValue cv;                 //!< Union which contains a value important ot node's level
+    CommonValue cv;                 //!< Union which contains a value important at node's level
     std::vector<TEntryOrTTree*> v;  //!< Vector of pointers to subtrees
 public:
     /*!
      * @brief       Constructor that sets level to parameter l and 
-     *              #TEntryOrTTree::nt to #NodeType::TREE
+     *               #TEntryOrTTree::nt to #NodeType::TREE
      * @param[in]   l   Level in the tree
      */
     TTree(TreeLevel l)                      { level = l; nt = NodeType::TREE; }
     /*!
      * @brief   Default d'tor that cycles through #TTree::v vector and frees used memory. 
-     *          Then clears vector v.
+     *          Then clears the vector #TTree:v.
      */
     ~TTree();
     /*!
@@ -249,16 +251,17 @@ public:
      * @details     TTree return value is used in #TTree::insert function. 
      *              Firstly we call #TTree::find and if it didn't find exact TEntry record
      *               it returns pointer to a TTree. 
-     *              Then the new TEntry record is inserted into returned TTree node;
+     *              Then the #TTree::insert method of the returned TTree instance can be called 
+     *               to insert new TEntry record.
      * @param[in]   n   Reference to a Netflow class which the function looks for in the tree
      * @return      Pointer to a TEntry node in a case of the exact match, 
      *               otherwise pointer to a TTree node with a TEntry node with the closest match
      */
     TEntryOrTTree *find(Netflow &n);
     /*!
-     * @brief       Function inserts new TEntry into a decision tree
-     * @pre         entry must be a valid TEntry pointer
-     * @post        Memory pointed by entry must exist as long as TTree object exists.
+     * @brief       Function inserts a new TEntry into a decision tree
+     * @pre         'entry' must be a valid TEntry pointer
+     * @post        Memory pointed by 'entry' must exist as long as TTree object exists.
      *              Then it will be freed in a destructor.
      * @param[in]   entry   Pointer to TEntry class to be inserted into a decision tree
      */
@@ -285,7 +288,7 @@ public:
     /*!
      * @brief       Set method for #TTree::cv union
      * @warning     If the method is called two times in one instance for the same level, memory leak will occur
-     * @pre         n is a valid pointer
+     * @pre         'n' is a valid pointer
      * @param[in]   n   Pointer to Netflow class which contains netflow information
      */
     void setCommonValue(Netflow *n);
@@ -305,7 +308,7 @@ public:
 
 /*!
  * @class Cache
- * Cache contains time of its last update and map of open local ports
+ * Cache contains time of its last update and a map of open local ports
  */
 class Cache
 {
@@ -320,12 +323,13 @@ public:
     Cache();
     /*!
      * @brief   Default d'tor that cycles through cache and deletes objects stored in it.
-     *          Then it deletes cache pointer.
+     *          Then it deletes cache pointer itself.
      */
     ~Cache();
     /*!
      * @brief       Set method for #Cache::cache
-     * @param[i]    Pointer to a map in which records will be searched
+     * @todo        Better param description
+     * @param[in]   Pointer to a map in which records will be searched
      */
     void setCache(std::map<unsigned short,TEntryOrTTree*> *newCache) { cache = newCache; }
     /*!
@@ -338,8 +342,8 @@ public:
     TEntryOrTTree *find(Netflow &n);
     /*!
      * @brief       Function inserts new TEntry into the TTree node
-     * @pre         entry must be a valid TEntry pointer
-     * @post        Memory pointed by entry must exist as long as Cache object exists.
+     * @pre         'e' must be a valid TEntry pointer
+     * @post        Memory pointed by 'e' must exist as long as Cache object exists.
      *              Then it will be freed in a destructor.
      * @param[in]   e   Pointer to TEntry class to be inserted into a decision tree
      */

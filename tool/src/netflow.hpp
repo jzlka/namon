@@ -1,10 +1,10 @@
 /** 
- *  @file		netflow.hpp
+ *  @file       netflow.hpp
  *  @brief      Netflow structure header file
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    26.02.2017 23:13
- *  Edited:		17.03.2017 12:33
+ *  Edited:     18.03.2017 22:39
  *  Version:    1.0.0
  */
 
@@ -14,9 +14,8 @@
 #include <netinet/in.h>     //  in_addr, in6_addr
 #include <arpa/inet.h>      //  inet_ntop()
 
-
-
 extern const char * g_dev;
+
 
 /*!
  * An enum representing packet flow direction
@@ -25,6 +24,7 @@ enum class Directions {
     OUTBOUND, //!< Outgoing packets
     INBOUND   //!< Incoming packets
 };
+
 
 
 /*!
