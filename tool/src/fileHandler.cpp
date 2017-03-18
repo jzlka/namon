@@ -1,20 +1,18 @@
 /** 
  *  @file       fileHandler.cpp
- *  @brief      Network Traffic Capturing With Application Tags
- *  @details    Bachelor's Thesis, FIT VUT Brno
+ *  @brief      File handler source file
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    06.03.2017 14:51
- *  Edited:     11.03.2017 06:26
+ *  Edited:     16.03.2017 05:53
  *  Version:    1.0.0
- *  g++:        Apple LLVM version 8.0.0 (clang-800.0.42.1)
  */
 
 #include <fstream>                  //  ofstream
 #include <string>                   //  string
 #include <sys/utsname.h>            //  uname() TODO -lc pri preklade
 #include "debug.hpp"                //  D(), log()
-#include "main.hpp"                 //  stop()
+#include "capturing.hpp"            //  stop()
 #include "pcapng_blocks.hpp"        //  SectionHeaderBlock, InterfaceDescriptionBlock
 #include "fileHandler.hpp"
 
