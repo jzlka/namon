@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    02.03.2017 04:32
- *  Edited:     19.03.2017 00:04
+ *  Edited:     20.03.2017 15:27
  *  Version:    1.0.0
  *  @todo       secure TEntry::map with mutex
  */
@@ -34,7 +34,6 @@
 
 using clock_type = std::chrono::high_resolution_clock;
 using std::string;
-
 
 
 /*!
@@ -161,7 +160,7 @@ class TEntry : public TEntryOrTTree
 {
     string appName;                 //!< Application name which #TEntry::n belongs to
     int inode =0;                   //!< Inode number of #TEntry::appName 's socket
-    Netflow *n = nullptr;           //!< Pointer to a netflow information
+    Netflow *n = nullptr;           //!< Pointer to a netflow record
 public:
     /*!
      * @brief   Default constructor that sets node type to #NodeType::ENTRY
@@ -216,6 +215,12 @@ public:
      * @return      Comparison result
      */
     bool levelCompare(Netflow *n1);
+    /*!
+     * @brief       Writes structure into the output file
+     * @param[in]   file    The output file
+     * @return      Amount of written data to the output file in bytes
+     */
+    unsigned int write(std::ofstream & file);
     /*!
      * @brief   Function prints content of the class
      */
