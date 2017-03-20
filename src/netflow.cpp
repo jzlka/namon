@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    15.03.2017 23:27
- *  Edited:     18.03.2017 22:51
+ *  Edited:     20.03.2017 12:25
  *  Version:    1.0.0
  */
 
@@ -41,6 +41,7 @@ bool Netflow::operator==(const Netflow& other) const
     }
     return false;
 }
+
 
 void Netflow::print()
 {

@@ -4,17 +4,20 @@
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    26.02.2017 23:13
- *  Edited:     18.03.2017 22:39
+ *  Edited:     20.03.2017 15:28
  *  Version:    1.0.0
  */
 
 #pragma once
 
 #include <string>           //  string
+#include <fstream>          //  ostream
 #include <netinet/in.h>     //  in_addr, in6_addr
 #include <arpa/inet.h>      //  inet_ntop()
+//#include "cache.hpp"        //!  TEntry @todo *T1
 
 extern const char * g_dev;
+class TEntry;               //! @todo *T1
 
 
 /*!
@@ -35,7 +38,7 @@ enum class Directions {
 class Netflow
 {
     Directions dir;                     //!< Packet direction
-    unsigned char ipVersion;            //!< IP header version
+    unsigned char ipVersion =0;         //!< IP header version
     /*!
      * @brief   Pointer to a source IP structure
      * @details Type of the pointer is determined using #Netflow::ipVersion
@@ -48,7 +51,7 @@ class Netflow
     void *dstIp = nullptr;
     unsigned short srcPort =0;           //!< Source port
     unsigned short dstPort =0;           //!< Destination port
-    unsigned char proto;                 //!< Layer 4 protocol
+    unsigned char proto =0;              //!< Layer 4 protocol
     const char *interface = nullptr;     //!< Name of the device that was used to capture packets
     long startTime =0;                   //!< Time of the first packet which belongs to this netflow
     long endTime =0;                     //!< Time of the last packet which belongs to this netflow
@@ -173,12 +176,14 @@ public:
      */
     void setEndTime(long newTime)           { endTime = newTime; }
     /*!
+     * @brief   Function prints content of the Netflow structure
+     */
+    void print();
+    /*!
      * @brief   Overloaded equality operator
      * @details Compares just netflow relevant variables
      */
     bool operator==(const Netflow& other) const;
-    /*!
-     * @brief   Function prints content of the Netflow structure
-     */
-    void print();
+//    friend unsigned int TEntry::write(std::ofstream &file); //! @todo *T1 implement
+    friend TEntry;
 };
