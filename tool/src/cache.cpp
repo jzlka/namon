@@ -4,11 +4,12 @@
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    26.02.2017 23:52
- *  Edited:     18.03.2017 21:32
+ *  Edited:     20.03.2017 15:33
  *  Version:    1.0.0
  */
 
 #include <iostream>             //  cout, endl;
+#include <fstream>              //  ostream
 #include <thread>               //  sleep_for
 #include "netflow.hpp"          //  Netflow
 #include "debug.hpp"            //  log()
@@ -133,14 +134,58 @@ bool TEntry::levelCompare(Netflow *n1)
         }
     }
 }
+unsigned int TEntry::write(std::ofstream & file)
+{
+    unsigned int writtenBytes = 0;
+    size_t size = appName.size();
+    file.write(reinterpret_cast<char*>(&size), sizeof(size));
+    writtenBytes += sizeof(size);
+    file.write(appName.c_str(), size);
+    writtenBytes += size;
+
+    size = sizeof(inode);
+    file.write(reinterpret_cast<char*>(&inode), size);
+    writtenBytes += size;
+
+    size = sizeof(n->dir);
+    file.write(reinterpret_cast<char*>(&n->dir), size);
+    writtenBytes += size;
+
+    size = sizeof(n->ipVersion);
+    file.write(reinterpret_cast<char*>(&n->ipVersion), size);
+    writtenBytes += size;
+
+    //! @todo Can ipVersion contain other number?
+    size = (n->ipVersion == 4) ? sizeof(in_addr) : sizeof(in6_addr);
+    file.write(reinterpret_cast<char*>(n->srcIp), size);
+    file.write(reinterpret_cast<char*>(n->dstIp), size);
+    writtenBytes += size + size;
+
+    size = sizeof(n->srcPort);
+    file.write(reinterpret_cast<char*>(&n->srcPort), size);
+    file.write(reinterpret_cast<char*>(&n->dstPort), size);
+    writtenBytes += size + size;
+
+    size = sizeof(n->proto);
+    file.write(reinterpret_cast<char*>(&n->proto), size);
+    writtenBytes += size;
+
+    size = strlen(n->interface);
+    file.write(n->interface, size);
+    writtenBytes += size;
+
+    size = sizeof(n->startTime);
+    file.write(reinterpret_cast<char*>(&n->startTime), size);
+    file.write(reinterpret_cast<char*>(&n->endTime), size);
+    writtenBytes += size + size;
+
+    return writtenBytes;
+}
 
 void TEntry::print()
 {
     cout << string((int)level, '-') << ">[" << (int)level << "] \"" << appName << "\" (inode:" << inode << ")\t";
-    if (n != nullptr)
-        n->print();
-    else
-        cout << endl;
+    n->print();
 }
 
 
