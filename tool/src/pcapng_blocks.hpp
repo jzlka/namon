@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    06.03.2017 13:33
- *  Edited:     18.03.2017 23:27
+ *  Edited:     20.03.2017 15:02
  *  Version:    1.0.0
  */
 
@@ -13,7 +13,9 @@
 #include <cstdint>              //  uint32_t, uint16_t, uint64_t, int8_t
 #include <fstream>              //  ofstream
 #include <string>               //  string
+#include <vector>               //  vector
 #include <netinet/if_ether.h>   //  ETHER_MAX_LEN
+#include "cache.hpp"            //  TEntry
 #include "debug.hpp"            //  D()
 
 //! Macro to hide compiler warning messages about unused variables
@@ -298,9 +300,9 @@ public:
  */
 class CustomBlock {
     UNUSED(uint32_t blockType)              = 0x40000BAD;
-    UNUSED(uint32_t blockTotalLength)       = sizeof(*this); // TODO
-    UNUSED(uint32_t PrivateEnterpriseNumber)= 0x1234;   // TODO
-    UNUSED(int64_t customData)              = 0;        // TODO
+    UNUSED(uint32_t blockTotalLength)       = sizeof(*this) - sizeof(customData); // **** will be updated in write()
+    UNUSED(uint32_t PrivateEnterpriseNumber)= 0x1234;   //! @todo PEN
+    UNUSED(vector<TEntry*> customData);
     UNUSED(uint32_t blockTotalLength2)      = blockTotalLength;
 public:
     /*!
@@ -313,7 +315,22 @@ public:
      * @param[in]   file    The output file
      */
     void write(ofstream & file)
-        { file.write(reinterpret_cast<char*>(this),sizeof(*this)); }
+    { 
+        blockTotalLength += (customData.size() * sizeof(TEntry));
+        file.write(reinterpret_cast<char*>(this), blockTotalLength2 - sizeof(blockTotalLength2)); 
+        
+        unsigned int writtenData = 0;
+        for (auto e : customData)
+            writtenData += e->write(file);
+
+        const char padding = 0;
+        int paddingLen = computePaddingLen(writtenData, 4);
+        while(paddingLen--)
+            file.write(&padding, sizeof(padding));
+
+        blockTotalLength2 = blockTotalLength;
+        file.write(reinterpret_cast<char*>(&blockTotalLength2), sizeof(blockTotalLength2)); 
+    }
 };
 
 #pragma pack(pop)

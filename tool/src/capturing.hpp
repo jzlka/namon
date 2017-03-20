@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    18.02.2017 22:48
- *  Edited:     18.03.2017 23:48
+ *  Edited:     20.03.2017 15:10
  *  Version:    1.0.0
  */
 
@@ -13,11 +13,12 @@
 #include <iostream>         //  exception, string
 #include <fstream>          //  fstream
 #include <sys/types.h>      //  u_char
+#include "netflow.hpp"
+
 #if defined(__APPLE__) || defined(__linux__)
 #include <netinet/ip.h>         //  ip
 #include <netinet/ip6.h>        //  ip6_hdr
 #endif
-#include "netflow.hpp"
 
 
 //! Size of a libpcap error buffer

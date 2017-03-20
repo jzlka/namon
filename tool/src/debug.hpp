@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    26.09.2016 23:59
- *  Edited:     18.03.2017 23:59
+ *  Edited:     20.03.2017 15:56
  */
 
 #pragma once
@@ -71,7 +71,7 @@ void log(LogLevel ll, Ts&&... args)
  * @brief       Sets #generalLogLevel;
  * @param[in]   ll  #LogLevel
  */
-inline void setLogLevel(char *ll);
+void setLogLevel(char *ll);
 
 
 #ifdef DEBUG_BUILD
