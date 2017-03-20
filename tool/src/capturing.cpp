@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    18.02.2017 22:45
- *  Edited:     19.03.2017 00:38
+ *  Edited:     20.03.2017 15:30
  *  Version:    1.0.0
  */
 
@@ -93,7 +93,7 @@ int startCapture(const char *oFilename)
         log(LogLevel::INFO, "Capturing device '", g_dev, "' was opened.");
 
         // Open the output file
-        oFile.open(oFilename);
+        oFile.open(oFilename, ios::binary);
         if (!oFile)
             throw "Can't open output file: '" + string(oFilename) + "'";
         log(LogLevel::INFO, "Output file '", oFilename, "' was opened.");
