@@ -6,7 +6,7 @@
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    18.02.2017 08:03
- *  Edited:     18.03.2017 22:38
+ *  Edited:     20.03.2017 15:25
  *  Version:    1.0.0
  *  @todo       change tool name
  */
@@ -14,7 +14,7 @@
 #include <iostream>             //  EXIT_*, cout, cerr
 #include <getopt.h>             //  getopt_long()
 #include "capturing.hpp"        //  startCapture()
-#include "debug.hpp"            //  D(), log()
+#include "debug.hpp"            //  D(), log(), setLogLevel()
 #include "main.hpp"
 
 using namespace std;
