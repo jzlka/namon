@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    26.02.2017 23:13
- *  Edited:     20.03.2017 15:28
+ *  Edited:     22.03.2017 20:02
  *  Version:    1.0.0
  */
 
@@ -14,20 +14,8 @@
 #include <fstream>          //  ostream
 #include <netinet/in.h>     //  in_addr, in6_addr
 #include <arpa/inet.h>      //  inet_ntop()
-//#include "cache.hpp"        //!  TEntry @todo *T1
 
-extern const char * g_dev;
-class TEntry;               //! @todo *T1
-
-
-/*!
- * An enum representing packet flow direction
- */
-enum class Directions { 
-    OUTBOUND, //!< Outgoing packets
-    INBOUND   //!< Incoming packets
-};
-
+class TEntry;
 
 
 /*!
@@ -37,48 +25,25 @@ enum class Directions {
  */
 class Netflow
 {
-    Directions dir;                     //!< Packet direction
-    unsigned char ipVersion =0;         //!< IP header version
+    unsigned char ipVersion  =0;         //!< IP header version
     /*!
-     * @brief   Pointer to a source IP structure
+     * @brief   Pointer to a structure containing local IP address
      * @details Type of the pointer is determined using #Netflow::ipVersion
      */
-    void *srcIp = nullptr;
-    /*!
-     * @brief   Pointer to a destnation IP structure
-     * @details Type of the pointer is determined using #Netflow::ipVersion
-     */
-    void *dstIp = nullptr;
-    unsigned short srcPort =0;           //!< Source port
-    unsigned short dstPort =0;           //!< Destination port
-    unsigned char proto =0;              //!< Layer 4 protocol
-    const char *interface = nullptr;     //!< Name of the device that was used to capture packets
-    long startTime =0;                   //!< Time of the first packet which belongs to this netflow
-    long endTime =0;                     //!< Time of the last packet which belongs to this netflow
+    void *localIp            = nullptr;
+    unsigned short localPort =0;         //!< Local port
+    unsigned char proto      =0;         //!< Layer 4 protocol
+    long startTime           =0;         //!< Time of the first packet which belongs to this netflow
+    long endTime             =0;         //!< Time of the last packet which belongs to this netflow
 public:
     /*!
-     * @brief Defalut constructor that sets interface to #g_dev
+     * @brief Defalut constructor
      */
-    Netflow() : interface("Not specified") {}
-    /*!
-     * @brief       Constructor that sets interface to the parameter
-     * @param[in]   intf     Interface used to capture packets
-     */
-    Netflow(const char *intf) : interface(intf) {}
+    Netflow()                               {}
     /*!
      * @brief   Destructor cleans memory pointed by #Netflow::srcIp and #Netflow::dstIp pointers
      */
     ~Netflow();
-    /*! 
-     * @brief   Get method for #Netflow::dir
-     * @return  Packet direction
-     */
-    Directions getDir()                     { return dir; }
-    /*! 
-     * @brief       Set method for #Netflow::dir
-     * @param[in]   d         Packet direction
-     */
-    void setDir(Directions d)               { dir = d; }
     /*! 
      * @brief   Get method for #Netflow::ipVersion
      * @return  IP header version
@@ -90,51 +55,28 @@ public:
      */
     void setIpVersion(unsigned char ipV)    { ipVersion = ipV; }
     /*! 
-     * @brief   Get method for #Netflow::srcIp
-     * @return  Pointer to source IP structure
+     * @brief   Get method for #Netflow::localIp
+     * @return  Pointer to local IP structure
      */
-    void * getSrcIp()                       { return srcIp; }
+    void * getLocalIp()                     { return localIp; }
     /*! 
-     * @brief       Set method for #Netflow::srcIp
+     * @brief       Set method for #Netflow::localIp
      * @pre         newIp must point to a valid in*_addr structure
      * @post        Memory pointed by newIp must exist as long as Netflow object exists.
      *              Then it will be freed in destructor.
-     * @param[in]   newIp     Source IP structure pointer
+     * @param[in]   newIp     Local IP structure pointer
      */
-    void setSrcIp(void *newIp)              { srcIp = newIp; }
+    void setLocalIp(void *newIp)            { localIp = newIp; }
     /*! 
-     * @brief   Get method for #Netflow::dstIp
-     * @return  Pointer to destination IP structure
+     * @brief   Get method for #Netflow::localPort
+     * @return  Local port
      */
-    void * getDstIp()                       { return dstIp; }
+    unsigned short getLocalPort()           { return localPort; }
     /*! 
-     * @brief       Set method for #Netflow::dstIp
-     * @pre         newIp must point to a valid in*_addr structure.
-     * @post        Memory pointed by newIp must exist as long as Netflow object exists.
-     *              Then it will be freed in destructor.
-     * @param[in]   newIp     Destination IP structure pointer
+     * @brief       Set method for #Netflow::localPort
+     * @param[in]   newPort   Local port
      */
-    void setDstIp(void *newIp)              { dstIp = newIp; }
-    /*! 
-     * @brief   Get method for #Netflow::srcPort
-     * @return  Source port
-     */
-    unsigned short getSrcPort()             { return srcPort; }
-    /*! 
-     * @brief       Set method for #Netflow::srcPort
-     * @param[in]   newPort   Source port
-     */
-    void setSrcPort(unsigned short newPort) { srcPort = newPort; }
-    /*! 
-     * @brief   Get method for #Netflow::dstPort
-     * @return  Destination port
-     */
-    unsigned short getDstPort()             { return dstPort; }
-    /*! 
-     * @brief       Set method for #Netflow::dstPort
-     * param[in]    newPort   Destination port
-     */
-    void setDstPort(unsigned short newPort) { dstPort = newPort; }
+    void setLocalPort(unsigned short newPort){ localPort = newPort; }
     /*! 
      * @brief   Get method for #Netflow::proto
      * @return  Layer 4 protocol
@@ -145,16 +87,6 @@ public:
      * @param[in]   newProto  Layer 4 protocol
      */
     void setProto(unsigned char newProto)   { proto = newProto; }
-    /*! 
-     * @brief   Get method for #Netflow::interface
-     * @return  Interface which was used to capture packets
-     */
-    const char *getInterface()              { return interface; }
-    /*! 
-     * @brief       Set method for #Netflow::interface
-     * @param[in]   newInt    Interface which was used to capture packets
-     */
-    void setInterface(const char *newInt)   { interface = newInt; }
     /*! 
      * @brief   Get method for #Netflow::startTime
      * @return  Time of the first packet which belongs to this netflow
@@ -184,6 +116,11 @@ public:
      * @details Compares just netflow relevant variables
      */
     bool operator==(const Netflow& other) const;
-//    friend unsigned int TEntry::write(std::ofstream &file); //! @todo *T1 implement
-    friend TEntry;
+    /*!
+     * @brief       Writes structure into the output file
+     * @param[in]   file    The output file
+     * @return      Amount of written data to the output file in bytes
+     */
+    unsigned int write(std::ofstream & file);
+    friend class TEntry;
 };
