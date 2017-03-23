@@ -4,16 +4,15 @@
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    18.02.2017 22:48
- *  Edited:     20.03.2017 15:10
+ *  Edited:     23.03.2017 17:56
  *  Version:    1.0.0
  */
 
 #pragma once
 
-#include <iostream>         //  exception, string
-#include <fstream>          //  fstream
-#include <sys/types.h>      //  u_char
-#include "netflow.hpp"
+#include <iostream>             //  exception, string
+#include <fstream>              //  fstream
+#include <sys/types.h>          //  u_char
 
 #if defined(__APPLE__) || defined(__linux__)
 #include <netinet/ip.h>         //  ip
@@ -26,6 +25,30 @@
 #define PCAP_ERRBUF_SIZE (256)
 #endif
 
+class Netflow;
+class EnhancedPacketBlock;
+template <class T>
+class RingBuffer;
+
+/*!
+ * An enum representing packet flow direction
+ */
+enum class Directions { 
+    OUTBOUND, //!< Outgoing packets
+    INBOUND   //!< Incoming packets
+};
+
+/*!
+ * @struct  PacketHandlerPointers
+ * @brief   Struct used to pass packetHandler more pointers in one argument
+ */
+struct PacketHandlerPointers
+{
+    PacketHandlerPointers(RingBuffer<EnhancedPacketBlock> *fb, RingBuffer<Netflow> *cb) 
+        : fileBuffer(fb), cacheBuffer(cb) {}
+    RingBuffer<EnhancedPacketBlock> *fileBuffer = nullptr; //!< Pointer to RingBuffer which will be written to a file
+    RingBuffer<Netflow> *cacheBuffer = nullptr;            //!< Used cache
+};
 
 
 /*!
@@ -45,18 +68,31 @@ void packetHandler(u_char *args, const struct pcap_pkthdr *header, const u_char 
  * @brief       Parses IP header
  * @param[out]  n           Netflow which will be filled with parsed information
  * @param[out]  ip_size     Size of the IP header
+ * @param[in]   dir         Packet direction
  * @param[in]   ip_hdr      Pointer to the IP header
  * @param[in]   ether_type  Ethernet frame type
  * @return      IP headers validity
  */
-inline int parseIp(Netflow &n, unsigned int &ip_size, void * const ip_hdr, const unsigned short ether_type);
+inline int parseIp(Netflow &n, unsigned int &ip_size, Directions dir, void * const ip_hdr, const unsigned short ether_type);
 /*!
  * @brief       Parses layer 4 header
  * @param[out]  n   Netflow which will be filled with parsed information
+ * @param[in]   dir         Packet direction
  * @param[in]   hdr Header pointer
  * @return      Layer 4 headers validity
  */
-inline int parsePorts(Netflow &n, void *hdr);
+inline int parsePorts(Netflow &n, Directions dir, void *hdr);
+/*!
+ * @brief       Determine packet direction
+ * @todo        Add IPv6 support
+ *              - we don't have IPv6 address of our interface (libpcap doesn't provide it)
+ *              - libpcap niether provides MAC address nor socet to find out it
+ * @param[in]   ip_hdr  Pointer to IPv4 header
+ * @param[in]   devIp   Pointer to device IPv4 address
+ * @return      Packet direction
+ */
+template<typename T, typename T2>
+Directions getPacketDirection(T *ip_hdr, T2 *devIp);
 /*!
  * @return  True if an application should stop
  */
@@ -81,3 +117,6 @@ public:
     const char *what() const throw() 
         { return msg.c_str(); }
 };
+
+
+#include "capturing.tpp"

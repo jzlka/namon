@@ -4,9 +4,8 @@
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    02.03.2017 04:32
- *  Edited:     20.03.2017 15:27
+ *  Edited:     23.03.2017 18:25
  *  Version:    1.0.0
- *  @todo       secure TEntry::map with mutex
  */
 
 #pragma once
@@ -15,25 +14,13 @@
 #include <vector>           //  vector
 #include <map>              //  map
 #include <chrono>           //  seconds
-#include <mutex>            //  mutex
+#include <mutex>            //  mutes
 #include "netflow.hpp"      //  Netflow
-
-#if defined(__linux__)
-#include "tool_linux.hpp"       //  initCache()
-#endif
-#if defined(__FreeBSD__)
-#include "tool_bsd.hpp"
-#endif
-#if defined(__APPLE__)
-#include "tool_apple.hpp"
-#endif
-#if defined(WIN32) || defined(WINx64) || (defined(__MSDOS__) || defined(__WIN32__))
-#include "tool_win.hpp"
-#endif
 
 
 using clock_type = std::chrono::high_resolution_clock;
 using std::string;
+using std::mutex;
 
 
 /*!
@@ -51,8 +38,6 @@ enum class TreeLevel {
     LOCAL_PORT  =0, //!< Level in which we compare local port
     PROTO       =1, //!< Level in which we compare layer 4 protocol
     LOCAL_IP    =2, //!< Level in which we compare local IP address
-    REMOTE_IP   =3, //!< Level in which we compare remote IP address
-    REMOTE_PORT =4  //!< Level in which we compare remote port
 };
 
 /*!
@@ -60,7 +45,7 @@ enum class TreeLevel {
  */
 inline TreeLevel& operator++( TreeLevel &l ) 
 {
-    if ( l == TreeLevel::REMOTE_PORT )
+    if ( l == TreeLevel::LOCAL_IP )
         l = static_cast<TreeLevel>(0);
     using IntType = typename std::underlying_type<TreeLevel>::type;
     l = static_cast<TreeLevel>( static_cast<IntType>(l) + 1 );
@@ -85,7 +70,7 @@ inline TreeLevel operator+( TreeLevel &l, int a )
     TreeLevel result;
     using IntType = typename std::underlying_type<TreeLevel>::type;
     result = static_cast<TreeLevel>( static_cast<IntType>(l) + a );
-    if ( result > TreeLevel::REMOTE_PORT )
+    if ( result > TreeLevel::LOCAL_IP )
         result = static_cast<TreeLevel>(0);
     return result;
 }
@@ -95,8 +80,8 @@ inline TreeLevel operator+( TreeLevel &l, int a )
  * @brief An union which stores a values which are compared at different levels
  */
 typedef union {
-    unsigned short port;    //!< Source or destination port
-    void *ip =nullptr;      //!< Source or destination IPv4 or IPv6 address
+    unsigned short port;    //!< Local port
+    void *ip =nullptr;      //!< Local IPv4 or IPv6 address
     unsigned char proto;    //!< Layer 4 protocol
 } CommonValue;
 
@@ -273,7 +258,7 @@ public:
     void insert(TEntry *entry);
     /*!
      * @brief       Set method for #TTree::cv
-     * @param[in]   p   Source or destination port which is common in this subtree
+     * @param[in]   p   Local port which is common in this subtree
      */
     void setPort(unsigned short p)              { cv.port = p; }
     /*!
@@ -281,7 +266,7 @@ public:
      * @pre         Ip must be a valid in*_addr pointer
      * @post        Memory pointed by Ip must exist as long as TTree object exists.
      *              Then it will be freed in a destructor.
-     * @param[in]   Ip  Pointer to source or destination IPv4 or IPv6 header which is common in this subtree
+     * @param[in]   Ip  Pointer to local IPv4 or IPv6 header which is common in this subtree
      * @param[in]   ipV IP header version
      */
     void setIp(void *Ip, unsigned char ipV)     { ipVersion = ipV; cv.ip = Ip; }
@@ -320,12 +305,12 @@ class Cache
     //! @brief  Time of last update
     clock_type::time_point lastUpdate = clock_type::now();
     //! @brief  Map of open local ports
-    std::map<unsigned short,TEntryOrTTree*> *cache = new std::map<unsigned short,TEntryOrTTree*>;
+    std::map<unsigned short,class TEntryOrTTree*> *cache = new std::map<unsigned short,class TEntryOrTTree*>;
 public:
     /*!
      * @brief   Default c'tor that initialises Cache 
      */
-    Cache();
+    Cache() {}
     /*!
      * @brief   Default d'tor that cycles through cache and deletes objects stored in it.
      *          Then it deletes cache pointer itself.
