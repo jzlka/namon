@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    06.03.2017 13:33
- *  Edited:     20.03.2017 15:02
+ *  Edited:     23.03.2017 18:29
  *  Version:    1.0.0
  */
 
@@ -17,6 +17,10 @@
 #include <netinet/if_ether.h>   //  ETHER_MAX_LEN
 #include "cache.hpp"            //  TEntry
 #include "debug.hpp"            //  D()
+
+#if defined(__linux__)
+#include <cstring>              //  strlen()
+#endif
 
 //! Macro to hide compiler warning messages about unused variables
 #ifdef UNUSED

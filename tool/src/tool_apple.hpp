@@ -4,17 +4,20 @@
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    18.02.2017 22:55
- *  Edited:     18.03.2017 23:29
+ *  Edited:     22.03.2017 17:44
  *  Version:    1.0.0
  *  @todo       rename file
  */
 
 #pragma once
 
+#include <netinet/ip.h>     //  ip
+#include "capturing.hpp"    //  Directions
 #include "netflow.hpp"      //  Netflow
 #include "cache.hpp"        //  Cache
 
-class Cache;
 
-int determineApp (Netflow *n);
+TEntry *determineApp (Netflow *n);
 void initCache(Cache *c);
+//! @todo what to do with ipv6 !?
+Directions getDirection(const ip * const hdr);
