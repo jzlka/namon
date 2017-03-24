@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    26.09.2016 23:59
- *  Edited:     24.03.2017 12:51
+ *  Edited:     24.03.2017 20:58
  */
 
 #pragma once
@@ -65,6 +65,7 @@ void log(LogLevel ll, Ts&&... args)
         std::cerr << msgPrefix[static_cast<int>(ll)] << " ";
         //(std::cerr << ... << args) << std::endl;  // c++17
         int dummy[sizeof...(Ts)] = { (std::cout << args, 0)... };
+        (void)dummy;    // disable warning about unused var
         std::cout << std::endl;
     }
 }
