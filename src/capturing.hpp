@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    18.02.2017 22:48
- *  Edited:     23.03.2017 17:56
+ *  Edited:     24.03.2017 20:11
  *  Version:    1.0.0
  */
 
@@ -29,6 +29,7 @@ class Netflow;
 class EnhancedPacketBlock;
 template <class T>
 class RingBuffer;
+extern std::atomic<int> shouldStop;
 
 /*!
  * An enum representing packet flow direction
@@ -96,7 +97,7 @@ Directions getPacketDirection(T *ip_hdr, T2 *devIp);
 /*!
  * @return  True if an application should stop
  */
-bool stop();
+inline bool stop()      { return shouldStop; }
 /*!
  * @brief       Signal handler function
  * @param[in]   signum  Received interrupt signal
