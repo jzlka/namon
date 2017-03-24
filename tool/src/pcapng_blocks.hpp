@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    06.03.2017 13:33
- *  Edited:     20.03.2017 15:02
+ *  Edited:     24.03.2017 11:30
  *  Version:    1.0.0
  */
 
@@ -18,11 +18,16 @@
 #include "cache.hpp"            //  TEntry
 #include "debug.hpp"            //  D()
 
+#if defined(__linux__)
+#include <cstring>              //  strlen()
+#endif
+
 //! Macro to hide compiler warning messages about unused variables
 #ifdef UNUSED
 /* nothing */
 #elif defined(__GNUC__)
-#  define UNUSED(x) __attribute__((unused)) x
+//#  define UNUSED(x) x __attribute__((unused))
+#  define UNUSED(x) x [[gnu::unused]]
 #elif defined(__LCLINT__)
 #  define UNUSED(x) /*@unused@*/ x
 #else                /* !__GNUC__ && !__LCLINT__ */
