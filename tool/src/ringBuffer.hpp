@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    22.03.2017 17:04
- *  Edited:     23.03.2017 13:32
+ *  Edited:     24.03.2017 12:46
  *  Version:    1.0.0
  */
 
@@ -36,7 +36,7 @@ class RingBuffer
     //! @brief  Last element of the ring buffer
     size_t last = 0 ;
     //! @brief  Number of elements in the ring buffer
-    std::atomic_size_t size; // zero initialized by default
+    std::atomic_size_t size;    // zero initialized by default (not on Linux !!!)
     //! @brief  Number of dropped elements
     unsigned int droppedElem = 0;
 
@@ -51,7 +51,7 @@ public:
      * @brief       Constructor with size as parameter
      * @param[in]   cap Capacity of the buffer
      */
-    RingBuffer( size_t cap ) : buffer(cap) {}
+    RingBuffer( size_t cap ) : buffer(cap), size(0) {}
     /*!
      * @return  True if the buffer is empty
      */

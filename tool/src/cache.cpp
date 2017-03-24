@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    26.02.2017 23:52
- *  Edited:     22.03.2017 20:05
+ *  Edited:     23.03.2017 19:06
  *  Version:    1.0.0
  */
 
@@ -15,6 +15,9 @@
 #include "debug.hpp"            //  log()
 #include "cache.hpp"            //  Cache
 
+#if defined(__linux__)
+#include <cstring>              //  memcmp(), memcpy()
+#endif
 
 using namespace std;
 using std::chrono::seconds;

@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    22.03.2017 17:04
- *  Edited:     23.03.2017 13:33
+ *  Edited:     24.03.2017 12:49
  *  Version:    1.0.0
  */
 
@@ -31,8 +31,6 @@ int RingBuffer<EnhancedPacketBlock>::push(const pcap_pkthdr *header, const u_cha
         droppedElem++;
         return 1;
     }
-    else
-        ++size;
 
     if (last >= buffer.size()) 
         last = 0;
@@ -41,9 +39,11 @@ int RingBuffer<EnhancedPacketBlock>::push(const pcap_pkthdr *header, const u_cha
     buffer[last].setTimestamp(header->ts.tv_usec); //! @todo    Will usec be precise enough?
     buffer[last].setPacketData(packet);
     ++last;
+    ++size;
 
     std::lock_guard<std::mutex> guard(m_mutex);
     m_newItem = true;
+    m_condVar.notify_all();
     return 0;
 }
 
@@ -57,13 +57,12 @@ int RingBuffer<T>::push(T *n)
         droppedElem++;
         return 1;
     }
-    else
-        ++size;
 
     if (last >= buffer.size()) 
         last = 0;
     buffer[last] = *n;
     ++last;
+    ++size;
 
     std::lock_guard<std::mutex> guard(m_mutex);
     m_newItem = true;

@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    18.02.2017 22:45
- *  Edited:     23.03.2017 18:21
+ *  Edited:     24.03.2017 11:06
  *  Version:    1.0.0
  */
 
@@ -177,8 +177,6 @@ void packetHandler(u_char *arg_array, const struct pcap_pkthdr *header, const u_
 
 inline int parseIp(Netflow &n, unsigned int &ip_size, Directions dir, void * const ip_hdr, const unsigned short ether_type)
 {
-    static vector<struct in_addr> interfacesIps;
-
     if (ether_type == PROTO_IPV4)
     {
         const ip * const ipv4_hdr = (ip*)ip_hdr;

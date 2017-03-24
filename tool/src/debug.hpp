@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    26.09.2016 23:59
- *  Edited:     20.03.2017 15:56
+ *  Edited:     24.03.2017 12:51
  */
 
 #pragma once
@@ -63,7 +63,9 @@ void log(LogLevel ll, Ts&&... args)
     {
         std::lock_guard<std::mutex> guard(m_debugPrint);
         std::cerr << msgPrefix[static_cast<int>(ll)] << " ";
-        (std::cerr << ... << args) << std::endl;
+        //(std::cerr << ... << args) << std::endl;  // c++17
+        int dummy[sizeof...(Ts)] = { (std::cout << args, 0)... };
+        std::cout << std::endl;
     }
 }
 
