@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    26.02.2017 23:52
- *  Edited:     23.03.2017 19:06
+ *  Edited:     24.03.2017 19:57
  *  Version:    1.0.0
  */
 
@@ -24,7 +24,7 @@ using std::chrono::seconds;
 using std::chrono::duration_cast;
 
 
-extern const int shouldStop;
+extern const atomic<int> shouldStop;
 const int UPDATE_INTERVAL = 5;      //!< Cache will be updated every >#UPDATE_INTERVAL< seconds
 
 
@@ -295,9 +295,10 @@ void TTree::print()
  *++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 Cache::~Cache()                        
 { 
+    D("Size:" << cache->size());
     for (auto ptr : *cache)
         delete ptr.second;
-    delete cache; 
+    //delete cache; 
 }
 
 TEntryOrTTree *Cache::find(Netflow &n)
@@ -372,7 +373,7 @@ void Cache::periodicUpdate()
         // If it has been already updated (e.g. because of cache miss) don't update it
         if(duration_cast<seconds>(clock_type::now()-lastUpdate) >= seconds(UPDATE_INTERVAL))  
             this_thread::sleep_for(seconds(UPDATE_INTERVAL));
-        // If shoudStop was set during sleep
+        // If shouldStop was set during sleep
         if(!shouldStop)
             break;
 
