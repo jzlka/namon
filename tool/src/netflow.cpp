@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    15.03.2017 23:27
- *  Edited:     22.03.2017 01:29
+ *  Edited:     23.03.2017 19:06
  *  Version:    1.0.0
  */
 
@@ -12,6 +12,9 @@
 #include <fstream>          //  ofstream
 #include "netflow.hpp"
 
+#if defined(__linux__)
+#include <cstring>          //  memcmp()
+#endif
 
 
 Netflow::~Netflow()                                  
