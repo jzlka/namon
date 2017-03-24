@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    18.02.2017 22:45
- *  Edited:     24.03.2017 11:06
+ *  Edited:     24.03.2017 20:11
  *  Version:    1.0.0
  */
 
@@ -12,6 +12,7 @@
 #include <pcap.h>               //  pcap_lookupdev(), pcap_open_live(), pcap_dispatch(), pcap_close()
 #include <mutex>                //  mutex
 #include <thread>               //  thread
+#include <atomic>               //  atomic::store()
 #include "fileHandler.hpp"      //  initOFile()
 #include "ringBuffer.hpp"       //  RingBuffer
 #include "cache.hpp"            //  TEntryOrTTree
@@ -49,7 +50,7 @@ const unsigned char     PROTO_UDPLITE   =   0x88;   //!< ID of UDPLite protocol
 const char * g_dev = nullptr;           //!< Capturing device name
 in_addr g_devIp;                        //!< Capturing device IPv4 address
 ofstream oFile;                         //!< Output file stream
-int shouldStop = false;                 //!< Variable which is set if program should stop
+atomic<int> shouldStop {false};         //!< Variable which is set if program should stop
 mutex m_shouldStopVar;                  //!< Mutex used to lock #shouldStop variable
 
 
@@ -108,7 +109,7 @@ int startCapture(const char *oFilename)
 //        if (pcap_loop(handle, -1, packetHandler, NULL) == -1)
 //            throw "pcap_loop() failed";   //pcap_breakloop()?
 
-        this_thread::sleep_for(chrono::seconds(1)); // because of possible deadlock, get some time to return from RingBuffer::receivedPacket() to condVar.wait()
+        this_thread::sleep_for(chrono::seconds(5)); // because of possible deadlock, get some time to return from RingBuffer::receivedPacket() to condVar.wait()
         fileBuffer.notifyCondVar(); // notify thread, it should end
         cacheBuffer.notifyCondVar(); // notify thread, it should end
         t2.join();
@@ -118,7 +119,7 @@ int startCapture(const char *oFilename)
         pcap_stats(handle, &stats);
         cout << fileBuffer.getDroppedElem() << "' packets dropped by fileBuffer." << endl;
         cout << cacheBuffer.getDroppedElem() << "' packets dropped by cacheBuffer." << endl;
-        cout << stats.ps_drop << "' packets dropped by the driver.";
+        cout << stats.ps_drop << "' packets dropped by the driver." << endl;
 
         pcap_close(handle);
         //! @todo save results into the file
@@ -268,16 +269,8 @@ inline int parsePorts(Netflow &n, Directions dir, void *hdr)
 }
 
 
-bool stop()
-{
-    lock_guard<mutex> guard(m_shouldStopVar);
-    return shouldStop;
-}
-
-
 void signalHandler(int signum)
 {
     log(LogLevel::WARNING, "Interrupt signal (", signum, ") received.");
-    lock_guard<mutex> guard(m_shouldStopVar);
-    shouldStop = signum;
+    shouldStop.store(signum);
 }
