@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    06.03.2017 13:33
- *  Edited:     24.03.2017 11:30
+ *  Edited:     24.03.2017 20:25
  *  Version:    1.0.0
  */
 
@@ -26,8 +26,8 @@
 #ifdef UNUSED
 /* nothing */
 #elif defined(__GNUC__)
-//#  define UNUSED(x) x __attribute__((unused))
-#  define UNUSED(x) x [[gnu::unused]]
+#  define UNUSED(x) x __attribute__((unused))
+//#  define UNUSED(x) x [[gnu::unused]]
 #elif defined(__LCLINT__)
 #  define UNUSED(x) /*@unused@*/ x
 #else                /* !__GNUC__ && !__LCLINT__ */
