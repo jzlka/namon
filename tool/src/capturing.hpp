@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    18.02.2017 22:48
- *  Edited:     24.03.2017 20:11
+ *  Edited:     25.03.2017 20:38
  *  Version:    1.0.0
  */
 
@@ -13,6 +13,7 @@
 #include <iostream>             //  exception, string
 #include <fstream>              //  fstream
 #include <sys/types.h>          //  u_char
+#include <atomic>               //  atomic
 
 #if defined(__APPLE__) || defined(__linux__)
 #include <netinet/ip.h>         //  ip
@@ -94,10 +95,6 @@ inline int parsePorts(Netflow &n, Directions dir, void *hdr);
  */
 template<typename T, typename T2>
 Directions getPacketDirection(T *ip_hdr, T2 *devIp);
-/*!
- * @return  True if an application should stop
- */
-inline bool stop()      { return shouldStop; }
 /*!
  * @brief       Signal handler function
  * @param[in]   signum  Received interrupt signal
