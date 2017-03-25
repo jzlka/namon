@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    26.02.2017 23:52
- *  Edited:     24.03.2017 19:57
+ *  Edited:     25.03.2017 19:57
  *  Version:    1.0.0
  */
 
@@ -368,20 +368,20 @@ void Cache::insert(TEntry *newEntry)
 
 void Cache::periodicUpdate()
 {
-    while(!shouldStop)
+/*    while(!shouldStop)
     {
         // If it has been already updated (e.g. because of cache miss) don't update it
         if(duration_cast<seconds>(clock_type::now()-lastUpdate) >= seconds(UPDATE_INTERVAL))  
             this_thread::sleep_for(seconds(UPDATE_INTERVAL));
         // If shouldStop was set during sleep
-        if(!shouldStop)
+        if(shouldStop)
             break;
 
         //map<unsigned short, TEntryOrTTree*> *newCache = new map<unsigned short, TEntryOrTTree*>;
         //::initCache(this);
         //diff();
         //! @todo   Implement cache.diff and periodicUpdate
-    }
+    }*/
 }
 
 void Cache::print()

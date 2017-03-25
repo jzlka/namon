@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    18.02.2017 22:45
- *  Edited:     24.03.2017 20:11
+ *  Edited:     25.03.2017 20:38
  *  Version:    1.0.0
  */
 
@@ -51,7 +51,6 @@ const char * g_dev = nullptr;           //!< Capturing device name
 in_addr g_devIp;                        //!< Capturing device IPv4 address
 ofstream oFile;                         //!< Output file stream
 atomic<int> shouldStop {false};         //!< Variable which is set if program should stop
-mutex m_shouldStopVar;                  //!< Mutex used to lock #shouldStop variable
 
 
 
@@ -104,25 +103,29 @@ int startCapture(const char *oFilename)
         
         PacketHandlerPointers ptrs { &fileBuffer, &cacheBuffer };
 
-        while (!stop())
+        while (!shouldStop)
             pcap_dispatch(handle, -1, packetHandler, reinterpret_cast<u_char*>(&ptrs));
 //        if (pcap_loop(handle, -1, packetHandler, NULL) == -1)
 //            throw "pcap_loop() failed";   //pcap_breakloop()?
 
-        this_thread::sleep_for(chrono::seconds(5)); // because of possible deadlock, get some time to return from RingBuffer::receivedPacket() to condVar.wait()
-        fileBuffer.notifyCondVar(); // notify thread, it should end
-        cacheBuffer.notifyCondVar(); // notify thread, it should end
-        t2.join();
-        t1.join();
-        
         struct pcap_stat stats;
         pcap_stats(handle, &stats);
+        pcap_close(handle);
+
+        log(LogLevel::INFO, "Sleeping");
+        this_thread::sleep_for(chrono::seconds(1)); // because of possible deadlock, get some time to return from RingBuffer::receivedPacket() to condVar.wait()
+        fileBuffer.notifyCondVar(); // notify thread, it should end
+        cacheBuffer.notifyCondVar(); // notify thread, it should end
+        log(LogLevel::INFO, "Joining t2");
+        t2.join();
+        log(LogLevel::INFO, "Joining t1");
+        t1.join();
+        
         cout << fileBuffer.getDroppedElem() << "' packets dropped by fileBuffer." << endl;
         cout << cacheBuffer.getDroppedElem() << "' packets dropped by cacheBuffer." << endl;
         cout << stats.ps_drop << "' packets dropped by the driver." << endl;
 
-        pcap_close(handle);
-        //! @todo save results into the file
+        //! @todo save cache results into the file
     }
     catch(pcap_ex &e)
     {
@@ -138,7 +141,7 @@ int startCapture(const char *oFilename)
             pcap_close(handle);
         return EXIT_FAILURE;
     }
-    return stop();
+    return shouldStop;
 } 
 
 void packetHandler(u_char *arg_array, const struct pcap_pkthdr *header, const u_char *packet)
@@ -147,16 +150,15 @@ void packetHandler(u_char *arg_array, const struct pcap_pkthdr *header, const u_
     static unsigned int ip_size;
     static ether_header *eth_hdr;
     PacketHandlerPointers *ptrs = reinterpret_cast<PacketHandlerPointers*>(arg_array);
-    n.setStartTime(header->ts.tv_usec);
-    n.setEndTime(header->ts.tv_usec);
-    
     eth_hdr = (ether_header*) packet;
-    //RingBuffer<Netflow> *cb = ptrs->cacheBuffer;
+
+    RingBuffer<Netflow> *cb = ptrs->cacheBuffer;
     RingBuffer<EnhancedPacketBlock> *rb = ptrs->fileBuffer;
     if(rb->push(header, packet))
-    {
         return; //! @todo  When the packet is not saved into the output file, we don't process this packet. Valid behavior?
-    }
+    
+    n.setStartTime(header->ts.tv_usec);
+    n.setEndTime(header->ts.tv_usec);
     
     Directions dir = getPacketDirection((ip*)(packet+ETHER_HDR_LEN), &g_devIp);
     // Parse IP header
@@ -166,13 +168,11 @@ void packetHandler(u_char *arg_array, const struct pcap_pkthdr *header, const u_
     if (parsePorts(n, dir, (void*)(packet + ETHER_HDR_LEN + ip_size)))
         return;
 
-//    if (cb->push(&n))
-//    {
-//        log(LogLevel::ERROR, "Packet dropped because cache is too slow.");
-//        return;
-//    }
-
-    D("localPort:" << n.getLocalPort() << ", proto:" << (int)n.getProto());
+    if (cb->push(n))
+    {
+        log(LogLevel::ERROR, "Packet dropped because cache is too slow.");
+        return;
+    }
 }
 
 
