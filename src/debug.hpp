@@ -64,9 +64,9 @@ void log(LogLevel ll, Ts&&... args)
         std::lock_guard<std::mutex> guard(m_debugPrint);
         std::cerr << msgPrefix[static_cast<int>(ll)] << " ";
         //(std::cerr << ... << args) << std::endl;  // c++17
-        int dummy[sizeof...(Ts)] = { (std::cout << args, 0)... };
+        int dummy[sizeof...(Ts)] = { (std::cerr << args, 0)... };
         (void)dummy;    // disable warning about unused var
-        std::cout << std::endl;
+        std::cerr << std::endl;
     }
 }
 

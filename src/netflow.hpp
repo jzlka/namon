@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    26.02.2017 23:13
- *  Edited:     22.03.2017 20:02
+ *  Edited:     25.03.2017 20:37
  *  Version:    1.0.0
  */
 
@@ -113,9 +113,38 @@ public:
     void print();
     /*!
      * @brief   Overloaded equality operator
-     * @details Compares just netflow relevant variables
+     * @details Compares only netflow relevant variables
      */
     bool operator==(const Netflow& other) const;
+    /*!
+     * @brief   Overloaded move assignment operator
+     * @details It is used when to save a structure into RingBuffer
+     */
+    Netflow& operator=(Netflow&& other)
+    {
+        if (this != &other)
+        {
+            if (ipVersion == 4)
+                delete static_cast<in_addr*>(localIp);
+            else
+                delete static_cast<in6_addr*>(localIp);
+            
+            ipVersion = other.ipVersion;
+            localIp = other.localIp;
+            localPort = other.localPort;
+            proto = other.proto;
+            startTime = other.startTime;
+            endTime = other.endTime;
+            
+            other.ipVersion = 0;
+            other.localIp = nullptr;
+            other.localPort = 0;
+            other.proto = 0;
+            other.startTime = 0;
+            other.endTime = 0;
+        }
+        return *this;
+    }
     /*!
      * @brief       Writes structure into the output file
      * @param[in]   file    The output file
