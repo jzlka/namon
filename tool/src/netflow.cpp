@@ -38,6 +38,7 @@ bool Netflow::operator==(const Netflow& other) const
     return false;
 }
 
+
 unsigned int Netflow::write(std::ofstream &file)
 {
     unsigned int writtenBytes = 0;

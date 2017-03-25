@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    06.03.2017 13:33
- *  Edited:     24.03.2017 20:25
+ *  Edited:     25.03.2017 18:03
  *  Version:    1.0.0
  */
 
@@ -242,19 +242,20 @@ class EnhancedPacketBlock {
     UNUSED(uint32_t timestampLo)            = 0;
     UNUSED(uint32_t capturedPacketLength)   = 0;
     UNUSED(uint32_t originalPacketLength)   = 0;
-    UNUSED(const u_char * packetData)       = nullptr;
+    UNUSED(size_t allocatedBytes)           = ETHER_MAX_LEN; // finally not in EnhancedPacketBlock
+    UNUSED(u_char *packetData)              = nullptr;
     UNUSED(uint32_t blockTotalLength2)      = blockTotalLength;
 public:
     /*!
      * @brief   Default c'tor that preallocates memory for packet
+     * @details Malloc is used instead of new because of later reallocating.
+     *          http://stackoverflow.com/questions/33706528/is-it-safe-to-realloc-memory-allocated-with-new
      */
-    EnhancedPacketBlock() 
-        { packetData = new u_char[ETHER_MAX_LEN]; }
+    EnhancedPacketBlock()     { packetData = (u_char*)malloc(ETHER_MAX_LEN); }
     /*!
      * @brief   Default d'tor that deletes preallocated packet memory
      */
-    ~EnhancedPacketBlock()
-        { delete [] packetData; }
+    ~EnhancedPacketBlock()    { free(packetData); }
     /*!
      * @brief       Set method for #EnhancedPacketBlock::timestampHi 
      *               and #EnhancedPacketBlock::timestampLo
@@ -273,10 +274,26 @@ public:
     void setOriginalPacketLength(uint32_t len) { originalPacketLength = len; }
     /*!
      * @brief       Set method for #EnhancedPacketBlock::packetData
-     * @details     Copies a memory pointed by ptr into the preallocated space
+     * @details     Copies a memory pointed by ptr into the preallocated space.
+     *              Copy is faster than memmove
+     * @todo        Catch error
      * @param[in]   ptr Pointer to a received packet
+     * @param[in]   len Length of the packet
      */
-    void setPacketData(const u_char *ptr) { memcpy((void*)packetData, ptr, capturedPacketLength); }
+    void setPacketData(const u_char *ptr, uint32_t len) 
+    {
+        if (len > allocatedBytes)
+        {
+            u_char *tmpPtr = (u_char*)realloc(packetData, len);
+            if (tmpPtr == nullptr)
+                throw "Err"; //! @todo catch and free
+            packetData = tmpPtr;
+            allocatedBytes = len;
+        }
+        // http://stackoverflow.com/questions/31898617/receiving-tcp-segments-bigger-than-mtu-with-libpcap 
+        memcpy((void*)packetData, ptr, len); 
+        capturedPacketLength = len; 
+    }
     /*!
      * @brief       Writes whole block into the output file
      * @param[in]   file    The output file
