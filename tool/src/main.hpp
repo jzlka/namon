@@ -3,11 +3,10 @@
  *  @brief      Main header file
  *  @details    Network Traffic Capturing With Application Tags,
  *              Bachelor's Thesis, FIT VUT Brno
- *  @author     Jozef Zuzelka (xzuzel00)
- *  Mail:       xzuzel00@stud.fit.vutbr.cz
- *  Created:    18.02.2017 22:52
- *  Edited:     18.03.2017 23:58
- *  Version:    1.0.0
+ *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
+ *  @date
+ *   - Created: 18.02.2017 22:52
+ *   - Edited:  27.03.2017 00:15
  */
 
 #pragma once

@@ -1,10 +1,10 @@
 /** 
  *  @file       debug.hpp
  *  @brief      Debugging functions
- *  @author     Jozef Zuzelka (xzuzel00)
- *  Mail:       xzuzel00@stud.fit.vutbr.cz
- *  Created:    26.09.2016 23:59
- *  Edited:     24.03.2017 20:58
+ *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
+ *  @date
+ *   - Created: 26.09.2016 23:59
+ *   - Edited:  27.03.2017 00:15
  */
 
 #pragma once

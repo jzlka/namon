@@ -1,11 +1,10 @@
 /** 
  *  @file       cache.cpp
  *  @brief      Cache implementation sources
- *  @author     Jozef Zuzelka (xzuzel00)
- *  Mail:       xzuzel00@stud.fit.vutbr.cz
- *  Created:    26.02.2017 23:52
- *  Edited:     25.03.2017 19:57
- *  Version:    1.0.0
+ *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
+ *  @date
+ *   - Created: 26.02.2017 23:52
+ *   - Edited:  27.03.2017 00:15
  */
 
 #include <iostream>             //  cout, endl;
