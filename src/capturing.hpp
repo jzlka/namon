@@ -1,11 +1,10 @@
 /** 
  *  @file       capturing.hpp
  *  @brief      Network traffic capture header file
- *  @author     Jozef Zuzelka (xzuzel00)
- *  Mail:       xzuzel00@stud.fit.vutbr.cz
- *  Created:    18.02.2017 22:48
- *  Edited:     25.03.2017 20:38
- *  Version:    1.0.0
+ *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
+ *  @date
+ *   - Created: 18.02.2017 22:48
+ *   - Edited:  27.03.2017 00:15
  */
 
 #pragma once

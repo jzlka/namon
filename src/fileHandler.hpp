@@ -1,12 +1,10 @@
 /** 
  *  @file       fileHandler.hpp
  *  @brief      File handler header file
- *  @author     Jozef Zuzelka (xzuzel00)
- *  Mail:       xzuzel00@stud.fit.vutbr.cz
+ *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
- *  - Created:  06.03.2017 14:50
- *  - Edited:       22.03.2017 17:10
- *  Version:    1.0.0
+ *   - Created: 06.03.2017 14:50
+ *   - Edited:  27.03.2017 00:15
  */
 
 #pragma once

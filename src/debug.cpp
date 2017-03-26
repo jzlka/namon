@@ -1,11 +1,10 @@
 /** 
  *  @file       debug.cpp
  *  @brief      Debug variables
- *  @author     Jozef Zuzelka (xzuzel00)
- *  Mail:       xzuzel00@stud.fit.vutbr.cz
- *  Created:    16.03.2017 05:39
- *  Edited:     22.03.2017 19:04
- *  Version:    1.0.0
+ *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
+ *  @date
+ *   - Created: 16.03.2017 05:39
+ *   - Edited:  27.03.2017 00:15
  */
 
 #include "debug.hpp"

@@ -1,11 +1,10 @@
 /** 
  *  @file       capturing.tpp
  *  @brief      Network traffic capture templates file
- *  @author     Jozef Zuzelka (xzuzel00)
- *  Mail:       xzuzel00@stud.fit.vutbr.cz
- *  Created:    23.03.2017 17:51
- *  Edited:     24.03.2017 11:16
- *  Version:    1.0.0
+ *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
+ *  @date
+ *   - Created: 23.03.2017 17:51
+ *   - Edited:  27.03.2017 00:15
  */
 
 #pragma once

@@ -3,10 +3,10 @@
  *  @brief      Main source file
  *  @details    Network Traffic Capturing With Application Tags,
  *              Bachelor's Thesis, FIT VUT Brno
- *  @author     Jozef Zuzelka (xzuzel00)
- *  Mail:       xzuzel00@stud.fit.vutbr.cz
- *  Created:    18.02.2017 08:03
- *  Edited:     20.03.2017 15:25
+ *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
+ *  @date
+ *   - Created: 18.02.2017 08:03
+ *   - Edited:  27.03.2017 00:15
  *  Version:    1.0.0
  *  @todo       change tool name
  */
