@@ -1,10 +1,10 @@
-/** 
+/**
  *  @file       capturing.cpp
  *  @brief      Network traffic capture sources
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    18.02.2017 22:45
- *  Edited:     25.03.2017 20:38
+ *  Edited:     26.03.2017 14:24
  *  Version:    1.0.0
  */
 
@@ -17,7 +17,7 @@
 #include "ringBuffer.hpp"       //  RingBuffer
 #include "cache.hpp"            //  TEntryOrTTree
 #include "netflow.hpp"          //  Netflow
-#include "debug.hpp"            //  DEBUG()
+#include "debug.hpp"            //  D()
 #include "capturing.hpp"
 
 #if defined(__linux__)
@@ -31,26 +31,25 @@
 #include <netinet/udp.h>        //  udphdr
 #endif
 
-
-//! Size of the ring buffer
-#define RING_BUFFER_SIZE    1024
-
 using namespace std;
 
 
 // https://www.iana.org/assignments/ieee-802-numbers/ieee-802-numbers.xhtml
 // https://wiki.wireshark.org/Ethernet
-const unsigned char     IPV6_SIZE       =   40;     //!< Size of IPv6 header
-const unsigned char     PROTO_IPV4      =   0x08;   //!< ID of IPv4 protocol
-const unsigned char     PROTO_IPV6      =   0x86;   //!< ID of IPv6 protocol
-const unsigned char     PROTO_UDP       =   0x11;   //!< ID of UDP protocol
-const unsigned char     PROTO_TCP       =   0x06;   //!< ID of TCP protocol
-const unsigned char     PROTO_UDPLITE   =   0x88;   //!< ID of UDPLite protocol
+const unsigned char     IPV6_SIZE               =   40;     //!< Size of IPv6 header
+const unsigned char     PROTO_IPV4              =   0x08;   //!< ID of IPv4 protocol
+const unsigned char     PROTO_IPV6              =   0x86;   //!< ID of IPv6 protocol
+const unsigned char     PROTO_UDP               =   0x11;   //!< ID of UDP protocol
+const unsigned char     PROTO_TCP               =   0x06;   //!< ID of TCP protocol
+const unsigned char     PROTO_UDPLITE           =   0x88;   //!< ID of UDPLite protocol
+const unsigned int      FILE_RING_BUFFER_SIZE   =   2000;   //!< Size of the ring buffer
+const unsigned int      CACHE_RING_BUFFER_SIZE  =   2000;   //!< Size of the ring buffer
 
 const char * g_dev = nullptr;           //!< Capturing device name
 in_addr g_devIp;                        //!< Capturing device IPv4 address
 ofstream oFile;                         //!< Output file stream
 atomic<int> shouldStop {false};         //!< Variable which is set if program should stop
+unsigned int rcvdPackets;               //!< Number of received packets
 
 
 
@@ -69,7 +68,7 @@ int startCapture(const char *oFilename)
 */
     char errbuf[PCAP_ERRBUF_SIZE];
     pcap_t *handle;
-    
+
     try
     {
         // if the interface wasn't specified by user open the first active one
@@ -78,7 +77,7 @@ int startCapture(const char *oFilename)
         uint32_t mask;
         if (pcap_lookupnet(g_dev, &g_devIp.s_addr, &mask, errbuf) == -1)
             throw pcap_ex("Can't get interface '" + string(g_dev) + "' IP address",errbuf);
-        
+
         if ((handle = pcap_open_live(g_dev, BUFSIZ, 0, 1000, errbuf)) == NULL)
             throw pcap_ex("pcap_open_live() failed.",errbuf);
         if (pcap_setnonblock(handle, 1, errbuf) == -1)
@@ -90,19 +89,20 @@ int startCapture(const char *oFilename)
         if (!oFile)
             throw ("Can't open output file: '" + string(oFilename) + "'").c_str();
         log(LogLevel::INFO, "Output file '", oFilename, "' was opened.");
-        
-        // Write Section Header Block and Interface Description Block to the file
+
+        // Write Section Header Block and Interface Description Block to the output file
         initOFile(oFile);
 
         // Create ring buffer and run writing to file in a new thread
-        RingBuffer<EnhancedPacketBlock> fileBuffer(RING_BUFFER_SIZE);
+        RingBuffer<EnhancedPacketBlock> fileBuffer(FILE_RING_BUFFER_SIZE);
         thread t1 ( [&fileBuffer]() { fileBuffer.write(oFile); } );
         Cache cache;
-        RingBuffer<Netflow> cacheBuffer(RING_BUFFER_SIZE);
+        RingBuffer<Netflow> cacheBuffer(CACHE_RING_BUFFER_SIZE);
         thread t2 ( [&cacheBuffer, &cache]() { cacheBuffer.run(&cache); } );
-        
+
         PacketHandlerPointers ptrs { &fileBuffer, &cacheBuffer };
 
+        log(LogLevel::INFO, "Capturing...");
         while (!shouldStop)
             pcap_dispatch(handle, -1, packetHandler, reinterpret_cast<u_char*>(&ptrs));
 //        if (pcap_loop(handle, -1, packetHandler, NULL) == -1)
@@ -112,54 +112,54 @@ int startCapture(const char *oFilename)
         pcap_stats(handle, &stats);
         pcap_close(handle);
 
-        log(LogLevel::INFO, "Sleeping");
+        log(LogLevel::INFO, "Waiting for threads to finnish.");
         this_thread::sleep_for(chrono::seconds(1)); // because of possible deadlock, get some time to return from RingBuffer::receivedPacket() to condVar.wait()
         fileBuffer.notifyCondVar(); // notify thread, it should end
         cacheBuffer.notifyCondVar(); // notify thread, it should end
-        log(LogLevel::INFO, "Joining t2");
         t2.join();
-        log(LogLevel::INFO, "Joining t1");
         t1.join();
-        
+
         cout << fileBuffer.getDroppedElem() << "' packets dropped by fileBuffer." << endl;
         cout << cacheBuffer.getDroppedElem() << "' packets dropped by cacheBuffer." << endl;
         cout << stats.ps_drop << "' packets dropped by the driver." << endl;
+        cout << "Total " << rcvdPackets << " packets received." << endl;
 
         //! @todo save cache results into the file
     }
     catch(pcap_ex &e)
     {
         cerr << "ERROR: " << e.what() << endl;
-        if (handle != nullptr) 
+        if (handle != nullptr)
             pcap_close(handle);
         return EXIT_FAILURE;
     }
-    catch(const char *msg) 
+    catch(const char *msg)
     {
         cerr << "ERROR: " << msg << endl;
-        if (handle != nullptr) 
+        if (handle != nullptr)
             pcap_close(handle);
         return EXIT_FAILURE;
     }
     return shouldStop;
-} 
+}
 
 void packetHandler(u_char *arg_array, const struct pcap_pkthdr *header, const u_char *packet)
-{    
+{
     static Netflow n;
     static unsigned int ip_size;
     static ether_header *eth_hdr;
     PacketHandlerPointers *ptrs = reinterpret_cast<PacketHandlerPointers*>(arg_array);
     eth_hdr = (ether_header*) packet;
-
     RingBuffer<Netflow> *cb = ptrs->cacheBuffer;
     RingBuffer<EnhancedPacketBlock> *rb = ptrs->fileBuffer;
+
+    rcvdPackets++;
     if(rb->push(header, packet))
         return; //! @todo  When the packet is not saved into the output file, we don't process this packet. Valid behavior?
-    
+
     n.setStartTime(header->ts.tv_usec);
     n.setEndTime(header->ts.tv_usec);
-    
+
     Directions dir = getPacketDirection((ip*)(packet+ETHER_HDR_LEN), &g_devIp);
     // Parse IP header
     if (parseIp(n, ip_size, dir, (void*)(packet + ETHER_HDR_LEN), eth_hdr->ether_type))
@@ -187,7 +187,7 @@ inline int parseIp(Netflow &n, unsigned int &ip_size, Directions dir, void * con
             log(LogLevel::WARNING, "Incorrect IPv4 header received.");
             return EXIT_FAILURE;
         }
-        
+
         //! @todo reimplement to MAC address + multicast
         //! sysctl with the MIB { CTL_NET, PF_ROUTE, 0, AF_LINK, NET_RT_IFLIST, 0 }
         //! SIOCGIFADDR and SIOCGIFHWADDR
@@ -247,7 +247,7 @@ inline int parsePorts(Netflow &n, Directions dir, void *hdr)
             break;
         }
         case PROTO_UDP:
-        case PROTO_UDPLITE: // structure of first 4 bytes is the same (srcPort and dstPort) 
+        case PROTO_UDPLITE: // structure of first 4 bytes is the same (srcPort and dstPort)
         {
             const struct udphdr *udp_hdr = (struct udphdr*)hdr;
             unsigned short udp_size = udp_hdr->uh_ulen; // length in bytes of the UDP header and UDP data
@@ -261,7 +261,7 @@ inline int parsePorts(Netflow &n, Directions dir, void *hdr)
             else
                 n.setLocalPort(ntohs(udp_hdr->uh_sport));
             break;
-        }   
+        }
         default:
             return EXIT_FAILURE;
     }
