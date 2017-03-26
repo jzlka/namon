@@ -295,10 +295,9 @@ void TTree::print()
  *++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 Cache::~Cache()                        
 { 
-    D("Size:" << cache->size());
     for (auto ptr : *cache)
         delete ptr.second;
-    //delete cache; 
+    delete cache; 
 }
 
 TEntryOrTTree *Cache::find(Netflow &n)
