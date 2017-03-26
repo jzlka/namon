@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka (xzuzel00)
  *  Mail:       xzuzel00@stud.fit.vutbr.cz
  *  Created:    02.03.2017 04:32
- *  Edited:     23.03.2017 18:25
+ *  Edited:     25.03.2017 15:46
  *  Version:    1.0.0
  */
 
