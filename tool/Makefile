@@ -5,7 +5,7 @@
 
 ######################## Compiler & flags  ##########################
 CXX=g++
-CXXFLAGS=-std=c++14 -Wall -Wextra -pedantic
+CXXFLAGS=-std=c++14 -Wall -Wextra -pedantic -g
 LDFLAGS=-lpcap -pthread
 
 
