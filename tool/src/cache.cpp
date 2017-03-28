@@ -4,12 +4,13 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 26.02.2017 23:52
- *   - Edited:  27.03.2017 00:15
+ *   - Edited:  28.03.2017 02:35
  */
 
 #include <iostream>             //  cout, endl;
 #include <fstream>              //  ostream
 #include <thread>               //  sleep_for
+#include <atomic>               //  atomic
 #include "netflow.hpp"          //  Netflow
 #include "debug.hpp"            //  log()
 #include "cache.hpp"            //  Cache
@@ -56,7 +57,8 @@ bool TEntry::levelCompare(Netflow *n1)
         case TreeLevel::LOCAL_IP:
         {
             if (n->getIpVersion() == 4)
-                return !memcmp(n->getLocalIp(), n1->getLocalIp(), sizeof(struct in_addr));
+                return static_cast<in_addr*>(n->getLocalIp())->s_addr ==
+                       static_cast<in_addr*>(n1->getLocalIp())->s_addr;
             else if (n->getIpVersion() == 6)
                 return !memcmp(n->getLocalIp(), n1->getLocalIp(), sizeof(struct in6_addr));
             else
@@ -239,7 +241,8 @@ bool TTree::levelCompare(Netflow *n)
             if (n->getIpVersion() != ipVersion)
                 return false;
             if (ipVersion == 4)
-                return !memcmp(cv.ip, n->getLocalIp(), sizeof(struct in_addr));
+                return static_cast<in_addr*>(cv.ip)->s_addr ==
+                       static_cast<in_addr*>(n->getLocalIp())->s_addr;
             else if (ipVersion == 6)
                 return !memcmp(cv.ip, n->getLocalIp(), sizeof(struct in6_addr));
             else
