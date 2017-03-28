@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 22.03.2017 17:04
- *   - Edited:  27.03.2017 00:15
+ *   - Edited:  27.03.2017 16:46
  */
 
 #pragma once
@@ -64,6 +64,7 @@ public:
     unsigned int getDroppedElem()   { return droppedElem; }
     /*!
      * @brief       Saves new structure into the buffer
+     * @details     Function moves object.
      * @param[in]   elem     Pointer to new element to push
      * @return      False if packet was dropped. True otherwise.
      */

@@ -1,10 +1,10 @@
-/** 
- *  @file		cache_test.cpp
+/**
+ *  @file       cache_test.cpp
  *  @brief      Unit tests of cache implementation
- *  @author     Jozef Zuzelka (xzuzel00)
- *  Mail:       xzuzel00@stud.fit.vutbr.cz
- *  Created:    15.03.2017 18:12
- *  Edited:		18.03.2017 00:25
+ *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
+ *  @date
+ *   - Created: 15.03.2017 18:12
+ *   - Edited:  27.03.2017 17:06
  */
 
 #include <iostream>         //  cout, endl
@@ -40,7 +40,7 @@ void setTestingStructures(int i, TEntry *e, unsigned int ipVer, const string &ap
     else
     {
         in6_addr *localIpS = new in6_addr;
-        inet_pton(AF_INET6, localIp, localIpS); 
+        inet_pton(AF_INET6, localIp, localIpS);
         n->setLocalIp(localIpS);
     }
 
@@ -71,13 +71,13 @@ int main()
             TEntry *tmpE = new TEntry();
             setTestingStructures(i, tmpE, 4, string(1,i%'~'+'!'), PROTO_UDP, "0.0.0.0", i,1,1);
             c.insert(tmpE);
-        
+
             if (i%UDPLITE_PERIOD == 0)
-            {     
+            {
                 TEntry *tmpE = new TEntry();
                 setTestingStructures(i, tmpE, 4, string(1,i%'~'+'!'), PROTO_UDPLITE, "0.0.0.0", i,1,1);
                 c.insert(tmpE);
-            }    
+            }
         }
     }
     c.print();
