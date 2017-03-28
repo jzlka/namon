@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 06.03.2017 13:33
- *   - Edited:  27.03.2017 00:15
+ *   - Edited:  27.03.2017 01:12
  */
 
 #pragma once
@@ -235,7 +235,7 @@ public:
  */
 class EnhancedPacketBlock {
     UNUSED(uint32_t blockType)              = 0x00000006;
-    UNUSED(uint32_t blockTotalLength)       = sizeof(*this)-sizeof(packetData);    // will be updated in write()
+    UNUSED(uint32_t blockTotalLength)       = sizeof(*this)-sizeof(allocatedBytes)-sizeof(packetData);    // will be updated in write()
     UNUSED(uint32_t interfaceID)            = 0;
     UNUSED(uint32_t timestampHi)            = 0;
     UNUSED(uint32_t timestampLo)            = 0;
@@ -249,8 +249,9 @@ public:
      * @brief   Default c'tor that preallocates memory for packet
      * @details Malloc is used instead of new because of later reallocating.
      *          http://stackoverflow.com/questions/33706528/is-it-safe-to-realloc-memory-allocated-with-new
+     * @todo    Catch exception
      */
-    EnhancedPacketBlock()     { packetData = (u_char*)malloc(ETHER_MAX_LEN); }
+    EnhancedPacketBlock()     { packetData = (u_char*)malloc(ETHER_MAX_LEN); if (packetData == nullptr) throw "Err"; }
     /*!
      * @brief   Default d'tor that deletes preallocated packet memory
      */
@@ -304,12 +305,12 @@ public:
         blockTotalLength += capturedPacketLength + paddingLen;  // because of += everytime when write() is called, we have to restore default length before the function returns
         blockTotalLength2 = blockTotalLength;
 
-        file.write(reinterpret_cast<char*>(this), sizeof(*this)-sizeof(blockTotalLength2)-sizeof(packetData));
+        file.write(reinterpret_cast<char*>(this), sizeof(*this)-sizeof(blockTotalLength2)-sizeof(packetData)-sizeof(allocatedBytes));
         file.write(reinterpret_cast<const char*>(packetData), capturedPacketLength);
         while(paddingLen--)
             file.write(&padding, sizeof(padding));
         file.write(reinterpret_cast<char*>(&blockTotalLength2), sizeof(blockTotalLength2));
-        blockTotalLength = sizeof(*this)-sizeof(packetData);    // restore default size of empty block
+        blockTotalLength = sizeof(*this)-sizeof(allocatedBytes)-sizeof(packetData);    // restore default size of empty block
     }
 };
 
