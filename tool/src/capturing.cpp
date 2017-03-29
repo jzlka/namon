@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 18.02.2017 22:45
- *   - Edited:  27.03.2017 00:15
+ *   - Edited:  29.03.2017 02:09
  */
 
 #include <map>                  //  map
@@ -45,7 +45,7 @@ const unsigned int      FILE_RING_BUFFER_SIZE   =   2000;   //!< Size of the rin
 const unsigned int      CACHE_RING_BUFFER_SIZE  =   2000;   //!< Size of the ring buffer
 
 const char * g_dev = nullptr;           //!< Capturing device name
-in_addr g_devIp;                        //!< Capturing device IPv4 address
+vector<in_addr*> g_devIps;               //!< Capturing device IPv4 address
 ofstream oFile;                         //!< Output file stream
 atomic<int> shouldStop {false};         //!< Variable which is set if program should stop
 unsigned int rcvdPackets;               //!< Number of received packets
@@ -73,11 +73,32 @@ int startCapture(const char *oFilename)
         // if the interface wasn't specified by user open the first active one
         if (g_dev == nullptr && (g_dev = pcap_lookupdev(errbuf)) == nullptr)
             throw pcap_ex("Can't open input device.",errbuf);
-        uint32_t mask;
-        if (pcap_lookupnet(g_dev, &g_devIp.s_addr, &mask, errbuf) == -1)
-            throw pcap_ex("Can't get interface '" + string(g_dev) + "' IP address",errbuf);
 
-        if ((handle = pcap_open_live(g_dev, BUFSIZ, 0, 1000, errbuf)) == NULL)
+        // get interface IP
+        pcap_if_t *alldevs;
+        int status = pcap_findalldevs(&alldevs, errbuf);
+        if(status != 0)
+            throw pcap_ex("pcap_findalldevs() error.", errbuf);
+        for(pcap_if_t *d=alldevs; d!=NULL; d=d->next)
+        {
+            if (strcmp(g_dev, d->name))
+                continue;
+
+            for(pcap_addr_t *a=d->addresses; a!=NULL; a=a->next)
+            {
+                if(a->addr->sa_family == AF_INET)
+                {
+                    in_addr* ip = new in_addr;
+                    *ip = ((struct sockaddr_in*)a->addr)->sin_addr;
+                    g_devIps.push_back(ip);
+                }
+                else
+                    ;//! @todo implement
+            }
+        }
+        pcap_freealldevs(alldevs);
+
+        if ((handle = pcap_open_live(g_dev, BUFSIZ, false, 1000, errbuf)) == NULL)
             throw pcap_ex("pcap_open_live() failed.",errbuf);
         if (pcap_setnonblock(handle, 1, errbuf) == -1)
             throw pcap_ex("pcap_setnonblock() failed.",errbuf);
@@ -111,7 +132,7 @@ int startCapture(const char *oFilename)
         pcap_stats(handle, &stats);
         pcap_close(handle);
 
-        log(LogLevel::INFO, "Waiting for threads to finnish.");
+        log(LogLevel::INFO, "Waiting for threads to finish.");
         this_thread::sleep_for(chrono::seconds(1)); // because of possible deadlock, get some time to return from RingBuffer::receivedPacket() to condVar.wait()
         fileBuffer.notifyCondVar(); // notify thread, it should end
         cacheBuffer.notifyCondVar(); // notify thread, it should end
@@ -159,14 +180,15 @@ void packetHandler(u_char *arg_array, const struct pcap_pkthdr *header, const u_
     n.setStartTime(header->ts.tv_usec);
     n.setEndTime(header->ts.tv_usec);
 
-    Directions dir = getPacketDirection((ip*)(packet+ETHER_HDR_LEN), &g_devIp);
+    Directions dir = getPacketDirection((ip*)(packet+ETHER_HDR_LEN));
+    if (dir == Directions::UNKNOWN)
+        return;
     // Parse IP header
     if (parseIp(n, ip_size, dir, (void*)(packet + ETHER_HDR_LEN), eth_hdr->ether_type))
         return;
     // Parse transport layer header
     if (parsePorts(n, dir, (void*)(packet + ETHER_HDR_LEN + ip_size)))
         return;
-
     if (cb->push(n))
     {
         log(LogLevel::ERROR, "Packet dropped because cache is too slow.");
