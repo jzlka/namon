@@ -1,7 +1,11 @@
-# @file		Makefile
-# @author  Jozef Zuzelka (xzuzel00)
-# @date    8.2.2017
-# @brief   Makefile
+# @file       Makefile
+# @brief      Makefile
+# @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
+# @date
+#  - Created: 08.02.2017
+#  - Edited:  01.04.2017 00:28
+# @version    1.0.0
+# @par        make: GNU Make 3.81
 
 ######################## Compiler & flags  ##########################
 CXX=g++
@@ -15,13 +19,28 @@ SRCDIR=src
 OBJDIR=obj
 TESTSDIR=tests
 BIN=tool
-SRC=$(wildcard $(SRCDIR)/*.cpp)
+SRC_TMP=$(wildcard $(SRCDIR)/*.cpp)
+SRC=$(filter-out src/tool%,$(SRC_TMP))
+
+ifeq ($(OS),Windows_NT)
+	SRC += $(SRCDIR)/tool_win.cpp
+else
+	UNAME_S := $(shell uname -s)
+	ifeq ($(UNAME_S),Linux)
+		SRC += $(SRCDIR)/tool_linux.cpp
+	endif
+	ifeq ($(UNAME_S),Darwin)
+		SRC += $(SRCDIR)/tool_apple.cpp
+	endif
+endif
+
 OBJ=$(patsubst $(SRCDIR)/%.cpp, $(OBJDIR)/%.o, $(SRC))
 TESTS=$(patsubst %.cpp, %, $(wildcard $(TESTSDIR)/*.cpp))
 #if [ "$(uname -a | grep -i "Darwin")" == "" ]; then
 #	setcap cap_net_raw ./$(BIN)
 #else
 #	chmod +r /dev/bpf*
+
 
 .PHONY: test, clean, pack, doxygen, debug, unit-tests, directories
 

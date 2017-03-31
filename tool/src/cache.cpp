@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 26.02.2017 23:52
- *   - Edited:  31.03.2017 06:25
+ *   - Edited:  31.03.2017 21:55
  */
 
 #include <iostream>             //  cout, endl;
@@ -72,7 +72,7 @@ bool TEntry::levelCompare(Netflow *n1)
 void TEntry::print()
 {
 
-    cout << string((int)level, '-') << ">[" << (int)level << "] \"" << appName << "\" (inode:" << inode << ")\t" << (valid() ? "(valid)" : "(expired)") << "\t";
+    cout << string((int)level, '-') << ">[" << (int)level << "] \"" << appName << "\" (inode:" << inode << ")\t"/* << (valid() ? "(valid)" : "(expired)") << "\t"*/;
     n->print();
 }
 
@@ -124,24 +124,31 @@ void TTree::insert(TEntry *newEntry)
 {
     for (vector<TEntryOrTTree*>::size_type i=0; i < v.size(); i++)
     {
-        if (v[i]->isEntry() && v[i]->levelCompare(newEntry->getNetflowPtr()))
+        if (v[i]->levelCompare(newEntry->getNetflowPtr()))
         {
-            TEntry *oldEntry = static_cast<TEntry*>(v[i]);
-            // Create a new tree
-            v[i] = new TTree(oldEntry->getLevel());
-            // Set common value at that level
-            static_cast<TTree*>(v[i])->setCommonValue(oldEntry->getNetflowPtr());
-            // Insert an old entry with the new one
-            static_cast<TTree*>(v[i])->insert(oldEntry);
-            static_cast<TTree*>(v[i])->insert(newEntry);
-            return;
+            if (v[i]->isEntry())
+            {
+                TEntry *oldEntry = static_cast<TEntry*>(v[i]);
+                if (*oldEntry->getNetflowPtr() == *newEntry->getNetflowPtr())
+                {
+                    log(LogLevel::ERROR, "TTree::insert called two times with the same Netflow.");//! @todo what to do?
+                    return;
+                }
+                // Create a new tree
+                v[i] = new TTree(oldEntry->getLevel());
+                // Set common value at that level
+                static_cast<TTree*>(v[i])->setCommonValue(oldEntry->getNetflowPtr());
+                // Insert an old entry with the new one
+                static_cast<TTree*>(v[i])->insert(oldEntry);
+                static_cast<TTree*>(v[i])->insert(newEntry);
+                return;
+            }
+            else
+            {
+                static_cast<TTree*>(v[i])->insert(newEntry);
+                return;
+            }
         }
-        // else if isTree() or it doesn't have same lvl value just ignore it
-        // We ignore TTree because find returns TTree with the closest match
-        // so we don't have to go deeplier in the tree (Node we are interested
-        // in is a TEntry). 
-        // We also ignore it if it is at the LOCAL_IP level, because we don't care
-        // about remote site of the connection
     }
     // If there is no element with the same value on its level then add a new one
     newEntry->setLevel(level+1);
@@ -283,24 +290,24 @@ void TTree::print()
  *++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 Cache::~Cache()                        
 { 
-    for (auto ptr : *cache)
+    for (auto ptr : *map)
         delete ptr.second;
-    delete cache; 
+    delete map; 
 }
 
 
 TEntryOrTTree *Cache::find(Netflow &n)
 {
-    auto iter = cache->find(n.getLocalPort());
+    auto iter = map->find(n.getLocalPort());
     // if the netflow record either exists in the cache or there is a netflow with the same local port
-    if (iter != (*cache).end())
+    if (iter != (*map).end())
     {
         if (iter->second->isTree())
             return static_cast<TTree*>(iter->second)->find(n);
         else    // isEntry -> record exists
         {
             TEntry *entry = static_cast<TEntry*>(iter->second);
-            // If the same netflow record already exists, update endTime
+            // If exactly the same netflow record already exists
             if (*(entry->getNetflowPtr()) == n)
                 return entry;
             else
@@ -314,29 +321,20 @@ TEntryOrTTree *Cache::find(Netflow &n)
 
 void Cache::insert(TEntry *newEntry)
 {
-    Netflow *newNetflow = newEntry->getNetflowPtr();
-    auto iter = (*cache).find(newNetflow->getLocalPort());
-    if (iter != (*cache).end())
-    {   // the netflow record either exists in the cache or there is a netflow with the same local port
+    Netflow &newNetflow = *newEntry->getNetflowPtr();
+    auto iter = map->find(newNetflow.getLocalPort());
+    if (iter != (*map).end())
+    { // Netflow record either exists in the cache (at least with the same local port)
         if (iter->second->isTree())
-        {
-            TEntryOrTTree *found = static_cast<TTree*>(iter->second)->find(*newNetflow);
-            // If the same entry already exists
-            if (found->isEntry()) 
-                log(LogLevel::ERROR, "TTree::insert called two times with the same Netflow.");//! @todo what to do?
-            // ^^^ in this case we do not update endTime because insert() is used while creating a new tree 
-            // and in this case there mustn't be two same Netflow structures (that would mean two same sockets)
-            else
-                static_cast<TTree*>(found)->insert(newEntry);
+        { // insert it into a subtree
+            static_cast<TTree*>(iter->second)->insert(newEntry);
         }
-        else    // isEntry -> record already exists
-        {
+        else    
+        { // isEntry -> record with the same local port
             TEntry *oldEntry = static_cast<TEntry*>(iter->second);
             // If the same netflow record already exists
-            if (oldEntry->getNetflowPtr()->getLocalPort() == newNetflow->getLocalPort())
+            if (*oldEntry->getNetflowPtr() == newNetflow)
                 log(LogLevel::ERROR, "Cache::insert called two times with the same Netflow.");//! @todo what to do?
-            // ^^^ in this case we do not update endTime because insert() is used while creating a new tree 
-            // and in this case there mustn't be two same Netflow structures (that would mean two same sockets)
             else
             {
                 // Create a new tree
@@ -350,16 +348,16 @@ void Cache::insert(TEntry *newEntry)
         }
     }
     else
-    {
+    { // there isn't record with the same local port in the map
         newEntry->setLevel(TreeLevel::LOCAL_PORT);
-        (*cache)[newNetflow->getLocalPort()] = newEntry;
+        (*map)[newNetflow.getLocalPort()] = newEntry;
     }
 }
 
 
 void Cache::saveResults()
 {
-    for (auto record : *cache)
+    for (auto record : *map)
     {
         if (record.second->isEntry())
         {
@@ -379,6 +377,6 @@ void Cache::saveResults()
 
 void Cache::print()
 {
-    for (auto m : *cache)
+    for (auto m : *map)
         m.second->print();
 }

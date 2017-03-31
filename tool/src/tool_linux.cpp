@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 18.02.2017 23:32
- *   - Edited:  31.03.2017 06:34
+ *   - Edited:  31.03.2017 21:23
  *  @todo       rename file
  */
 
@@ -79,40 +79,39 @@ int determineApp (Netflow *n, TEntry &e)
     int inode = getInode(n, socketsFile);
     if (inode == -1)
         return -1;
-    if (inode == 0)
-    {
-        // we ignore IGMP and ICMP packets
-       // for (auto file : L2SocketFiles)
-       // {
-       //     socketsFile.close();
-       //     if (ipVer == 6)
-       //         file += '6';
-       //     socketsFile.open(file);
-       //     if (!socketsFile)
-       //     {
-       //         log(LogLevel::ERROR, "Can't open file ", file);
-       //         return -1;
-       //     }
-       //     
-       //     inode = getInode(n, socketsFile);
-       //     if (inode == -1)
-       //         return -1;
-       //     if (inode > 0)
-       //         break;
-       // }
-    }
+    // we ignore IGMP and ICMP packets so /proc/net/igmp... can be ignored
+  //  if (inode == 0)
+  //  {
+  //      for (auto file : L2SocketFiles)
+  //      {
+  //          socketsFile.close();
+  //          if (ipVer == 6)
+  //              file += '6';
+  //          socketsFile.open(file);
+  //          if (!socketsFile)
+  //          {
+  //              log(LogLevel::ERROR, "Can't open file ", file);
+  //              return -1;
+  //          }
+  //          
+  //          inode = getInode(n, socketsFile);
+  //          if (inode == -1)
+  //              return -1;
+  //          if (inode > 0)
+  //              break;
+  //      }
+  //  }
 
     // if we are updating existing cache record
     if (n == e.getNetflowPtr())
-    {
-        // if nothing changed, update time
+    { 
         if (inode == e.getInode())
-        {
+        { // if nothing changed, update valid time
             e.updateTime();
             return 0;
         }
         else if (e.getAppName() != "")
-        {
+        { // else save expired record to results
             Netflow *res = new Netflow;
             *res = *e.getNetflowPtr();
             g_finalResults[e.getAppName()].push_back(res);
@@ -133,17 +132,14 @@ int determineApp (Netflow *n, TEntry &e)
 
     e.setInode(inode);
     e.setAppName(appName);
-    // if we are not updating same netflow, move if from cacheBuffer
     if (n != e.getNetflowPtr())
-    {
+    { // if we are not updating same netflow, move if from cacheBuffer
         Netflow *newN = new Netflow;
         *newN = move(*n);
         e.setNetflowPtr(newN);
     }
-    else // else it is already moved, make a copy
-    {
-        // else we update expired record with a new application so
-        // set just new times
+    else
+    { // else we update expired record with a new application so just update times
         e.getNetflowPtr()->setStartTime(n->getStartTime());
         e.getNetflowPtr()->setEndTime(n->getEndTime());
     }
@@ -231,8 +227,12 @@ int getInode(Netflow *n, ifstream &socketsFile)
                     // other columns (uid, timeout) have variable width
                     char column = 0;
                     bool inColumn = false;
-                    while(column != 3)
+                    while(column != 3 && socketsFile.good())
                     {
+                        //! @todo getc stucked
+                        //! @warning can stuck (when file is closed? I don't know yet)
+                        // it gets the same char all the time (':' when it occured after signal 2 call)
+                        // so column is never 3
                         socketsFile.get(c);
                         if (c != ' ')
                         {
@@ -245,6 +245,8 @@ int getInode(Netflow *n, ifstream &socketsFile)
                         else
                             inColumn = false;
                     }
+                    if (!socketsFile)
+                        throw "Input/Output error";
                     socketsFile.unget();
 
                     socketsFile >> dec >> inode;

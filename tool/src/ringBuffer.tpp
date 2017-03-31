@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 22.03.2017 17:04
- *   - Edited:  31.03.2017 03:25
+ *   - Edited:  31.03.2017 13:03
  */
 
 #if defined(__linux__)
@@ -113,28 +113,30 @@ void RingBuffer<Netflow>::run(Cache *cache)
             if (cacheRecord != nullptr && cacheRecord->isEntry())
             {
                 TEntry *foundEntry = static_cast<TEntry *>(cacheRecord);
-                // if the record exists but is invalid, run determineApp() in update mode
+                // If the record exists but is invalid, run determineApp() in update mode
+                // to find new application, else update endTime.
                 if (!foundEntry->valid())
                     determineApp(foundEntry->getNetflowPtr(), *foundEntry);
                 else
                     foundEntry->getNetflowPtr()->setEndTime(buffer[first].getEndTime());
             }
             else 
-            {
-                // else it is either TTree or it is not in the whole map
-                // (both means it's not in the cache)
+            { // else it is either TTree or it is not in the whole map (nullptr)
+              // (both means it's not in the cache at all)
                 TEntry *e = new TEntry;
+                // If an error occured (can't open procfs file, etc.)
                 if (determineApp(&buffer[first], *e))
                 {
                     delete e;
-                    continue;
                 }
-
-                // insert new record into map
-                if (cacheRecord == nullptr)
-                    cache->insert(e);
-                else // else insert it into a subtree
-                    static_cast<TTree *>(cacheRecord)->insert(e);
+                else
+                {
+                    // insert new record into map
+                    if (cacheRecord == nullptr)
+                        cache->insert(e);
+                    else // else insert it into subtree
+                        static_cast<TTree *>(cacheRecord)->insert(e);
+                }
             }
             pop();
         }

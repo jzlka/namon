@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 15.03.2017 18:12
- *   - Edited:  27.03.2017 17:06
+ *   - Edited:  31.03.2017 19:47
  */
 
 #include <iostream>         //  cout, endl
@@ -20,6 +20,7 @@ const unsigned char     PROTO_UDPLITE   =   0x88;
 const bool              EVEN            =   true;
 const unsigned short    ENTRIES         =   9;
 const unsigned char     UDPLITE_PERIOD  =   3;
+
 
 
 void setTestingStructures(int i, TEntry *e, unsigned int ipVer, const string &appName, int proto, char const *localIp, unsigned short localPort, long startTime, long endTime)
@@ -95,7 +96,18 @@ int main()
     }
     c.print();
 
-    cout << "\n**** EndTime update ****" << endl;
+    cout << "\n**** Difference just in the last level ****" << endl;
+    {
+        TEntry *tmpE = new TEntry();
+        TEntry *tmpE1 = new TEntry();
+        setTestingStructures(10, tmpE, 6, "x", PROTO_UDPLITE, "::1", 10,3,4);
+        setTestingStructures(10, tmpE1, 6, "x", PROTO_UDPLITE, "::2", 10,4,5);
+        c.insert(tmpE);
+        c.insert(tmpE1);
+    }
+    c.print();
+
+    cout << "\n**** Two same netflows ****" << endl;
     for (int i=0; i<=ENTRIES; i++)
     {
         if ((i&1) == EVEN)
@@ -106,17 +118,6 @@ int main()
             c.insert(tmpE);
             delete tmpE;
         }
-    }
-    c.print();
-
-    cout << "\n**** Difference just in the last level ****" << endl;
-    {
-        TEntry *tmpE = new TEntry();
-        TEntry *tmpE1 = new TEntry();
-        setTestingStructures(10, tmpE, 6, "x", PROTO_UDPLITE, "::1", 10,3,4);
-        setTestingStructures(10, tmpE1, 6, "x", PROTO_UDPLITE, "::2", 10,4,5);
-        c.insert(tmpE);
-        c.insert(tmpE1);
     }
     c.print();
 

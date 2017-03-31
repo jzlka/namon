@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 02.03.2017 04:32
- *   - Edited:  31.03.2017 04:33
+ *   - Edited:  31.03.2017 21:28
  */
 
 #pragma once
@@ -228,6 +228,8 @@ public:
             lastUpdate = other.lastUpdate;
             appName = other.appName;
             inode = other.inode;
+            if (n == nullptr)
+                n = new Netflow;
             *n = *other.n;
         }
         return *this;
@@ -242,7 +244,8 @@ public:
             lastUpdate = other.lastUpdate;
             appName = other.appName;
             inode = other.inode;
-            *n = std::move(*other.n);
+            delete n;
+            n = other.n;
             
             other.lastUpdate = clock_type::now();
             other.appName = "";
@@ -279,11 +282,6 @@ public:
     /*!
      * @brief       Function finds a TEntry node with exact match or 
      *               a TTree node which contains TEntry with the closest match.
-     * @details     TTree return value is used in #TTree::insert function. 
-     *              Firstly we call #TTree::find and if it didn't find exact TEntry record
-     *               it returns pointer to a TTree. 
-     *              Then the #TTree::insert method of the returned TTree instance can be called 
-     *               to insert new TEntry record.
      * @param[in]   n   Reference to a Netflow class which the function looks for in the tree
      * @return      Pointer to a TEntry node in a case of the exact match, 
      *               otherwise pointer to a TTree node with a TEntry node with the closest match
@@ -348,7 +346,7 @@ public:
 class Cache
 {
     //! @brief  Map of open local ports
-    std::map<unsigned short,class TEntryOrTTree*> *cache = new std::map<unsigned short,class TEntryOrTTree*>;
+    std::map<unsigned short,class TEntryOrTTree*> *map = new std::map<unsigned short,class TEntryOrTTree*>;
 public:
     /*!
      * @brief   Default c'tor that initialises Cache 
@@ -360,17 +358,16 @@ public:
      */
     ~Cache();
     /*!
-     * @brief       Set method for #Cache::cache
-     * @todo        Better param description
-     * @param[in]   Pointer to a map in which records will be searched
+     * @brief       Set method for #Cache::map
+     * @param[in]   newMap  Pointer to a new actualized map
      */
-    void setCache(std::map<unsigned short,TEntryOrTTree*> *newCache) { cache = newCache; }
+    void setCache(std::map<unsigned short,TEntryOrTTree*> *newMap) { map = newMap; }
     /*!
      * @brief       Function finds a Netflow record in a cache
      * @param[in]   n   Reference to a Netflow class that will find in the cache.
      * @return      Pointer to a TEntry node in a case of the exact match, 
      *               pointer to a TTree node with a TEntry node with the closest match
-     *               or a nullptr if there is no such local port record in the map.
+     *               or a nullptr if there is not exactly the same record in the map.
      */
     TEntryOrTTree *find(Netflow &n);
     /*!
