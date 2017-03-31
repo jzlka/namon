@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 26.02.2017 23:13
- *   - Edited:  31.03.2017 00:12
+ *   - Edited:  01.04.2017 00:01
  */
 
 #pragma once
@@ -25,16 +25,16 @@ class TEntry;
  */
 class Netflow
 {
-    unsigned char ipVersion  =0;         //!< IP header version
+    uint8_t ipVersion       =0;         //!< IP header version
     /*!
      * @brief   Pointer to a structure containing local IP address
      * @details Type of the pointer is determined using #Netflow::ipVersion
      */
-    void *localIp            = nullptr;
-    unsigned short localPort =0;         //!< Local port
-    unsigned char proto      =0;         //!< Layer 4 protocol
-    long startTime           =0;         //!< Time of the first packet which belongs to this netflow
-    long endTime             =0;         //!< Time of the last packet which belongs to this netflow
+    void *localIp           = nullptr;
+    uint16_t localPort      =0;         //!< Local port
+    uint8_t proto           =0;         //!< Layer 4 protocol
+    uint64_t startTime      =0;         //!< Time of the first packet which belongs to this netflow
+    uint64_t endTime        =0;         //!< Time of the last packet which belongs to this netflow
 public:
     /*!
      * @brief Defalut constructor
@@ -48,12 +48,12 @@ public:
      * @brief   Get method for #Netflow::ipVersion
      * @return  IP header version
      */
-    unsigned char getIpVersion()            { return ipVersion; }
+    uint8_t getIpVersion()                  { return ipVersion; }
     /*! 
      * @brief       Set method for #Netflow::ipVersion
      * @param[in]   ipV       IP header version
      */
-    void setIpVersion(unsigned char ipV)    { ipVersion = ipV; }
+    void setIpVersion(uint8_t ipV)          { ipVersion = ipV; }
     /*! 
      * @brief   Get method for #Netflow::localIp
      * @return  Pointer to local IP structure
@@ -71,42 +71,42 @@ public:
      * @brief   Get method for #Netflow::localPort
      * @return  Local port
      */
-    unsigned short getLocalPort()           { return localPort; }
+    uint16_t getLocalPort()                 { return localPort; }
     /*! 
      * @brief       Set method for #Netflow::localPort
      * @param[in]   newPort   Local port
      */
-    void setLocalPort(unsigned short newPort){ localPort = newPort; }
+    void setLocalPort(uint16_t newPort)     { localPort = newPort; }
     /*! 
      * @brief   Get method for #Netflow::proto
      * @return  Layer 4 protocol
      */
-    unsigned char getProto()                { return proto; }
+    uint8_t getProto()                      { return proto; }
     /*! 
      * @brief       Set method for #Netflow::proto
      * @param[in]   newProto  Layer 4 protocol
      */
-    void setProto(unsigned char newProto)   { proto = newProto; }
+    void setProto(uint8_t newProto)         { proto = newProto; }
     /*! 
      * @brief   Get method for #Netflow::startTime
      * @return  Time of the first packet which belongs to this netflow
      */
-    int getStartTime()                      { return startTime; }
+    uint64_t getStartTime()                 { return startTime; }
     /*! 
      * @brief       Set method for #Netflow::startTime
      * @param[in]   newTime   Time of the first packet which belongs to this netflow
      */
-    void setStartTime(long newTime)         { startTime = newTime; }
+    void setStartTime(uint64_t newTime)     { startTime = newTime; }
     /*! 
      * @brief   Get method for #Netflow::endTime
      * @return  Time of the last packet which belongs to this netflow
      */
-    int getEndTime()                        { return endTime; }
+    uint64_t getEndTime()                   { return endTime; }
     /*! 
      * @brief       Set method for #Netflow::endTime
      * @param[in]   newTime   Time of the last packet which belongs to this netflow
      */
-    void setEndTime(long newTime)           { endTime = newTime; }
+    void setEndTime(uint64_t newTime)       { endTime = newTime; }
     /*!
      * @brief   Function prints content of the Netflow structure
      */
@@ -125,12 +125,14 @@ public:
         {
             if (ipVersion == 4)
             {
-                localIp = new in_addr;
+                if (localIp == nullptr)
+                    localIp = new in_addr;
                 memcpy(localIp, other.localIp, sizeof(in_addr));
             }
             else
             {
-                localIp = new in6_addr;
+                if (localIp == nullptr)
+                    localIp = new in6_addr;
                 memcpy(localIp, other.localIp, sizeof(in6_addr));
             }
             

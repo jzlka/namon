@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 18.02.2017 22:45
- *   - Edited:  31.03.2017 06:26
+ *   - Edited:  31.03.2017 21:54
  *   @todo      IPv6 implementation
  *   @todo      Comment which functions move classes
  *   @todo      What to do when the cache contains invalid record and getInode returns inode == 0
@@ -16,6 +16,8 @@
  *              Cache::find did not find it but Cache::insert does (immediately after find() call and code is the same)
  *   @bug       Some endTimes are set to earlier time than startTimes in Netflow
  *   @bug       appName reading from file does not work properly
+ *   @bug       Sometimes deadlock after ^C
+ *   @todo      Broadcast and multicast packets (239.255.255.250, 0.0.0.0, 224.0.0.7, 1.13.0.0, 192.168.1.255)
  */
 
 #include <map>                  //  map
@@ -153,14 +155,19 @@ int startCapture(const char *oFilename)
         t2.join();
         t1.join();
 
+        cache.saveResults();
+        CustomBlock cBlock;
+        cBlock.write(oFile);
+
+        /******* SUMMARY *******/
         cout << fileBuffer.getDroppedElem() << "' packets dropped by fileBuffer." << endl;
         cout << cacheBuffer.getDroppedElem() << "' packets dropped by cacheBuffer." << endl;
         cout << stats.ps_drop << "' packets dropped by the driver." << endl;
-        cout << "Total " << rcvdPackets << " packets received." << endl;
+        cout << "Total " << rcvdPackets << " packets received.\n" << endl;
 
-        // one is in vector so there must be another one which pushed the first one into the vector
-        cout << "Total " << g_finalResults.size() << " application(s) which used the same local port more than once" << endl;
-        cache.saveResults();
+        cout << "Total " << g_finalResults.size() << " second level entries (same local port)" << endl;
+        cout << "Inode not found for " << g_notFoundInodes << " ports." << endl;
+        cout << "Application not found for " << g_notFoundApps << " inodes." << endl;
         cout << g_finalResults.size() << " applications in total:" << endl;
         for (auto record : g_finalResults)
         {
@@ -168,12 +175,8 @@ int startCapture(const char *oFilename)
             for (auto entry : record.second)
                 delete entry;
         }
-        cout << "Inode not found for " << g_notFoundInodes << " ports." << endl;
-        cout << "Application not found for " << g_notFoundApps << " inodes." << endl;
+        cout << "Cache records: " << endl;
         cache.print();
-
-        CustomBlock cBlock;
-        cBlock.write(oFile);
     }
     catch(pcap_ex &e)
     {
@@ -221,6 +224,7 @@ void packetHandler(u_char *arg_array, const struct pcap_pkthdr *header, const u_
     // Parse transport layer header
     if (parsePorts(n, dir, (void*)(packet + ETHER_HDR_LEN + ip_size)))
         return;
+    // STD::MOVE Netflow into buffer
     if (cb->push(n))
     {
         log(LogLevel::ERROR, "Packet dropped because cache is too slow.");
