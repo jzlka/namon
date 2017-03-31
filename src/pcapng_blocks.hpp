@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 06.03.2017 13:33
- *   - Edited:  31.03.2017 05:00
+ *   - Edited:  31.03.2017 05:18
  */
 
 #pragma once
@@ -339,9 +339,10 @@ public:
      */
     void write(ofstream & file)
     { 
-        file << blockType;
+        file.write(reinterpret_cast<char*>(&blockType), sizeof(blockType));
         streamoff pos_blockTotalLength = file.tellp();
-        file << blockTotalLength << PrivateEnterpriseNumber;
+        file.write(reinterpret_cast<char*>(&blockTotalLength), sizeof(blockTotalLength));
+        file.write(reinterpret_cast<char*>(&PrivateEnterpriseNumber), sizeof(PrivateEnterpriseNumber));
         
         unsigned int writtenBytes = 0;
         for (auto app : g_finalResults)
