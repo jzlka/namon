@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 18.02.2017 22:48
- *   - Edited:  29.03.2017 01:40
+ *   - Edited:  29.03.2017 19:58
  */
 
 #pragma once
@@ -29,6 +29,7 @@
 #endif
 
 class Netflow;
+class TEntry;
 class EnhancedPacketBlock;
 template <class T>
 class RingBuffer;
@@ -55,6 +56,7 @@ struct PacketHandlerPointers
     RingBuffer<EnhancedPacketBlock> *fileBuffer = nullptr; //!< Pointer to RingBuffer which will be written to a file
     RingBuffer<Netflow> *cacheBuffer = nullptr;            //!< Used cache
 };
+
 
 
 /*!

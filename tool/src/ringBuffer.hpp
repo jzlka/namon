@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 22.03.2017 17:04
- *   - Edited:  27.03.2017 16:46
+ *   - Edited:  29.03.2017 20:45
  */
 
 #pragma once
@@ -27,7 +27,7 @@ extern std::atomic<int> shouldStop;
 template <class T>
 class RingBuffer
 {
-    //! @brief  Vector of T instances to store packets
+    //! @brief  Vector of instances of T to store packets
     //!          which will be printed to #oFile
     std::vector<T> buffer ;
     //! @brief  First element of the ring buffer

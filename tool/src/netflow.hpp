@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 26.02.2017 23:13
- *   - Edited:  27.03.2017 00:15
+ *   - Edited:  31.03.2017 00:12
  */
 
 #pragma once
@@ -13,6 +13,7 @@
 #include <fstream>          //  ostream
 #include <netinet/in.h>     //  in_addr, in6_addr
 #include <arpa/inet.h>      //  inet_ntop()
+#include <cstring>          //  memcpy()
 
 class TEntry;
 
@@ -116,8 +117,33 @@ public:
      */
     bool operator==(const Netflow& other) const;
     /*!
-     * @brief   Overloaded move assignment operator
-     * @details It is used when to save a structure into RingBuffer
+     * @brief   Copy assignment operator
+     */
+    Netflow& operator=(const Netflow& other)
+    {
+        if (this != &other)
+        {
+            if (ipVersion == 4)
+            {
+                localIp = new in_addr;
+                memcpy(localIp, other.localIp, sizeof(in_addr));
+            }
+            else
+            {
+                localIp = new in6_addr;
+                memcpy(localIp, other.localIp, sizeof(in6_addr));
+            }
+            
+            ipVersion = other.ipVersion;
+            localPort = other.localPort;
+            proto = other.proto;
+            startTime = other.startTime;
+            endTime = other.endTime;
+        }
+        return *this;
+    }
+    /*!
+     * @brief   Move assignment operator
      */
     Netflow& operator=(Netflow&& other)
     {

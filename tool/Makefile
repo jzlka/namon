@@ -41,7 +41,8 @@ debug: CXXFLAGS += -O0 -g -DDEBUG_BUILD
 debug: clean all
 
 unit-tests: CXXFLAGS += -I./src/ -DDEBUG_BUILD -g
-unit-tests: clean-tests $(TESTS)
+#unit-tests: clean-tests $(TESTS)
+unit-tests: $(TESTS)
 $(TESTS): %: %.cpp $(filter-out src/main.cpp,$(SRC))
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
 	

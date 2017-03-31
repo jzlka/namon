@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 26.02.2017 23:52
- *   - Edited:  28.03.2017 02:35
+ *   - Edited:  31.03.2017 04:36
  */
 
 #include <iostream>             //  cout, endl;
@@ -20,12 +20,10 @@
 #endif
 
 using namespace std;
-using std::chrono::seconds;
-using std::chrono::duration_cast;
 
-
+extern map<string, vector<Netflow *>> g_finalResults;
 extern const atomic<int> shouldStop;
-const int UPDATE_INTERVAL = 5;      //!< Cache will be updated every >#UPDATE_INTERVAL< seconds
+const int VALID_TIME = 1;      //!< Time of validity of TEntry record in cache in seconds
 
 
 
@@ -62,57 +60,19 @@ bool TEntry::levelCompare(Netflow *n1)
             else if (n->getIpVersion() == 6)
                 return !memcmp(n->getLocalIp(), n1->getLocalIp(), sizeof(struct in6_addr));
             else
-                throw "Should not came in here";
+                throw "Should not came in here"; //! @todo catch
         }
         default:
-            throw "Should not came in here";
+            throw "Should not came in here"; //! @todo catch
     }
 }
-unsigned int TEntry::write(std::ofstream & file)
-{
-    unsigned int writtenBytes = 0;
-    size_t size = appName.size();
-    file.write(reinterpret_cast<char*>(&size), sizeof(size));
-    writtenBytes += sizeof(size);
-    file.write(appName.c_str(), size);
-    writtenBytes += size;
 
-    size = sizeof(inode);
-    file.write(reinterpret_cast<char*>(&inode), size);
-    writtenBytes += size;
 
-#if 0
-    writtenBytes += n->write(file);
-#else
-    size = sizeof(n->ipVersion);
-    file.write(reinterpret_cast<char*>(&n->ipVersion), size);
-    writtenBytes += size;
-
-    //! @todo Can ipVersion contain other number?
-    size = (n->ipVersion == 4) ? sizeof(in_addr) : sizeof(in6_addr);
-    file.write(reinterpret_cast<char*>(n->localIp), size);
-    writtenBytes += size;
-
-    size = sizeof(n->localPort);
-    file.write(reinterpret_cast<char*>(&n->localPort), size);
-    writtenBytes += size;
-
-    size = sizeof(n->proto);
-    file.write(reinterpret_cast<char*>(&n->proto), size);
-    writtenBytes += size;
-
-    size = sizeof(n->startTime);
-    file.write(reinterpret_cast<char*>(&n->startTime), size);
-    file.write(reinterpret_cast<char*>(&n->endTime), size);
-    writtenBytes += size + size;
-#endif
-
-    return writtenBytes;
-}
 
 void TEntry::print()
 {
-    cout << string((int)level, '-') << ">[" << (int)level << "] \"" << appName << "\" (inode:" << inode << ")\t";
+
+    cout << string((int)level, '-') << ">[" << (int)level << "] \"" << appName << "\" (inode:" << inode << ")\t" << (valid() ? "(valid)" : "(expired)") << "\t";
     n->print();
 }
 
@@ -139,6 +99,7 @@ TTree::~TTree()
     }
 }
 
+
 TEntryOrTTree * TTree::find(Netflow &n)
 {
     for (auto ptr : v)
@@ -158,11 +119,12 @@ TEntryOrTTree * TTree::find(Netflow &n)
     return this;
 }
 
-void TTree::insert(TEntry *entry)
+
+void TTree::insert(TEntry *newEntry)
 {
     for (vector<TEntryOrTTree*>::size_type i=0; i < v.size(); i++)
     {
-        if (v[i]->isEntry() && v[i]->levelCompare(entry->getNetflowPtr()))
+        if (v[i]->isEntry() && v[i]->levelCompare(newEntry->getNetflowPtr()))
         {
             TEntry *oldEntry = static_cast<TEntry*>(v[i]);
             // Create a new tree
@@ -171,7 +133,7 @@ void TTree::insert(TEntry *entry)
             static_cast<TTree*>(v[i])->setCommonValue(oldEntry->getNetflowPtr());
             // Insert an old entry with the new one
             static_cast<TTree*>(v[i])->insert(oldEntry);
-            static_cast<TTree*>(v[i])->insert(entry);
+            static_cast<TTree*>(v[i])->insert(newEntry);
             return;
         }
         // else if isTree() or it doesn't have same lvl value just ignore it
@@ -182,9 +144,10 @@ void TTree::insert(TEntry *entry)
         // about remote site of the connection
     }
     // If there is no element with the same value on its level then add a new one
-    entry->setLevel(level+1);
-    v.push_back(entry);
+    newEntry->setLevel(level+1);
+    v.push_back(newEntry);
 }
+
 
 void TTree::setCommonValue(Netflow *n)
 {
@@ -216,13 +179,14 @@ void TTree::setCommonValue(Netflow *n)
                 setIp(tmpIpPtr, ipVersion);
             }
             else
-                throw "Should not came in here";
+                throw "Should not came in here"; //! @todo catch
             break;
         }
         default:
-            throw "Should not came in here";
+            throw "Should not came in here"; //! @todo catch
     }
 }
+
 
 bool TTree::levelCompare(Netflow *n)
 {
@@ -246,12 +210,34 @@ bool TTree::levelCompare(Netflow *n)
             else if (ipVersion == 6)
                 return !memcmp(cv.ip, n->getLocalIp(), sizeof(struct in6_addr));
             else
-                throw "Should not come in here";
+                throw "Should not come in here"; //! @todo catch
         }
         default:
-            throw "Should not come in here";
+            throw "Should not come in here"; //! @todo catch
     }
 }
+
+
+void TTree::saveResults()
+{
+    for (auto record : v)
+    {
+        if (record->isEntry())
+        {
+            TEntry *entryPtr = static_cast<TEntry *>(record);
+            entryPtr->print();
+            if (/*!entryPtr->valid() && */entryPtr->getAppName() != "")
+            {
+                Netflow *res = new Netflow;
+                *res = *entryPtr->getNetflowPtr();
+                g_finalResults[entryPtr->getAppName()].push_back(res);
+            }
+        }
+        else
+            static_cast<TTree *>(record)->saveResults();
+    }
+}
+
 
 void TTree::print()
 {
@@ -279,7 +265,7 @@ void TTree::print()
                 cout << "IPv6: <" <<str;
             }
             else
-                throw "Should not came in here";
+                throw "Should not came in here"; //! @todo catch
             break;
         }
     }
@@ -288,6 +274,7 @@ void TTree::print()
     for (auto ptr : v)
         ptr->print();
 }
+
 
 
 /*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*
@@ -301,6 +288,7 @@ Cache::~Cache()
         delete ptr.second;
     delete cache; 
 }
+
 
 TEntryOrTTree *Cache::find(Netflow &n)
 {
@@ -324,6 +312,7 @@ TEntryOrTTree *Cache::find(Netflow &n)
         return nullptr;
 }
 
+
 void Cache::insert(TEntry *newEntry)
 {
     Netflow *newNetflow = newEntry->getNetflowPtr();
@@ -344,19 +333,20 @@ void Cache::insert(TEntry *newEntry)
         else    // isEntry -> record already exists
         {
             TEntry *oldEntry = static_cast<TEntry*>(iter->second);
-            // If the same netflow record already exists (compares just relevant variables)
-            if (*(oldEntry->getNetflowPtr()) == *newNetflow)
+            // If the same netflow record already exists
+            if (oldEntry->getNetflowPtr()->getLocalPort() == newNetflow->getLocalPort())
                 log(LogLevel::ERROR, "Cache::insert called two times with the same Netflow.");//! @todo what to do?
             // ^^^ in this case we do not update endTime because insert() is used while creating a new tree 
             // and in this case there mustn't be two same Netflow structures (that would mean two same sockets)
             else
             {
                 // Create a new tree
-                iter->second = new TTree(oldEntry->getLevel());
-                static_cast<TTree*>(iter->second)->setCommonValue(oldEntry->getNetflowPtr());
+                TTree *newTree = new TTree(oldEntry->getLevel());
+                newTree->setCommonValue(oldEntry->getNetflowPtr());
                 // Insert an old entry with the new one
-                static_cast<TTree*>(iter->second)->insert(oldEntry);
-                static_cast<TTree*>(iter->second)->insert(newEntry);
+                newTree->insert(oldEntry);
+                newTree->insert(newEntry);
+                iter->second = newTree;
             }
         }
     }
@@ -367,28 +357,30 @@ void Cache::insert(TEntry *newEntry)
     }
 }
 
-void Cache::periodicUpdate()
-{
-/*    while(!shouldStop)
-    {
-        // If it has been already updated (e.g. because of cache miss) don't update it
-        if(duration_cast<seconds>(clock_type::now()-lastUpdate) >= seconds(UPDATE_INTERVAL))  
-            this_thread::sleep_for(seconds(UPDATE_INTERVAL));
-        // If shouldStop was set during sleep
-        if(shouldStop)
-            break;
 
-        //map<unsigned short, TEntryOrTTree*> *newCache = new map<unsigned short, TEntryOrTTree*>;
-        //::initCache(this);
-        //diff();
-        //! @todo   Implement cache.diff and periodicUpdate
-    }*/
+void Cache::saveResults()
+{
+    for (auto record : *cache)
+    {
+        if (record.second->isEntry())
+        {
+            TEntry *entryPtr = static_cast<TEntry *>(record.second);
+            entryPtr->print();
+            if (/*!entryPtr->valid() && */entryPtr->getAppName() != "")
+            {
+                Netflow *res = new Netflow;
+                *res = *entryPtr->getNetflowPtr();
+                g_finalResults[entryPtr->getAppName()].push_back(res);
+            }
+        }
+        else
+            static_cast<TTree *>(record.second)->saveResults();
+    }
 }
+
 
 void Cache::print()
 {
-    cout << lastUpdate.time_since_epoch().count() << endl;
-
     for (auto m : *cache)
         m.second->print();
 }
