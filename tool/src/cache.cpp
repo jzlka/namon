@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 26.02.2017 23:52
- *   - Edited:  31.03.2017 04:36
+ *   - Edited:  31.03.2017 06:25
  */
 
 #include <iostream>             //  cout, endl;
@@ -225,7 +225,6 @@ void TTree::saveResults()
         if (record->isEntry())
         {
             TEntry *entryPtr = static_cast<TEntry *>(record);
-            entryPtr->print();
             if (/*!entryPtr->valid() && */entryPtr->getAppName() != "")
             {
                 Netflow *res = new Netflow;
@@ -365,7 +364,6 @@ void Cache::saveResults()
         if (record.second->isEntry())
         {
             TEntry *entryPtr = static_cast<TEntry *>(record.second);
-            entryPtr->print();
             if (/*!entryPtr->valid() && */entryPtr->getAppName() != "")
             {
                 Netflow *res = new Netflow;

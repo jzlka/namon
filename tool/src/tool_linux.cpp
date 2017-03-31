@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 18.02.2017 23:32
- *   - Edited:  31.03.2017 05:05
+ *   - Edited:  31.03.2017 06:34
  *  @todo       rename file
  */
 
@@ -306,7 +306,7 @@ int getApp(const int inode, string &appName)
 
                 if (fd <= 2) // stdin, stdout, stderr
                     continue;
-                char buff[1024] ={0};
+                char buff[1024] ={0}; //! @todo size
                 string descriptor = PROCFS + string(pidEntry->d_name) + "/fd/" + string(fdEntry->d_name);
                 int ll = readlink(descriptor.c_str(), buff, 1023);
                 if (ll == -1)
@@ -322,9 +322,16 @@ int getApp(const int inode, string &appName)
                     throw "Can't convert socket inode to integer";
                 if (foundInode == inode)
                 {
-                    ifstream appNameFile(PROCFS + string(pidEntry->d_name) + "/cmdline");
-                    // arguments are delimited with '\0' so we read just first argument.
-                    appNameFile >> appName;
+                   // ifstream appNameFile(PROCFS + string(pidEntry->d_name) + "/cmdline");
+                   // // arguments are delimited with '\0' so we read just first argument.
+                   // appNameFile >> appName;
+                    char exe[512] = {0};
+                    string exeLink = PROCFS + string(pidEntry->d_name) + "/exe";
+                    int ll = readlink(exeLink.c_str(), exe, 511);
+                    if (ll == -1)
+                        log(LogLevel::ERROR, "Readlink error: " +exeLink +"\n" + string(strerror(errno)));
+                    appName = exe;
+
                     closedir(fdDir);
                     goto END;
                 }
