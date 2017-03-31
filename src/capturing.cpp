@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 18.02.2017 22:45
- *   - Edited:  31.03.2017 04:55
+ *   - Edited:  31.03.2017 06:26
  *   @todo      IPv6 implementation
  *   @todo      Comment which functions move classes
  *   @todo      What to do when the cache contains invalid record and getInode returns inode == 0
@@ -162,9 +162,6 @@ int startCapture(const char *oFilename)
         cout << "Total " << g_finalResults.size() << " application(s) which used the same local port more than once" << endl;
         cache.saveResults();
         cout << g_finalResults.size() << " applications in total:" << endl;
-        CustomBlock cBlock;
-        cBlock.write(oFile);
-
         for (auto record : g_finalResults)
         {
             cout << "  * " << record.first << endl;
@@ -172,9 +169,11 @@ int startCapture(const char *oFilename)
                 delete entry;
         }
         cout << "Inode not found for " << g_notFoundInodes << " ports." << endl;
-        cout << "App not found for " << g_notFoundApps << " applications." << endl;
-        //cache.print();
-        //! @todo save cache results into the file
+        cout << "Application not found for " << g_notFoundApps << " inodes." << endl;
+        cache.print();
+
+        CustomBlock cBlock;
+        cBlock.write(oFile);
     }
     catch(pcap_ex &e)
     {
