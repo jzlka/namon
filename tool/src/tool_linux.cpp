@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 18.02.2017 23:32
- *   - Edited:  31.03.2017 03:34
+ *   - Edited:  31.03.2017 05:05
  *  @todo       rename file
  */
 
@@ -31,7 +31,7 @@ const unsigned char IPv6_SIZE       =   16;
 const char * const  PROCFS          =   "/proc/";
 //const vector<string> L2SocketFiles = { "/proc/net/icmp", "/proc/net/igmp", "/proc/net/raw" };
 
-extern map<string, vector<TEntry *>> g_finalResults;
+extern map<string, vector<Netflow *>> g_finalResults;
 extern unsigned int g_notFoundApps, g_notFoundInodes;
 
 
@@ -113,10 +113,9 @@ int determineApp (Netflow *n, TEntry &e)
         }
         else if (e.getAppName() != "")
         {
-            TEntry *res = new TEntry;
-            res->setNetflowPtr(new Netflow);
-            *res = e;
-            g_finalResults[res->getAppName()].push_back(res);
+            Netflow *res = new Netflow;
+            *res = *e.getNetflowPtr();
+            g_finalResults[e.getAppName()].push_back(res);
         }
     }
 
