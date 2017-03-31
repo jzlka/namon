@@ -3,10 +3,10 @@
  *  @brief      Main source file
  *  @details    Network Traffic Capturing With Application Tags,
  *              Bachelor's Thesis, FIT VUT Brno
- *  @author     Jozef Zuzelka (xzuzel00)
- *  Mail:       xzuzel00@stud.fit.vutbr.cz
- *  Created:    18.02.2017 08:03
- *  Edited:     20.03.2017 15:25
+ *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
+ *  @date
+ *   - Created: 18.02.2017 08:03
+ *   - Edited:  29.03.2017 16:33
  *  Version:    1.0.0
  *  @todo       change tool name
  */
@@ -58,7 +58,7 @@ int main (int argc, char *argv[])
 
 void printUsage()
 {
-    cout << "Usage: tool [-v [<level>]] [-i <interface>] [-w <output_filename>]" << endl; //TODO zmenit nazov nastroja
+    cout << "Usage: tool [-v[<level>]] [-i <interface>] [-w <output_filename>]" << endl; //TODO zmenit nazov nastroja
     cout << "\t-v\tVerbosity level. Possible values are 0-3." << endl;
     cout << "\t-i\tCapturing interface." << endl;
     cout << "\t-w\tOutput file." << endl;

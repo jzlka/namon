@@ -1,11 +1,10 @@
 /** 
  *  @file       ringBuffer.tpp
  *  @brief      Ring Buffer template functions
- *  @author     Jozef Zuzelka (xzuzel00)
- *  Mail:       xzuzel00@stud.fit.vutbr.cz
- *  Created:    22.03.2017 17:04
- *  Edited:     25.03.2017 19:56
- *  Version:    1.0.0
+ *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
+ *  @date
+ *   - Created: 22.03.2017 17:04
+ *   - Edited:  31.03.2017 13:03
  */
 
 #if defined(__linux__)
@@ -27,7 +26,6 @@ int RingBuffer<EnhancedPacketBlock>::push(const pcap_pkthdr *header, const u_cha
 {
     if (full()) 
     {
-        log(LogLevel::WARNING, "Packet dropped!");
         droppedElem++;
         return 1;
     }
@@ -51,7 +49,6 @@ int RingBuffer<T>::push(T &elem)
 {
     if (full()) 
     {
-        log(LogLevel::WARNING, "Packet dropped!");
         droppedElem++;
         return 1;
     }
@@ -84,7 +81,7 @@ void RingBuffer<EnhancedPacketBlock>::write(ofstream &file)
     {
         std::unique_lock<std::mutex> mlock(m_condVar);
         cv_condVar.wait(mlock, std::bind(&RingBuffer::newItemOrStop, this));
-    mlock.unlock();
+        mlock.unlock();
         while(!empty())
         {
             buffer[first].write(file);
@@ -102,7 +99,7 @@ void RingBuffer<EnhancedPacketBlock>::write(ofstream &file)
 
 
 template<class Netflow>
-void RingBuffer<Netflow>::run(Cache *c)
+void RingBuffer<Netflow>::run(Cache *cache)
 {
     while (!shouldStop)
     {
@@ -111,16 +108,35 @@ void RingBuffer<Netflow>::run(Cache *c)
         mlock.unlock();
         while(!empty())
         {
-            TEntryOrTTree *cacheRecord = c->find(buffer[first]);
+            TEntryOrTTree *cacheRecord = cache->find(buffer[first]);
+            // if we found some TEntry, check if it still valid
             if (cacheRecord != nullptr && cacheRecord->isEntry())
             {
-                static_cast<TEntry *>(cacheRecord)->getNetflowPtr()->setEndTime(buffer[first].getEndTime());
-                //! @todo check if the record is not expired
+                TEntry *foundEntry = static_cast<TEntry *>(cacheRecord);
+                // If the record exists but is invalid, run determineApp() in update mode
+                // to find new application, else update endTime.
+                if (!foundEntry->valid())
+                    determineApp(foundEntry->getNetflowPtr(), *foundEntry);
+                else
+                    foundEntry->getNetflowPtr()->setEndTime(buffer[first].getEndTime());
             }
-            else    // either TTree or it is not in the map
-            {
-                //TEntry *e = determineApp(&buffer[first]);
-                //c->insert(e); //! @todo uncomment
+            else 
+            { // else it is either TTree or it is not in the whole map (nullptr)
+              // (both means it's not in the cache at all)
+                TEntry *e = new TEntry;
+                // If an error occured (can't open procfs file, etc.)
+                if (determineApp(&buffer[first], *e))
+                {
+                    delete e;
+                }
+                else
+                {
+                    // insert new record into map
+                    if (cacheRecord == nullptr)
+                        cache->insert(e);
+                    else // else insert it into subtree
+                        static_cast<TTree *>(cacheRecord)->insert(e);
+                }
             }
             pop();
         }

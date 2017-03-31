@@ -1,11 +1,10 @@
 /** 
  *  @file       netflow.cpp
  *  @brief      Netflow structure source file
- *  @author     Jozef Zuzelka (xzuzel00)
- *  Mail:       xzuzel00@stud.fit.vutbr.cz
- *  Created:    15.03.2017 23:27
- *  Edited:     23.03.2017 19:06
- *  Version:    1.0.0
+ *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
+ *  @date
+ *   - Created: 15.03.2017 23:27
+ *   - Edited:  28.03.2017 02:37
  */
 
 #include <iostream>         //  cout, endl
@@ -31,7 +30,8 @@ bool Netflow::operator==(const Netflow& other) const
     if(localPort == other.localPort && proto == other.proto)
     {
         if (ipVersion == 4)
-            return !memcmp(static_cast<in_addr*>(localIp), static_cast<in_addr*>(other.localIp), sizeof(struct in_addr));
+            return (static_cast<in_addr*>(localIp)->s_addr ==
+                    static_cast<in_addr*>(other.localIp)->s_addr);
         else
             return !memcmp(static_cast<in6_addr*>(localIp), static_cast<in6_addr*>(other.localIp), sizeof(struct in6_addr));
     }

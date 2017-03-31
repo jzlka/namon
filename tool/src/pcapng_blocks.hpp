@@ -1,11 +1,10 @@
 /** 
  *  @file       pcapng_blocks.hpp
  *  @brief      Pcap-ng block structures
- *  @author     Jozef Zuzelka (xzuzel00)
- *  Mail:       xzuzel00@stud.fit.vutbr.cz
- *  Created:    06.03.2017 13:33
- *  Edited:     25.03.2017 18:03
- *  Version:    1.0.0
+ *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
+ *  @date
+ *   - Created: 06.03.2017 13:33
+ *   - Edited:  31.03.2017 06:12
  */
 
 #pragma once
@@ -38,6 +37,7 @@
 using namespace std;
 
 extern const char * g_dev;
+extern map<string, vector<Netflow *>> g_finalResults;
 
 
 
@@ -236,7 +236,7 @@ public:
  */
 class EnhancedPacketBlock {
     UNUSED(uint32_t blockType)              = 0x00000006;
-    UNUSED(uint32_t blockTotalLength)       = sizeof(*this)-sizeof(packetData);    // will be updated in write()
+    UNUSED(uint32_t blockTotalLength)       = sizeof(*this)-sizeof(allocatedBytes)-sizeof(packetData);    // will be updated in write()
     UNUSED(uint32_t interfaceID)            = 0;
     UNUSED(uint32_t timestampHi)            = 0;
     UNUSED(uint32_t timestampLo)            = 0;
@@ -250,8 +250,9 @@ public:
      * @brief   Default c'tor that preallocates memory for packet
      * @details Malloc is used instead of new because of later reallocating.
      *          http://stackoverflow.com/questions/33706528/is-it-safe-to-realloc-memory-allocated-with-new
+     * @todo    Catch exception
      */
-    EnhancedPacketBlock()     { packetData = (u_char*)malloc(ETHER_MAX_LEN); }
+    EnhancedPacketBlock()     { packetData = (u_char*)malloc(ETHER_MAX_LEN); if (packetData == nullptr) throw "Err"; }
     /*!
      * @brief   Default d'tor that deletes preallocated packet memory
      */
@@ -305,12 +306,12 @@ public:
         blockTotalLength += capturedPacketLength + paddingLen;  // because of += everytime when write() is called, we have to restore default length before the function returns
         blockTotalLength2 = blockTotalLength;
 
-        file.write(reinterpret_cast<char*>(this), sizeof(*this)-sizeof(blockTotalLength2)-sizeof(packetData));
+        file.write(reinterpret_cast<char*>(this), sizeof(*this)-sizeof(blockTotalLength2)-sizeof(packetData)-sizeof(allocatedBytes));
         file.write(reinterpret_cast<const char*>(packetData), capturedPacketLength);
         while(paddingLen--)
             file.write(&padding, sizeof(padding));
         file.write(reinterpret_cast<char*>(&blockTotalLength2), sizeof(blockTotalLength2));
-        blockTotalLength = sizeof(*this)-sizeof(packetData);    // restore default size of empty block
+        blockTotalLength = sizeof(*this)-sizeof(allocatedBytes)-sizeof(packetData);    // restore default size of empty block
     }
 };
 
@@ -322,9 +323,9 @@ public:
  */
 class CustomBlock {
     UNUSED(uint32_t blockType)              = 0x40000BAD;
-    UNUSED(uint32_t blockTotalLength)       = sizeof(*this) - sizeof(customData); // **** will be updated in write()
+    UNUSED(uint32_t blockTotalLength)       = sizeof(*this); // **** will be updated in write()
     UNUSED(uint32_t PrivateEnterpriseNumber)= 0x1234;   //! @todo PEN
-    UNUSED(vector<TEntry*> customData);
+    /* custom data */
     UNUSED(uint32_t blockTotalLength2)      = blockTotalLength;
 public:
     /*!
@@ -338,20 +339,40 @@ public:
      */
     void write(ofstream & file)
     { 
-        blockTotalLength += (customData.size() * sizeof(TEntry));
-        file.write(reinterpret_cast<char*>(this), blockTotalLength2 - sizeof(blockTotalLength2)); 
+        file.write(reinterpret_cast<char*>(&blockType), sizeof(blockType));
+        streamoff pos_blockTotalLength = file.tellp();
+        file.write(reinterpret_cast<char*>(&blockTotalLength), sizeof(blockTotalLength));
+        file.write(reinterpret_cast<char*>(&PrivateEnterpriseNumber), sizeof(PrivateEnterpriseNumber));
         
-        unsigned int writtenData = 0;
-        for (auto e : customData)
-            writtenData += e->write(file);
+        unsigned int writtenBytes = 0;
+        for (auto app : g_finalResults)
+        {
+            uint8_t size = app.first.length();
+            file.write(reinterpret_cast<char*>(&size), sizeof(size));
+            writtenBytes += sizeof(size);
+
+            file.write(app.first.c_str(), size);
+            writtenBytes += size;
+
+            //! @todo app.second->sort()
+            uint32_t records = app.second.size();
+            file.write(reinterpret_cast<char*>(&records), sizeof(records));
+            writtenBytes += sizeof(records);
+            for (auto v : app.second)
+                writtenBytes += v->write(file);
+        }
 
         const char padding = 0;
-        int paddingLen = computePaddingLen(writtenData, 4);
+        int paddingLen = computePaddingLen(writtenBytes, 4);
+        blockTotalLength += writtenBytes + paddingLen;
         while(paddingLen--)
             file.write(&padding, sizeof(padding));
 
         blockTotalLength2 = blockTotalLength;
         file.write(reinterpret_cast<char*>(&blockTotalLength2), sizeof(blockTotalLength2)); 
+
+        file.seekp(pos_blockTotalLength);
+        file.write(reinterpret_cast<char*>(&blockTotalLength), sizeof(blockTotalLength)); 
     }
 };
 
