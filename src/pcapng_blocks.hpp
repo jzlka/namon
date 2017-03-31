@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 06.03.2017 13:33
- *   - Edited:  31.03.2017 04:38
+ *   - Edited:  31.03.2017 05:00
  */
 
 #pragma once
@@ -346,7 +346,7 @@ public:
         unsigned int writtenBytes = 0;
         for (auto app : g_finalResults)
         {
-            size_t size = app.first.size();
+            size_t size = app.first.length();
             file.write(reinterpret_cast<char*>(&size), sizeof(size));
             writtenBytes += sizeof(size);
 
