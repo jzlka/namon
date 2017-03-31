@@ -4,19 +4,19 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 18.02.2017 22:55
- *   - Edited:  27.03.2017 00:15
+ *   - Edited:  29.03.2017 20:02
  *  @todo       rename file
  */
 
 #pragma once
 
-#include <netinet/ip.h>     //  ip
-#include "capturing.hpp"    //  Directions
+#include <fstream>          //  ifstream
 #include "netflow.hpp"      //  Netflow
 #include "cache.hpp"        //  Cache
 
 
-TEntry *determineApp (Netflow *n);
-void initCache(Cache *c);
-//! @todo what to do with ipv6 !?
-Directions getDirection(const ip * const hdr);
+int determineApp(Netflow *n, TEntry &e);
+void updateCacheRecord(TEntry *e);
+int getInodeIpv4(Netflow *n);
+int getInodeIpv6(Netflow *n);
+int getApp(const int inode, string &appname);

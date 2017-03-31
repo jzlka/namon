@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 06.03.2017 13:33
- *   - Edited:  27.03.2017 01:12
+ *   - Edited:  31.03.2017 04:38
  */
 
 #pragma once
@@ -37,6 +37,7 @@
 using namespace std;
 
 extern const char * g_dev;
+extern map<string, vector<Netflow *>> g_finalResults;
 
 
 
@@ -322,9 +323,9 @@ public:
  */
 class CustomBlock {
     UNUSED(uint32_t blockType)              = 0x40000BAD;
-    UNUSED(uint32_t blockTotalLength)       = sizeof(*this) - sizeof(customData); // **** will be updated in write()
+    UNUSED(uint32_t blockTotalLength)       = sizeof(*this); // **** will be updated in write()
     UNUSED(uint32_t PrivateEnterpriseNumber)= 0x1234;   //! @todo PEN
-    UNUSED(vector<TEntry*> customData);
+    /* custom data */
     UNUSED(uint32_t blockTotalLength2)      = blockTotalLength;
 public:
     /*!
@@ -338,20 +339,36 @@ public:
      */
     void write(ofstream & file)
     { 
-        blockTotalLength += (customData.size() * sizeof(TEntry));
-        file.write(reinterpret_cast<char*>(this), blockTotalLength2 - sizeof(blockTotalLength2)); 
+        file << blockType;
+        streamoff pos_blockTotalLength = file.tellp();
+        file << blockTotalLength << PrivateEnterpriseNumber;
         
-        unsigned int writtenData = 0;
-        for (auto e : customData)
-            writtenData += e->write(file);
+        unsigned int writtenBytes = 0;
+        for (auto app : g_finalResults)
+        {
+            size_t size = app.first.size();
+            file.write(reinterpret_cast<char*>(&size), sizeof(size));
+            writtenBytes += sizeof(size);
+
+            file.write(app.first.c_str(), size);
+            writtenBytes += size;
+
+            //! @todo app.second->sort()
+            for (auto v : app.second)
+                writtenBytes += v->write(file);
+        }
 
         const char padding = 0;
-        int paddingLen = computePaddingLen(writtenData, 4);
+        int paddingLen = computePaddingLen(writtenBytes, 4);
+        blockTotalLength += writtenBytes + paddingLen;
         while(paddingLen--)
             file.write(&padding, sizeof(padding));
 
         blockTotalLength2 = blockTotalLength;
         file.write(reinterpret_cast<char*>(&blockTotalLength2), sizeof(blockTotalLength2)); 
+
+        file.seekp(pos_blockTotalLength);
+        file.write(reinterpret_cast<char*>(&blockTotalLength), sizeof(blockTotalLength)); 
     }
 };
 

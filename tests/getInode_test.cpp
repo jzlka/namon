@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 29.03.2017 02:11
- *   - Edited:  29.03.2017 09:43
+ *   - Edited:  30.03.2017 17:58
  */
 
 #include <iostream>         //  cout, cerr, endl
@@ -57,16 +57,23 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    Netflow *n = new Netflow;
-    n->setProto(proto);
-    n->setLocalIp(&localIp);
-    n->setLocalPort(localPort);
-    n->setIpVersion(4);
+    Netflow n;
+    n.setProto(proto);
+    n.setLocalIp(&localIp);
+    n.setLocalPort(localPort);
+    n.setIpVersion(4);
 
-    int inode = getInodeIpv4(n);
+    string filename;
+    if (getSocketFile(&n, filename))
+        return -1;
+
+    ifstream socketsFile(filename);
+    if (!socketsFile)
+        return -1;
+
+    int inode = getInode(&n, socketsFile);
     if (inode == -1 || inode == 0)
         cerr << "Inode not found." << endl;
     else
         cout << "Inode found! " << inode << endl;
-    //delete n;
 }

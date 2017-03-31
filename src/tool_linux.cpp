@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 18.02.2017 23:32
- *   - Edited:  29.03.2017 16:29
+ *   - Edited:  31.03.2017 03:34
  *  @todo       rename file
  */
 
@@ -14,10 +14,14 @@
 #include <cstring>              //  memset(), strchr()
 
 #include "netflow.hpp"          //  Netflow
-#include "cache.hpp"            //  Cache
+#include "cache.hpp"            //  Cache, TEntry
 #include "debug.hpp"            //  log()
 #include "utils.hpp"            //  pidToInt()
 #include "tool_linux.hpp"
+
+using namespace std;
+
+struct AppRecord;
 
 const unsigned char PROTO_UDP       =   0x11;
 const unsigned char PROTO_TCP       =   0x06;
@@ -25,75 +29,161 @@ const unsigned char PROTO_UDPLITE   =   0x88;
 const unsigned char IPv4_SIZE       =   4;
 const unsigned char IPv6_SIZE       =   16;
 const char * const  PROCFS          =   "/proc/";
+//const vector<string> L2SocketFiles = { "/proc/net/icmp", "/proc/net/igmp", "/proc/net/raw" };
 
-using namespace std;
+extern map<string, vector<TEntry *>> g_finalResults;
+extern unsigned int g_notFoundApps, g_notFoundInodes;
 
 
-
-int determineApp (Netflow *n, TEntry &e)
+int getSocketFile(Netflow *n, string &file)
 {
-    n->print();
-    int inode = 0;
-    if (n->getIpVersion() == 4)
-        inode = getInodeIpv4(n);
-    else
-        return -1;//! @todo implement
+    const unsigned int proto = n->getProto();
+    const unsigned char ipVer = n->getIpVersion();
 
-    if (inode == -1)
-        return -1;
-    if (inode == 0)
+    if (proto == PROTO_UDP)
+        file = "/proc/net/udp";
+    else if (proto == PROTO_UDPLITE)
+        file = "/proc/net/udplite";
+    else if (proto == PROTO_TCP)
+        file = "/proc/net/tcp";
+    else
     {
-        log(LogLevel::ERROR, "Socket not found for ", (int)n->getProto(), " port ", n->getLocalPort());
+        log(LogLevel::ERROR, "Unsupported L4 protocol");
         return -1;
     }
-
-    string appname;
-    if (getApp(inode, appname))
+    
+    if (ipVer == 6)
+        file += '6';
+    else if (ipVer != 4)
+    {
+        log(LogLevel::ERROR, "Unsupported IP protocol");
         return -1;
-
-    e.setInode(inode);
-    e.setAppName(appname);
-    Netflow *newN = new Netflow;
-    *newN = move(*n);
-    e.setNetflowPtr(newN);
+    }
     return 0;
 }
 
 
-int getInodeIpv4(Netflow *n)
+int determineApp (Netflow *n, TEntry &e)
 {
-    ifstream socketsFile;
-    const unsigned int proto = n->getProto();
+    string filename;
+    if (getSocketFile(n, filename))
+        return -1;
+
+    ifstream socketsFile(filename);
+    if (!socketsFile)
+    {
+        log(LogLevel::ERROR, "Can't open file ", filename);
+        return -1;
+    }
+
+    int inode = getInode(n, socketsFile);
+    if (inode == -1)
+        return -1;
+    if (inode == 0)
+    {
+        // we ignore IGMP and ICMP packets
+       // for (auto file : L2SocketFiles)
+       // {
+       //     socketsFile.close();
+       //     if (ipVer == 6)
+       //         file += '6';
+       //     socketsFile.open(file);
+       //     if (!socketsFile)
+       //     {
+       //         log(LogLevel::ERROR, "Can't open file ", file);
+       //         return -1;
+       //     }
+       //     
+       //     inode = getInode(n, socketsFile);
+       //     if (inode == -1)
+       //         return -1;
+       //     if (inode > 0)
+       //         break;
+       // }
+    }
+
+    // if we are updating existing cache record
+    if (n == e.getNetflowPtr())
+    {
+        // if nothing changed, update time
+        if (inode == e.getInode())
+        {
+            e.updateTime();
+            return 0;
+        }
+        else if (e.getAppName() != "")
+        {
+            TEntry *res = new TEntry;
+            res->setNetflowPtr(new Netflow);
+            *res = e;
+            g_finalResults[res->getAppName()].push_back(res);
+        }
+    }
+
+    string appName;
+    if (inode == 0)
+    {
+        log(LogLevel::WARNING, "Inode not found for port " + to_string(n->getLocalPort()));
+        appName = ""; //! @todo Is inserting into cache valid begavior?
+        g_notFoundInodes++;
+        //return -1;
+    }
+    else if (getApp(inode, appName))
+        return -1;
+
+
+    e.setInode(inode);
+    e.setAppName(appName);
+    // if we are not updating same netflow, move if from cacheBuffer
+    if (n != e.getNetflowPtr())
+    {
+        Netflow *newN = new Netflow;
+        *newN = move(*n);
+        e.setNetflowPtr(newN);
+    }
+    else // else it is already moved, make a copy
+    {
+        // else we update expired record with a new application so
+        // set just new times
+        e.getNetflowPtr()->setStartTime(n->getStartTime());
+        e.getNetflowPtr()->setEndTime(n->getEndTime());
+    }
+    return 0;
+}
+
+
+int getInode(Netflow *n, ifstream &socketsFile)
+{
+    const unsigned char ipVer = n->getIpVersion();
+    void* foundIp = nullptr;
+    size_t ipSize = 0;
+    if (ipVer == 4)
+       {  ipSize = sizeof(in_addr); foundIp = new in_addr; }
+    else
+       {  ipSize = sizeof(in6_addr); foundIp = new in6_addr; }
+    memset(foundIp, 0, ipSize);
 
     try
     {
-        if (proto == PROTO_UDP)
-            socketsFile.open("/proc/net/udp");
-        else if (proto == PROTO_UDPLITE)
-            socketsFile.open("/proc/net/udplite");
-        else if (proto == PROTO_TCP)
-            socketsFile.open("/proc/net/tcp");
-        else
-            throw "Should not come here";
-        if (!socketsFile)
-            throw "Can't open /proc/net/<proto> file.";
-
         static streamoff pos_localIp, pos_localPort, pos_inode;
         static string dontCare;
+        static int lineLength;
 
-        getline(socketsFile, dontCare); // get first line to find out length of the others
-        int lineLength = dontCare.length() + 1;
-        getline(socketsFile, dontCare, ':'); // get rid of the first column
-        pos_localIp = socketsFile.tellg();
-        pos_localIp++; // space after the first column ("sl")
-        pos_localPort = pos_localIp + IPv4_SIZE*2 + 1; // local ip plus ':' delimiter
-        // localPort remoteIp:remotePort st tx_queue:rx_queue tr:tm->when retrnsmt
-        pos_inode = pos_localPort+3+ 1 +IPv4_SIZE*2+1+4+ 1+2+1 +8+1+8+ 1 +2+1+8 +1+8+1;
-
+        const char IP_SIZE = (ipVer == 4) ? IPv4_SIZE : IPv6_SIZE;
+        const unsigned short wantedPort = n->getLocalPort();
         unsigned int inode = 0;
         uint32_t foundPort = 0;
-        in_addr foundIp = {0};
-        unsigned short wantedPort = n->getLocalPort();
+
+        getline(socketsFile, dontCare); // get first line to find out length of the other lines
+        lineLength = dontCare.length() + 1;
+        getline(socketsFile, dontCare, ':'); // get rid of the first column
+        pos_localIp = socketsFile.tellg();
+        pos_localIp++; // space after first column ("sl")
+        pos_localPort = pos_localIp + IP_SIZE*2 + 1; // local ip plus ':' delimiter
+        // localPort remoteIp:remotePort st tx_queue:rx_queue tr:tm->when retrnsmt
+        pos_inode = pos_localPort+3+ 1 +IP_SIZE*2+1+4+ 1+2+1 +8+1+8+ 1 +2+1+8 +1+8+1;
+
+        // cycle over remaining lines
         do {
             socketsFile.seekg(pos_localPort); // move before localPort
 
@@ -101,100 +191,92 @@ int getInodeIpv4(Netflow *n)
             if (foundPort == wantedPort)
             {
                 char c{0}, i{0};
-                char parts[IPv4_SIZE] = {0};
-                const unsigned char CHARS_PER_OCTET = 2;
+                vector<char> parts(IP_SIZE,0);
+                const unsigned char CHARS_PER_OCTET = (ipVer == 4) ? 2 : 0; //! @todo implement ipv6
 
                 // compare localIp
                 socketsFile.seekg(pos_localIp);
 
-                while (socketsFile.get(c), c != ':')
+                if (ipVer == 4)
                 {
-                    if (c >= '0' && c <= '9')
-                        c -= '0';
-                    else if (c >= 'A' && c <= 'F')
-                        c = 10 + c - 'A'; // get from 'A' decimal 10
-                    else
-                        throw "Unexpected hexadecimal character in IP address in procfs";
-                    // 01 23 45 67      :i                   (position)
-                    // 0  1  2  3       :i / CHARS_PER_OCTET (corresponding octet)
-                    // 01 00 00 7F      :c  == 127.0.0.1     (IP address char)
-                    parts[i / CHARS_PER_OCTET] = parts[i/CHARS_PER_OCTET]*16 + c;
-                    i++;
-                }
-                foundIp.s_addr |= (parts[0] << 24) | (parts[1] << 16) | (parts[2] << 8) | parts[3];
-
-                // if it is not our IP address, continue
-                if (static_cast<in_addr*>(n->getLocalIp())->s_addr != foundIp.s_addr
-                        && foundIp.s_addr != 0) // faster than memcmp()
-                    goto NEWLINE;
-
-                socketsFile.seekg(pos_inode);
-                // other columns (uid, timeout) have variable width
-                char column = 0;
-                bool inColumn = false;
-                while(column != 3)
-                {
-                    socketsFile.get(c);
-                    if (c != ' ')
+                    while (socketsFile.get(c), c != ':' && c != 0) //! @todo why 0?
                     {
-                        if (!inColumn)
+                        if (c >= '0' && c <= '9')
+                            c -= '0';
+                        else if (c >= 'A' && c <= 'F')
+                            c = 10 + c - 'A'; // get from 'A' decimal 10
+                        else
                         {
-                            column++;
-                            inColumn = true;
+                            log(LogLevel::ERROR, "An Unexpected hexadecimal character in IP address in procfs: ", c);
+                            break;
                         }
+                        // 01 23 45 67      :i                   (position)
+                        // 0  1  2  3       :i / CHARS_PER_OCTET (corresponding octet)
+                        // 01 00 00 7F      :c  == 127.0.0.1     (IP address char)
+                        parts[i / CHARS_PER_OCTET] = parts[i/CHARS_PER_OCTET]*16 + c;
+                        i++;
                     }
-                    else
-                        inColumn = false;
+                    static_cast<in_addr*>(foundIp)->s_addr |= (parts[0] << 24) | (parts[1] << 16) | (parts[2] << 8) | parts[3];
                 }
-                socketsFile.unget();
+                else
+                {
+                    throw "IPv6 is not supported yet."; //! @todo implement
+                }
 
-                socketsFile >> dec >> inode;
-                break;
+                // if it is our IP address
+                //! @todo zero IP
+                if (!memcmp(n->getLocalIp(), foundIp, ipSize)/* || foundIp.s_addr != 0*/)
+                {
+
+                    socketsFile.seekg(pos_inode);
+                    // other columns (uid, timeout) have variable width
+                    char column = 0;
+                    bool inColumn = false;
+                    while(column != 3)
+                    {
+                        socketsFile.get(c);
+                        if (c != ' ')
+                        {
+                            if (!inColumn)
+                            {
+                                column++;
+                                inColumn = true;
+                            }
+                        }
+                        else
+                            inColumn = false;
+                    }
+                    socketsFile.unget();
+
+                    socketsFile >> dec >> inode;
+                    break;
+                }
             }
-NEWLINE:
-            //! @todo for sure same length?
+            //! @todo for sure line have same length?
             pos_localIp += lineLength; // all lines are the same length
             pos_localPort += lineLength;
             pos_inode += lineLength;
         } while (getline(socketsFile, dontCare));
+
+        if (ipVer == 4)
+            delete static_cast<in_addr*>(foundIp);
+        else
+            delete static_cast<in6_addr*>(foundIp);
         return inode;
     }
     catch(char const *msg)
     {
         cerr << "ERROR: " << msg << endl;
+        if (ipVer == 4)
+            delete static_cast<in_addr*>(foundIp);
+        else
+            delete static_cast<in6_addr*>(foundIp);
         return -1;
     }
 }
 
-int getInodeIpv6(Netflow *n)
-{
-    ifstream socketsFile;
-    const unsigned int proto = n->getProto();
 
-    if (proto == PROTO_UDP)
-        socketsFile.open("/proc/net/udp6");
-    else if (proto == PROTO_UDPLITE)
-        socketsFile.open("/proc/net/udplite6");
-    else if (proto == PROTO_TCP)
-        socketsFile.open("/proc/net/tcp6");
-    else
-        throw "Should not come here"; //! @todo catch
-    if (!socketsFile)
-        throw "Err"; //! @todo catch
-
-    streamoff pos_localIp, pos_localPort;
-    string dontCare;
-
-    getline(socketsFile, dontCare, ':');
-    pos_localIp = 1;  // space after the "sl" column
-    pos_localPort = pos_localIp + IPv6_SIZE*2 + 1; // plus ':' delimiter
-
-    unsigned int inode = 0;
-    return inode;
-}
-
-
-int getApp(const int inode, string &appname)
+int getApp(const int inode, string &appName)
 {
     DIR *procDir{nullptr}, *fdDir{nullptr};
     try
@@ -223,7 +305,7 @@ int getApp(const int inode, string &appname)
                 if (chToInt(fdEntry->d_name, fd))
                     continue;
 
-                if (fd <= 2) // stdout, stdin, stderr
+                if (fd <= 2) // stdin, stdout, stderr
                     continue;
                 char buff[1024] ={0};
                 string descriptor = PROCFS + string(pidEntry->d_name) + "/fd/" + string(fdEntry->d_name);
@@ -241,9 +323,9 @@ int getApp(const int inode, string &appname)
                     throw "Can't convert socket inode to integer";
                 if (foundInode == inode)
                 {
-                    ifstream appnameFile(PROCFS + string(pidEntry->d_name) + "/cmdline");
+                    ifstream appNameFile(PROCFS + string(pidEntry->d_name) + "/cmdline");
                     // arguments are delimited with '\0' so we read just first argument.
-                    appnameFile >> appname;
+                    appNameFile >> appName;
                     closedir(fdDir);
                     goto END;
                 }
@@ -255,7 +337,8 @@ END:
         if (pidEntry == nullptr)
         {
             log(LogLevel::ERROR, "Application not found for inode " + to_string(inode));
-            return -1;
+            appName = "";
+            g_notFoundApps++;
         }
         return 0;
     }

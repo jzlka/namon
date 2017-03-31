@@ -4,7 +4,18 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 18.02.2017 22:45
- *   - Edited:  29.03.2017 02:09
+ *   - Edited:  31.03.2017 04:47
+ *   @todo      IPv6 implementation
+ *   @todo      Comment which functions move classes
+ *   @todo      What to do when the cache contains invalid record and getInode returns inode == 0
+ *              Save it to cache or the packet belongs to the old record?
+ *   @todo      Have opened /proc/net files for the whole time? or open it for every unknown packet?
+ *   @todo      Doxygen comments
+ *   @bug       Getting packets with local port set to 0 in determineApp()
+ *   @bug       Inserting two same netflows during capture into cache
+ *              Cache::find did not find it but Cache::insert does (immediately after find() call and code is the same)
+ *   @bug       Some endTimes are set to earlier time than startTimes in Netflow
+ *   @bug       appName reading from file does not work properly
  */
 
 #include <map>                  //  map
@@ -44,11 +55,14 @@ const unsigned char     PROTO_UDPLITE           =   0x88;   //!< ID of UDPLite p
 const unsigned int      FILE_RING_BUFFER_SIZE   =   2000;   //!< Size of the ring buffer
 const unsigned int      CACHE_RING_BUFFER_SIZE  =   2000;   //!< Size of the ring buffer
 
-const char * g_dev = nullptr;           //!< Capturing device name
-vector<in_addr*> g_devIps;               //!< Capturing device IPv4 address
-ofstream oFile;                         //!< Output file stream
-atomic<int> shouldStop {false};         //!< Variable which is set if program should stop
-unsigned int rcvdPackets;               //!< Number of received packets
+map<string, vector<Netflow *>> g_finalResults;  //!< Applications and their netflows
+const char * g_dev = nullptr;                   //!< Capturing device name
+vector<in_addr*> g_devIps;                      //!< Capturing device IPv4 address
+ofstream oFile;                                 //!< Output file stream
+atomic<int> shouldStop {false};                 //!< Variable which is set if program should stop
+unsigned int rcvdPackets = 0;                   //!< Number of received packets
+unsigned int g_notFoundInodes = 0;              //!< Number of unsuccessful searches for inode number
+unsigned int g_notFoundApps = 0;                //!< Number of unsuccessful searches for application
 
 
 
@@ -93,7 +107,7 @@ int startCapture(const char *oFilename)
                     g_devIps.push_back(ip);
                 }
                 else
-                    ;//! @todo implement
+                    ;//throw "IPv6 is not implemented yet"; //! @todo implement
             }
         }
         pcap_freealldevs(alldevs);
@@ -144,6 +158,22 @@ int startCapture(const char *oFilename)
         cout << stats.ps_drop << "' packets dropped by the driver." << endl;
         cout << "Total " << rcvdPackets << " packets received." << endl;
 
+        // one is in vector so there must be another one which pushed the first one into the vector
+        cout << "Total " << g_finalResults.size() << " application(s) which used the same local port more than once" << endl;
+        cache.saveResults();
+        cout << g_finalResults.size() << " applications in total:" << endl;
+        //CustomBlock cusBlock;
+        //cusBlock.write(oFile);
+
+        for (auto record : g_finalResults)
+        {
+            cout << "  * " << record.first << endl;
+            for (auto entry : record.second)
+                delete entry;
+        }
+        cout << "Inode not found for " << g_notFoundInodes << " ports." << endl;
+        cout << "App not found for " << g_notFoundApps << " applications." << endl;
+        //cache.print();
         //! @todo save cache results into the file
     }
     catch(pcap_ex &e)
@@ -175,7 +205,10 @@ void packetHandler(u_char *arg_array, const struct pcap_pkthdr *header, const u_
 
     rcvdPackets++;
     if(rb->push(header, packet))
+    {
+        log(LogLevel::ERROR, "Packet dropped because of slow hard drive.");
         return; //! @todo  When the packet is not saved into the output file, we don't process this packet. Valid behavior?
+    }
 
     n.setStartTime(header->ts.tv_usec);
     n.setEndTime(header->ts.tv_usec);
@@ -214,35 +247,34 @@ inline int parseIp(Netflow &n, unsigned int &ip_size, Directions dir, void * con
         //! SIOCGIFADDR and SIOCGIFHWADDR
         //! http://stackoverflow.com/questions/2283494/get-ip-address-of-an-interface-on-linux/9436692#9436692
         in_addr* tmpIpPtr = new in_addr;
-        //! @todo move constructor, memcpy is faster than move!
         if (dir == Directions::INBOUND)
-            memcpy(tmpIpPtr, &ipv4_hdr->ip_dst, sizeof(in_addr));
+            tmpIpPtr->s_addr = ipv4_hdr->ip_dst.s_addr;
         else
-            memcpy(tmpIpPtr, &ipv4_hdr->ip_src, sizeof(in_addr));
-
+            tmpIpPtr->s_addr = ipv4_hdr->ip_src.s_addr;
         n.setLocalIp((void*)(tmpIpPtr));
+
         n.setIpVersion(4);
         n.setProto(ipv4_hdr->ip_p);
     }
     else if (ether_type == PROTO_IPV6)
     {
-        log(LogLevel::ERROR, "IPv6 not implemented yet.");
+        log(LogLevel::ERROR, "IPv6 not implemented yet."); // we can't determine packet direction
         return EXIT_FAILURE;
         const ip6_hdr * const ipv6_hdr = (ip6_hdr*)ip_hdr;
         ip_size = IPV6_SIZE;
         in6_addr* tmpIpPtr = new in6_addr;
 
         if (dir == Directions::INBOUND)
-            memcpy(tmpIpPtr, &ipv6_hdr->ip6_dst, sizeof(in6_addr));  //! @todo  Is it needed to make a copy? ipv6_hdr will be still valid when find() returns (still in packetHandler());
+            memcpy(tmpIpPtr, &ipv6_hdr->ip6_dst, sizeof(in6_addr));
         else
-            memcpy(tmpIpPtr, &ipv6_hdr->ip6_src, sizeof(in6_addr));  //! @todo  Is it needed to make a copy? ipv6_hdr will be still valid when find() returns (still in packetHandler());
+            memcpy(tmpIpPtr, &ipv6_hdr->ip6_src, sizeof(in6_addr));
 
         n.setLocalIp((void*)(tmpIpPtr));
         n.setIpVersion(6);
         n.setProto(ipv6_hdr->ip6_nxt);
     }
     else    //! @todo   What to do with 802.3?
-        n.setIpVersion(0), n.setProto(0); // Netflow structure is reused with next packet so we have to delete old values. We don't care about the values other than 6,17,137, because we ignore everything except 6 (TCP) and 17 (UDP).
+        n.setIpVersion(0), n.setProto(0); // Netflow structure is reused with next packet so we have to delete old values. We don't care about values other than 6,17,136, because we ignore everything except 6 (TCP) and 17 (UDP) and 136 (UDPLITE).
     //! @note   We can't determine app for IGMP, ICMP, etc. https://en.wikipedia.org/wiki/List_of_IP_protocol_numbers
     return EXIT_SUCCESS;
 }

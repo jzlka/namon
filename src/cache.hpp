@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 02.03.2017 04:32
- *   - Edited:  27.03.2017 00:15
+ *   - Edited:  31.03.2017 04:33
  */
 
 #pragma once
@@ -20,6 +20,10 @@
 using clock_type = std::chrono::high_resolution_clock;
 using std::string;
 using std::mutex;
+using std::chrono::seconds;
+using std::chrono::duration_cast;
+
+extern const int VALID_TIME;
 
 
 /*!
@@ -142,7 +146,9 @@ public:
  */
 class TEntry : public TEntryOrTTree
 {
-    string appName;                 //!< Application name which #TEntry::n belongs to
+    //! @brief  Time of last update
+    clock_type::time_point lastUpdate = clock_type::now();
+    string appName ="";             //!< Application name which #TEntry::n belongs to
     int inode =0;                   //!< Inode number of #TEntry::appName 's socket
     Netflow *n = nullptr;           //!< Pointer to a netflow record
 public:
@@ -160,6 +166,15 @@ public:
      * @brief   Default destructor that deletes #TEntry::n
      */
     ~TEntry()                               { delete n; }
+    /*!
+     * @brief   Updates #TEntry::lastUpdate time
+     */
+    void updateTime()                       { lastUpdate = clock_type::now(); }
+    /*!
+     * @brief   Returns if this TEntry is still valid
+     * @return  False if the entry is older or equal to VALID_TIME, true otherwise.
+     */
+    bool valid()     { return duration_cast<seconds>(clock_type::now()-lastUpdate) < seconds(VALID_TIME); }
     /*!
      * @brief       Set method for #TEntry::appName
      * @param[in]   name    New application name
@@ -200,15 +215,42 @@ public:
      */
     bool levelCompare(Netflow *n1);
     /*!
-     * @brief       Writes structure into the output file
-     * @param[in]   file    The output file
-     * @return      Amount of written data to the output file in bytes
-     */
-    unsigned int write(std::ofstream & file);
-    /*!
      * @brief   Function prints content of the class
      */
     void print();
+    /*!
+     * @brief   Overloaded copy assignment operator
+     */
+    TEntry& operator=(const TEntry& other)
+    {
+        if (this != &other)
+        {
+            lastUpdate = other.lastUpdate;
+            appName = other.appName;
+            inode = other.inode;
+            *n = *other.n;
+        }
+        return *this;
+    }
+    /*!
+     * @brief   Overloaded move assignment operator
+     */
+    TEntry& operator=(TEntry&& other)
+    {
+        if (this != &other)
+        {
+            lastUpdate = other.lastUpdate;
+            appName = other.appName;
+            inode = other.inode;
+            *n = std::move(*other.n);
+            
+            other.lastUpdate = clock_type::now();
+            other.appName = "";
+            other.inode = 0;
+            other.n = nullptr;
+        }
+        return *this;
+    }
 };
 
 
@@ -288,6 +330,10 @@ public:
      */
     bool levelCompare(Netflow *n);
     /*!
+     * @brief   Finds invalid entries and saves them in #g_finalResults
+     */
+    void saveResults();
+    /*!
      * @brief   Function prints content of the class
      */
     void print();
@@ -301,8 +347,6 @@ public:
  */
 class Cache
 {
-    //! @brief  Time of last update
-    clock_type::time_point lastUpdate = clock_type::now();
     //! @brief  Map of open local ports
     std::map<unsigned short,class TEntryOrTTree*> *cache = new std::map<unsigned short,class TEntryOrTTree*>;
 public:
@@ -338,9 +382,9 @@ public:
      */
     void insert(TEntry *e);
     /*!
-     * @brief       Function cycles until #shouldStop is set and periodically updates cache
+     * @brief   Finds invalid entries and saves them in #g_finalResults
      */
-    void periodicUpdate();
+    void saveResults();
     /*!
      * @brief   Function prints content of the class
      */
