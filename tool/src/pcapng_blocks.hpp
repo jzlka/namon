@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 06.03.2017 13:33
- *   - Edited:  31.03.2017 05:18
+ *   - Edited:  31.03.2017 06:12
  */
 
 #pragma once
@@ -347,7 +347,7 @@ public:
         unsigned int writtenBytes = 0;
         for (auto app : g_finalResults)
         {
-            size_t size = app.first.length();
+            uint8_t size = app.first.length();
             file.write(reinterpret_cast<char*>(&size), sizeof(size));
             writtenBytes += sizeof(size);
 
@@ -355,6 +355,9 @@ public:
             writtenBytes += size;
 
             //! @todo app.second->sort()
+            uint32_t records = app.second.size();
+            file.write(reinterpret_cast<char*>(&records), sizeof(records));
+            writtenBytes += sizeof(records);
             for (auto v : app.second)
                 writtenBytes += v->write(file);
         }
