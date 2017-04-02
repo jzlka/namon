@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 26.02.2017 23:13
- *   - Edited:  01.04.2017 00:01
+ *   - Edited:  02.04.2017 00:40
  */
 
 #pragma once
@@ -41,7 +41,7 @@ public:
      */
     Netflow()                               {}
     /*!
-     * @brief   Destructor cleans memory pointed by #Netflow::srcIp and #Netflow::dstIp pointers
+     * @brief   Destructor cleans memory pointed by #Netflow::localIp
      */
     ~Netflow();
     /*! 
@@ -108,7 +108,7 @@ public:
      */
     void setEndTime(uint64_t newTime)       { endTime = newTime; }
     /*!
-     * @brief   Function prints content of the Netflow structure
+     * @brief   Function prints content of the Netflow structure to the standard output
      */
     void print();
     /*!
@@ -123,18 +123,31 @@ public:
     {
         if (this != &other)
         {
-            if (ipVersion == 4)
+            if (ipVersion != other.ipVersion)
+            {
+                if (ipVersion == 4)
+                {
+                    delete static_cast<in_addr*>(localIp);
+                }
+                else if (ipVersion == 6)
+                {
+                    delete static_cast<in6_addr*>(localIp);
+                }
+            }
+            if (other.ipVersion == 4)
             {
                 if (localIp == nullptr)
                     localIp = new in_addr;
                 memcpy(localIp, other.localIp, sizeof(in_addr));
             }
-            else
+            else if (other.ipVersion == 6)
             {
                 if (localIp == nullptr)
                     localIp = new in6_addr;
                 memcpy(localIp, other.localIp, sizeof(in6_addr));
             }
+            else
+                throw "Not supported"; //! @todo catch
             
             ipVersion = other.ipVersion;
             localPort = other.localPort;

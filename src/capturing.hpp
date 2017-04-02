@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 18.02.2017 22:48
- *   - Edited:  29.03.2017 19:58
+ *   - Edited:  01.04.2017 23:41
  */
 
 #pragma once
@@ -51,6 +51,7 @@ enum class Directions {
  */
 struct PacketHandlerPointers
 {
+    //! @brief  Default c'tor that sets pointers with parameters
     PacketHandlerPointers(RingBuffer<EnhancedPacketBlock> *fb, RingBuffer<Netflow> *cb) 
         : fileBuffer(fb), cacheBuffer(cb) {}
     RingBuffer<EnhancedPacketBlock> *fileBuffer = nullptr; //!< Pointer to RingBuffer which will be written to a file
@@ -79,7 +80,7 @@ void packetHandler(u_char *args, const struct pcap_pkthdr *header, const u_char 
  * @param[in]   dir         Packet direction
  * @param[in]   ip_hdr      Pointer to the IP header
  * @param[in]   ether_type  Ethernet frame type
- * @return      IP headers validity
+ * @return      IP header's validity
  */
 inline int parseIp(Netflow &n, unsigned int &ip_size, Directions dir, void * const ip_hdr, const unsigned short ether_type);
 /*!
@@ -87,7 +88,7 @@ inline int parseIp(Netflow &n, unsigned int &ip_size, Directions dir, void * con
  * @param[out]  n   Netflow which will be filled with parsed information
  * @param[in]   dir         Packet direction
  * @param[in]   hdr Header pointer
- * @return      Layer 4 headers validity
+ * @return      Layer 4 header's validity
  */
 inline int parsePorts(Netflow &n, Directions dir, void *hdr);
 /*!

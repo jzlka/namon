@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 02.03.2017 04:32
- *   - Edited:  31.03.2017 21:28
+ *   - Edited:  01.04.2017 23:35
  */
 
 #pragma once
@@ -27,7 +27,7 @@ extern const int VALID_TIME;
 
 
 /*!
- * @brief An enum representing type of a node in a tree
+ * @brief An enum representing type of node in a tree
  */
 enum class NodeType { 
     ENTRY, //!< Node is #TEntry class
@@ -80,7 +80,7 @@ inline TreeLevel operator+( TreeLevel &l, int a )
 
 /*!
  * @union CommonValue
- * @brief An union which stores a values which are compared at different levels
+ * @brief An union which stores values which are compared at different levels
  */
 typedef union {
     unsigned short port;    //!< Local port
@@ -101,11 +101,11 @@ protected:
     TreeLevel level = TreeLevel::LOCAL_PORT;    //!< Level in the tree
 public:
     /*!
-     * @brief A virtual d'tor
+     * @brief   A virtual d'tor
      */
     virtual ~TEntryOrTTree()        {};
     /*!
-     * @return  True if the node is TEntry, false otherwise
+     * @return  Returns true if the node is TEntry, false otherwise
      */
     bool isEntry()                  { return nt == NodeType::ENTRY; }
     /*!
@@ -118,7 +118,7 @@ public:
      */
     void setLevel(TreeLevel l)      { level = l; }
     /*!
-     * @brief   Increments stored tree level
+     * @brief   Increments actual tree level
      */
     void incLevel()                 { level++; }
     /*!
@@ -129,11 +129,11 @@ public:
     /*!
      * @brief       Compares values important at a specific #TreeLevel
      * @param[in]   n    Pointer to a Netflow class with netflow information
-     * @return      Comparison result
+     * @return      Returns true if *this and n parameter have same value on their level. False otherwise
      */
     virtual bool levelCompare(Netflow *n) =0;
     /*!
-     * @brief   Function prints content of the class
+     * @brief   Function prints content of the class to the standard output
      */
     virtual void print() =0;
 };
@@ -158,7 +158,7 @@ public:
     TEntry()                                { nt = NodeType::ENTRY; }
     /*!
      * @brief       Constructor that sets level to parameter l and 
-     *               #TEntryOrTTree::nt to #NodeType::ENTRY
+     *              #TEntryOrTTree::nt to #NodeType::ENTRY
      * @param[in]   l   Level in the tree
      */
     TEntry(TreeLevel l)                     { level = l; nt = NodeType::ENTRY; }
@@ -167,12 +167,12 @@ public:
      */
     ~TEntry()                               { delete n; }
     /*!
-     * @brief   Updates #TEntry::lastUpdate time
+     * @brief   Updates #TEntry::lastUpdate time with actual time
      */
     void updateTime()                       { lastUpdate = clock_type::now(); }
     /*!
      * @brief   Returns if this TEntry is still valid
-     * @return  False if the entry is older or equal to VALID_TIME, true otherwise.
+     * @return  False if the entry is older or equal to #VALID_TIME, true otherwise.
      */
     bool valid()     { return duration_cast<seconds>(clock_type::now()-lastUpdate) < seconds(VALID_TIME); }
     /*!
@@ -205,21 +205,22 @@ public:
     void setNetflowPtr(Netflow *newNetflow) { n = newNetflow; }
     /*!
      * @brief   Get method for #TEntry::n
-     * @return  Pointer to a new Netflow class
+     * @return  Pointer to a Netflow class
      */
     Netflow * getNetflowPtr()               { return n; }
     /*!
      * @brief       Compares values important at a specific #TreeLevel
      * @param[in]   n1  Pointer to a Netflow class with netflow information
-     * @return      Comparison result
+     * @return      True if *this and n have same level values
      */
     bool levelCompare(Netflow *n1);
     /*!
-     * @brief   Function prints content of the class
+     * @brief   Function prints content of the class to the standard output
      */
     void print();
     /*!
      * @brief   Overloaded copy assignment operator
+     * @details If #TEntry::n is NULL, it allocates new memory for new Netflow.
      */
     TEntry& operator=(const TEntry& other)
     {
@@ -236,6 +237,7 @@ public:
     }
     /*!
      * @brief   Overloaded move assignment operator
+     * @details It dealocates old #TEntry::n and sets pointer to new Netflow
      */
     TEntry& operator=(TEntry&& other)
     {
@@ -264,27 +266,26 @@ public:
  */
 class TTree : public TEntryOrTTree
 {
-    unsigned char ipVersion;        //!< Version of IP header stored in #TTree::cv
-    CommonValue cv;                 //!< Union which contains a value important at node's level
+    unsigned char ipVersion;        //!< Version of IP header stored in #TTree::cv in case of LOCAL_IP #TreeLevel
+    CommonValue cv;                 //!< Union which contains a value important at node's #TreeLevel
     std::vector<TEntryOrTTree*> v;  //!< Vector of pointers to subtrees
 public:
     /*!
      * @brief       Constructor that sets level to parameter l and 
-     *               #TEntryOrTTree::nt to #NodeType::TREE
+     *              #TEntryOrTTree::nt to #NodeType::TREE
      * @param[in]   l   Level in the tree
      */
     TTree(TreeLevel l)                      { level = l; nt = NodeType::TREE; }
     /*!
      * @brief   Default d'tor that cycles through #TTree::v vector and frees used memory. 
-     *          Then clears the vector #TTree:v.
+     *          Then clears the vector #TTree:v itself.
      */
     ~TTree();
     /*!
-     * @brief       Function finds a TEntry node with exact match or 
-     *               a TTree node which contains TEntry with the closest match.
-     * @param[in]   n   Reference to a Netflow class which the function looks for in the tree
+     * @brief       Function finds a TEntry node with exact match or a TTree node with the nearest match.
+     * @param[in]   n   Reference to a Netflow class in the tree which the function looks for.
      * @return      Pointer to a TEntry node in a case of the exact match, 
-     *               otherwise pointer to a TTree node with a TEntry node with the closest match
+     *              otherwise pointer to a TTree node with the closest match
      */
     TEntryOrTTree *find(Netflow &n);
     /*!
@@ -329,10 +330,11 @@ public:
     bool levelCompare(Netflow *n);
     /*!
      * @brief   Finds invalid entries and saves them in #g_finalResults
+     * @warning After this call, there are zero initialized netflow records in cache
      */
     void saveResults();
     /*!
-     * @brief   Function prints content of the class
+     * @brief   Function prints content of the class to the standard output
      */
     void print();
 };
@@ -341,7 +343,7 @@ public:
 
 /*!
  * @class Cache
- * Cache contains time of its last update and a map of open local ports
+ * Cache contains map of open local ports
  */
 class Cache
 {
@@ -364,10 +366,10 @@ public:
     void setCache(std::map<unsigned short,TEntryOrTTree*> *newMap) { map = newMap; }
     /*!
      * @brief       Function finds a Netflow record in a cache
-     * @param[in]   n   Reference to a Netflow class that will find in the cache.
+     * @param[in]   n   Reference to a Netflow class, it tries to find in the cache.
      * @return      Pointer to a TEntry node in a case of the exact match, 
-     *               pointer to a TTree node with a TEntry node with the closest match
-     *               or a nullptr if there is not exactly the same record in the map.
+     *              pointer to a TTree node with the closest match
+     *              or a nullptr if there is not exactly the same record in the map.
      */
     TEntryOrTTree *find(Netflow &n);
     /*!
@@ -379,11 +381,13 @@ public:
      */
     void insert(TEntry *e);
     /*!
-     * @brief   Finds invalid entries and saves them in #g_finalResults
+     * @brief   Finds expired entries and saves them in #g_finalResults
+     * @warning Cache will contain zero initialized (moved) entries after this call
+     *          It is supposed tu be called at the end of program runtime
      */
     void saveResults();
     /*!
-     * @brief   Function prints content of the class
+     * @brief   Function prints content of the class to the standard output
      */
     void print();
 };

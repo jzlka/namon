@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 26.02.2017 23:52
- *   - Edited:  31.03.2017 21:55
+ *   - Edited:  01.04.2017 23:36
  */
 
 #include <iostream>             //  cout, endl;
@@ -271,7 +271,7 @@ void TTree::print()
                 cout << "IPv6: <" <<str;
             }
             else
-                throw "Should not came in here"; //! @todo catch
+                throw "Should not came in here";
             break;
         }
     }

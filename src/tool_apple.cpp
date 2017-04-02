@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 26.03.2017 14:40
- *   - Edited:  31.03.2017 19:36
+ *   - Edited:  02.04.2017 00:41
  *  @todo       rename this file
  */
 
@@ -23,11 +23,6 @@ int getSocketFile(Netflow * /*n*/, string &/*file*/)
 int determineApp(Netflow * /*n*/, TEntry &/*e*/)
 {
     return -1;
-}
-
-void updateCacheRecord(TEntry &/*e*/)
-{
-    return;
 }
 
 int getInode(Netflow * /*n*/, std::ifstream &/*file*/)

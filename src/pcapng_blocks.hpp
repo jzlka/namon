@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 06.03.2017 13:33
- *   - Edited:  31.03.2017 06:12
+ *   - Edited:  03.04.2017 01:05
  */
 
 #pragma once
@@ -24,7 +24,8 @@
 //! Macro to hide compiler warning messages about unused variables
 #ifdef UNUSED
 /* nothing */
-#elif defined(__GNUC__)
+//#elif defined(__GNUC__)
+#elif defined(__APPLE__)
 #  define UNUSED(x) x __attribute__((unused))
 //#  define UNUSED(x) x [[gnu::unused]]
 #elif defined(__LCLINT__)
@@ -49,6 +50,7 @@ extern map<string, vector<Netflow *>> g_finalResults;
  */
 inline int computePaddingLen(int num, int multiple)
 {
+    int x __attribute__((unused)) = 0;
     if (multiple == 0)
         return num;
     int remainder = num % multiple;
@@ -262,7 +264,7 @@ public:
      *               and #EnhancedPacketBlock::timestampLo
      * @param[in]   timestamp   Packet timestamp
      */
-    void setTimestamp(long timestamp) { timestampLo = timestamp; timestampHi = timestamp >> 4; }
+    void setTimestamp(uint64_t timestamp) { timestampLo = timestamp; timestampHi = timestamp >> 4; }
     /*!
      * @brief       Set method for #EnhancedPacketBlock::capturedPacketLength
      * @param[in]   len Captured length
@@ -336,6 +338,7 @@ public:
     /*!
      * @brief       Writes the whole block into the file
      * @param[in]   file    The output file
+     * @todo        dat do dokumentacie, ze in_addr velkost sa moze menit (je tam long) takze musi sediet pocet netflow zaznameov a velkost tam niekam doplnit
      */
     void write(ofstream & file)
     { 

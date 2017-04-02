@@ -4,20 +4,20 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 18.02.2017 22:45
- *   - Edited:  31.03.2017 21:54
+ *   - Edited:  03.04.2017 01:01
  *   @todo      IPv6 implementation
  *   @todo      Comment which functions move classes
  *   @todo      What to do when the cache contains invalid record and getInode returns inode == 0
  *              Save it to cache or the packet belongs to the old record?
- *   @todo      Have opened /proc/net files for the whole time? or open it for every unknown packet?
- *   @todo      Doxygen comments
- *   @bug       Getting packets with local port set to 0 in determineApp()
- *   @bug       Inserting two same netflows during capture into cache
- *              Cache::find did not find it but Cache::insert does (immediately after find() call and code is the same)
- *   @bug       Some endTimes are set to earlier time than startTimes in Netflow
- *   @bug       appName reading from file does not work properly
- *   @bug       Sometimes deadlock after ^C
+ *   @todo      Is it a good idea to have opened /proc/net files for the whole time? or open it for every unknown packet?
  *   @todo      Broadcast and multicast packets (239.255.255.250, 0.0.0.0, 224.0.0.7, 1.13.0.0, 192.168.1.255)
+ *   @bug       Getting packets with local port set to 0 in determineApp()
+ *   @bug       Some endTimes are set to earlier time than startTimes in Netflow
+ *   @bug       Sometimes deadlock after ^C
+ *   @bug       Saved time is not a packet time, but capture time (?)
+ *   @todo      getting incorrect udp packet err
+ *   @todo      save packet timestamp
+ *   @bug       wireshark: damaged pcap-ng output file
  */
 
 #include <map>                  //  map

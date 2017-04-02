@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 28.03.2017 14:09
- *   - Edited:  28.03.2017 17:45
+ *   - Edited:  02.04.2017 00:03
  */
 
 #pragma once
@@ -16,6 +16,9 @@ using std::string;
 
 
 
+/*!
+ * @brief   Exception, which takes also string as parameter
+ */
 struct std_ex : public std::exception
 {
     string msg;
@@ -30,8 +33,8 @@ public:
 
 /**
  * @brief       Converts char* string to integer
- * @pre         dir must be zero terminated
- * @pre         number must be in decimal base
+ * @pre         'str' parameter must be zero terminated
+ * @pre         'res' must be in decimal base
  * @param[in]   str String to convert
  * @param[out]  res The result
  * @return      Returns true on success, false otherwise

@@ -6,8 +6,8 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 18.02.2017 08:03
- *   - Edited:  29.03.2017 16:33
- *  Version:    1.0.0
+ *   - Edited:  02.04.2017 00:50
+ *  @version:    1.0.0
  *  @todo       change tool name
  */
 

@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 15.03.2017 23:27
- *   - Edited:  28.03.2017 02:37
+ *   - Edited:  02.04.2017 00:01
  */
 
 #include <iostream>         //  cout, endl
@@ -76,12 +76,18 @@ void Netflow::print()
         inet_ntop(AF_INET, localIp, str, INET_ADDRSTRLEN);
         std::cout << str;
     }
-    else
+    else if (ipVersion == 6)
     {
         char str[INET6_ADDRSTRLEN];
         inet_ntop(AF_INET6, localIp, str, INET6_ADDRSTRLEN);
         std::cout << str;
     }
+    else
+    {
+        std::cout << "Uninitialized, moved or unsupported IP protocol." << std::endl;
+        return;
+    }
+
     std::cout << ":" << localPort << "\t";
     switch((int)proto)
     {

@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 22.03.2017 17:04
- *   - Edited:  29.03.2017 20:45
+ *   - Edited:  02.04.2017 00:45
  */
 
 #pragma once
@@ -28,7 +28,7 @@ template <class T>
 class RingBuffer
 {
     //! @brief  Vector of instances of T to store packets
-    //!          which will be printed to #oFile
+    //!         which will be printed to #oFile
     std::vector<T> buffer ;
     //! @brief  First element of the ring buffer
     size_t first = 0 ;
@@ -69,6 +69,12 @@ public:
      * @return      False if packet was dropped. True otherwise.
      */
     int push(T &elem);
+    /*!
+     * @brief       Saves new packet into the buffer as EnhancedPacketBlock
+     * @param[in]   header  libpcap header
+     * @paran[in]   packet  pointer to packet data
+     * @return      False if packet was dropped. True otherwise.
+     */
     int push(const pcap_pkthdr *header, const u_char *packet);
     /*!
      * @brief   Moves #RingBuffer::first to the next element

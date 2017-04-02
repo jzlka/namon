@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 18.02.2017 23:32
- *   - Edited:  31.03.2017 21:23
+ *   - Edited:  02.04.2017 00:33
  *  @todo       rename file
  */
 
@@ -21,14 +21,13 @@
 
 using namespace std;
 
-struct AppRecord;
 
-const unsigned char PROTO_UDP       =   0x11;
-const unsigned char PROTO_TCP       =   0x06;
-const unsigned char PROTO_UDPLITE   =   0x88;
-const unsigned char IPv4_SIZE       =   4;
-const unsigned char IPv6_SIZE       =   16;
-const char * const  PROCFS          =   "/proc/";
+const unsigned char PROTO_UDP       =   0x11;   //!< UDP protocol number
+const unsigned char PROTO_TCP       =   0x06;   //!< TCP protocol number
+const unsigned char PROTO_UDPLITE   =   0x88;   //!< UDPLite protocol number
+const unsigned char IPv4_SIZE       =   4;      //!< Size of IPv4 address in Bytes
+const unsigned char IPv6_SIZE       =   16;     //!< Size of IPv6 address in Bytes
+const char * const  PROCFS          =   "/proc/";   //!< Proc filesystem path prefix
 //const vector<string> L2SocketFiles = { "/proc/net/icmp", "/proc/net/igmp", "/proc/net/raw" };
 
 extern map<string, vector<Netflow *>> g_finalResults;
@@ -154,8 +153,10 @@ int getInode(Netflow *n, ifstream &socketsFile)
     size_t ipSize = 0;
     if (ipVer == 4)
        {  ipSize = sizeof(in_addr); foundIp = new in_addr; }
-    else
+    else if (ipVer == 6)
        {  ipSize = sizeof(in6_addr); foundIp = new in6_addr; }
+    else
+       { log(LogLevel::ERROR, "IP protocol ", ipVer, " is not supported."); return -1; }
     memset(foundIp, 0, ipSize);
 
     try
