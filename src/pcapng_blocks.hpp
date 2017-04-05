@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 06.03.2017 13:33
- *   - Edited:  03.04.2017 01:05
+ *   - Edited:  04.04.2017 16:36
  */
 
 #pragma once
@@ -50,10 +50,11 @@ extern map<string, vector<Netflow *>> g_finalResults;
  */
 inline int computePaddingLen(int num, int multiple)
 {
-    int x __attribute__((unused)) = 0;
     if (multiple == 0)
-        return num;
+        return 0;
     int remainder = num % multiple;
+    if (remainder == 0)
+        return 0;
     return multiple - remainder;
 }
 
@@ -161,8 +162,8 @@ class InterfaceDescriptionBlock {
         } if_name;
         struct {
             UNUSED(uint16_t optionCode)     = 9;
-            UNUSED(uint16_t optionLength)   = 4;        //! @todo   Find out what value to assign
-            UNUSED(char optionValue[4])     = {0};      //! @todo   Find out what value to assign
+            UNUSED(uint16_t optionLength)   = 1;        //! @todo   Find out what value to assign
+            UNUSED(uint32_t optionValue)    = 6;        //! @todo   Find out what value to assign
         } if_tsresol;
         struct {
             UNUSED(uint16_t optionCode)     = 12;

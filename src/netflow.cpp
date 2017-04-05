@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 15.03.2017 23:27
- *   - Edited:  02.04.2017 00:01
+ *   - Edited:  04.04.2017 16:02
  */
 
 #include <iostream>         //  cout, endl
@@ -84,7 +84,7 @@ void Netflow::print()
     }
     else
     {
-        std::cout << "Uninitialized, moved or unsupported IP protocol." << std::endl;
+        std::cout << "Uninitialized/moved record or unsupported IP protocol." << std::endl;
         return;
     }
 

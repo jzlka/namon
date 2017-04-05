@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 18.02.2017 22:45
- *   - Edited:  03.04.2017 01:01
+ *   - Edited:  04.04.2017 15:57
  *   @todo      IPv6 implementation
  *   @todo      Comment which functions move classes
  *   @todo      What to do when the cache contains invalid record and getInode returns inode == 0
@@ -211,6 +211,11 @@ void packetHandler(u_char *arg_array, const struct pcap_pkthdr *header, const u_
         log(LogLevel::ERROR, "Packet dropped because of slow hard drive.");
         return; //! @todo  When the packet is not saved into the output file, we don't process this packet. Valid behavior?
     }
+    //! @todo What to do with 802.3?
+    // We can't determine app for IGMP, ICMP, etc. https://en.wikipedia.org/wiki/List_of_IP_protocol_numbers
+    if (eth_hdr->ether_type != PROTO_IPV4 && eth_hdr->ether_type != PROTO_IPV6)
+        return;
+    
 
     n.setStartTime(header->ts.tv_usec);
     n.setEndTime(header->ts.tv_usec);
@@ -259,9 +264,9 @@ inline int parseIp(Netflow &n, unsigned int &ip_size, Directions dir, void * con
         n.setIpVersion(4);
         n.setProto(ipv4_hdr->ip_p);
     }
-    else if (ether_type == PROTO_IPV6)
+    else
     {
-        log(LogLevel::ERROR, "IPv6 not implemented yet."); // we can't determine packet direction
+        log(LogLevel::ERROR, "IPv6 is not implemented yet."); // we can't determine packet direction
         return EXIT_FAILURE;
         const ip6_hdr * const ipv6_hdr = (ip6_hdr*)ip_hdr;
         ip_size = IPV6_SIZE;
@@ -276,13 +281,11 @@ inline int parseIp(Netflow &n, unsigned int &ip_size, Directions dir, void * con
         n.setIpVersion(6);
         n.setProto(ipv6_hdr->ip6_nxt);
     }
-    else    //! @todo   What to do with 802.3?
-        n.setIpVersion(0), n.setProto(0); // Netflow structure is reused with next packet so we have to delete old values. We don't care about values other than 6,17,136, because we ignore everything except 6 (TCP) and 17 (UDP) and 136 (UDPLITE).
-    //! @note   We can't determine app for IGMP, ICMP, etc. https://en.wikipedia.org/wiki/List_of_IP_protocol_numbers
     return EXIT_SUCCESS;
 }
 
 
+//! @todo proto can be set to 0 -> arp/rarp
 inline int parsePorts(Netflow &n, Directions dir, void *hdr)
 {
     switch(n.getProto())
