@@ -16,6 +16,7 @@
 #include <atomic>               //  atomic
 
 #if defined(__APPLE__) || defined(__linux__)
+#include <netinet/if_ether.h>   //  ether_header
 #include <netinet/ip.h>         //  ip
 #include <netinet/ip6.h>        //  ip6_hdr
 #endif
@@ -60,6 +61,7 @@ struct PacketHandlerPointers
 
 
 
+Directions getPacketDirection(ether_header *eth_hdr);
 /*!
  * @brief       Starts network traffic capture
  * @param[in]   oFilename   Output file name

@@ -12,6 +12,7 @@
 #include <dirent.h>             //  opendir(), readdir()
 #include <unistd.h>             //  getpid()
 #include <cstring>              //  memset(), strchr()
+#include <netinet/if_ether.h>   //  ether_header
 
 #include "netflow.hpp"          //  Netflow
 #include "cache.hpp"            //  Cache, TEntry
@@ -22,6 +23,7 @@
 using namespace std;
 
 
+const unsigned char MAC_ADDR_SIZE   =   6;      //!< Size of MAC address
 const unsigned char PROTO_UDP       =   0x11;   //!< UDP protocol number
 const unsigned char PROTO_TCP       =   0x06;   //!< TCP protocol number
 const unsigned char PROTO_UDPLITE   =   0x88;   //!< UDPLite protocol number
@@ -30,9 +32,31 @@ const unsigned char IPv6_SIZE       =   16;     //!< Size of IPv6 address in Byt
 const char * const  PROCFS          =   "/proc/";   //!< Proc filesystem path prefix
 //const vector<string> L2SocketFiles = { "/proc/net/icmp", "/proc/net/igmp", "/proc/net/raw" };
 
+extern const char * g_dev;
 extern map<string, vector<Netflow *>> g_finalResults;
 extern unsigned int g_notFoundApps, g_notFoundInodes;
+extern mac_addr g_devMac;
 
+
+int setDevMac()
+{
+ 	// it's 2B type, so >> will read 2 hexa chars which is 1 normal Byte
+	uint16_t twoCharsInByte {0};
+	string macAddrPath = "/sys/class/net/" + string(g_dev) + "/address";
+	ifstream devMacFile(macAddrPath);
+	if (!devMacFile)
+	    return -1;
+	int i{0};
+	do {
+	    if (i >= MAC_ADDR_SIZE)
+	        return -1;
+
+	    devMacFile >> hex >> twoCharsInByte;
+	    g_devMac.bytes[i] = twoCharsInByte;
+	    i++; 
+	} while (devMacFile.get() != '\n');
+    return 0;
+}
 
 int getSocketFile(Netflow *n, string &file)
 {
@@ -187,8 +211,8 @@ int getInode(Netflow *n, ifstream &socketsFile)
             if (foundPort == wantedPort)
             {
                 char c{0}, i{0};
-                vector<char> parts(IP_SIZE,0);
-                const unsigned char CHARS_PER_OCTET = (ipVer == 4) ? 2 : 0; //! @todo implement ipv6
+                vector<unsigned char> parts(IP_SIZE,0);
+                const unsigned char CHARS_PER_OCTET = (ipVer == 4) ? 2 : 1; //! @todo implement ipv6
 
                 // compare localIp
                 socketsFile.seekg(pos_localIp);

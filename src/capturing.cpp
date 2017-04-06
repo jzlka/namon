@@ -59,6 +59,10 @@ const unsigned int      CACHE_RING_BUFFER_SIZE  =   2000;   //!< Size of the rin
 
 map<string, vector<Netflow *>> g_finalResults;  //!< Applications and their netflows
 const char * g_dev = nullptr;                   //!< Capturing device name
+mac_addr g_devMac {0};                          //!< Capturing device MAC address
+const mac_addr g_macMcast4 {0x01,0x00,0x5e};    //!< IPv4 multicast MAC address
+const mac_addr g_macMcast6 {0x33,0x33};         //!< IPv6 multicast MAC address
+const mac_addr g_macBcast {0xff,0xff,0xff};     //!< Broadcast MAC address
 vector<in_addr*> g_devIps;                      //!< Capturing device IPv4 address
 ofstream oFile;                                 //!< Output file stream
 atomic<int> shouldStop {false};                 //!< Variable which is set if program should stop
@@ -113,6 +117,9 @@ int startCapture(const char *oFilename)
             }
         }
         pcap_freealldevs(alldevs);
+
+	// get interface MAC address
+	setDevMac();
 
         if ((handle = pcap_open_live(g_dev, BUFSIZ, false, 1000, errbuf)) == NULL)
             throw pcap_ex("pcap_open_live() failed.",errbuf);
@@ -220,7 +227,7 @@ void packetHandler(u_char *arg_array, const struct pcap_pkthdr *header, const u_
     n.setStartTime(header->ts.tv_usec);
     n.setEndTime(header->ts.tv_usec);
 
-    Directions dir = getPacketDirection((ip*)(packet+ETHER_HDR_LEN));
+    Directions dir = getPacketDirection(eth_hdr);
     if (dir == Directions::UNKNOWN)
         return;
     // Parse IP header
@@ -235,6 +242,31 @@ void packetHandler(u_char *arg_array, const struct pcap_pkthdr *header, const u_
         log(LogLevel::ERROR, "Packet dropped because cache is too slow.");
         return;
     }
+}
+
+
+Directions getPacketDirection(ether_header *eth_hdr)
+{
+    if (memcmp(&g_devMac, eth_hdr->ether_shost, sizeof(mac_addr)) == 0)
+        return Directions::OUTBOUND;
+    else if (memcmp(&g_devMac, eth_hdr->ether_dhost, sizeof(mac_addr)) == 0)
+        return Directions::INBOUND;
+    // else compare multicast and broadcast address
+    // we don't have have to compare second part of the mac address
+    // because as we don't capture in promiscuous mode we won't receive
+    // multicast packet with not our second part the of mac address
+    // multicast/broadcast as destination == INBOUND
+    else if (memcmp(&g_macMcast4, eth_hdr->ether_dhost, 3) == 0
+        || memcmp(&g_macMcast6, eth_hdr->ether_dhost, 2) == 0
+        || memcmp(&g_macBcast, eth_hdr->ether_dhost, 3) == 0)
+        return Directions::INBOUND;
+    // multicast/broadcast as source IP is not valid
+
+    D_ARRAY((const unsigned char*)&g_devMac.bytes, 6);
+    D_ARRAY(eth_hdr->ether_shost, 6);
+    D_ARRAY(eth_hdr->ether_dhost, 6);
+    log(LogLevel::ERROR, "Can't determine packet direction.");
+    return Directions::UNKNOWN;
 }
 
 

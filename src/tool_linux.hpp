@@ -14,7 +14,17 @@
 #include "netflow.hpp"      //  Netflow
 #include "cache.hpp"        //  Cache
 
+typedef struct { 
+    unsigned char bytes[6]; 
+} mac_addr;
 
+
+
+/*!
+ * @brief       Sets mac address of #g_dev interface into #g_devMac
+ * @return      False in case of I/O error. Otherwise true is returned.
+ */
+int setDevMac();
 /*!
  * @brief       Determines right procfs file of sockets using L4 protocol and IP header version
  * @param[in]   n       Netflow class with needed information
