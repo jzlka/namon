@@ -24,6 +24,7 @@ using namespace std;
 
 struct AppRecord;
 
+const unsigned char MAC_ADDR_SIZE   =   6;      //!< Size of MAC address
 const unsigned char PROTO_UDP       =   0x11;
 const unsigned char PROTO_TCP       =   0x06;
 const unsigned char PROTO_UDPLITE   =   0x88;
@@ -32,16 +33,17 @@ const unsigned char IPv6_SIZE       =   16;
 const char * const  PROCFS          =   "/proc/";
 //const vector<string> L2SocketFiles = { "/proc/net/icmp", "/proc/net/igmp", "/proc/net/raw" };
 
+extern const char * g_dev;
 extern map<string, vector<Netflow *>> g_finalResults;
 extern unsigned int g_notFoundApps, g_notFoundInodes;
-extern mac_addr mac;
+extern mac_addr g_devMac;
 
 
 int setDevMac()
 {
  	// it's 2B type, so >> will read 2 hexa chars which is 1 normal Byte
 	uint16_t twoCharsInByte {0};
-	string macAddrPath = "/sys/class/net/" + string(g_dev) + "/address"
+	string macAddrPath = "/sys/class/net/" + string(g_dev) + "/address";
 	ifstream devMacFile(macAddrPath);
 	if (!devMacFile)
 	    return -1;
@@ -51,7 +53,7 @@ int setDevMac()
 	        return -1;
 
 	    devMacFile >> hex >> twoCharsInByte;
-	    g_devMac[i] = twoCharsInByte;
+	    g_devMac.bytes[i] = twoCharsInByte;
 	    i++; 
 	} while (devMacFile.get() != '\n');
     return 0;

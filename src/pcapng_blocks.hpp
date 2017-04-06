@@ -24,6 +24,8 @@
 //! Macro to hide compiler warning messages about unused variables
 #ifdef UNUSED
 /* nothing */
+#elif defined(__linux__)
+# define UNUSED(x) x
 #elif defined(__GNUC__)
 #  define UNUSED(x) x __attribute__((unused))
 //#  define UNUSED(x) x [[gnu::unused]]
