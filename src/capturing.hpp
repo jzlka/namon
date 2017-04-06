@@ -59,6 +59,7 @@ struct PacketHandlerPointers
 
 
 
+Directions getPacketDirection(ether_header *eth_hdr)
 /*!
  * @brief       Starts network traffic capture
  * @param[in]   oFilename   Output file name

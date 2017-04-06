@@ -49,6 +49,7 @@ using namespace std;
 // https://www.iana.org/assignments/ieee-802-numbers/ieee-802-numbers.xhtml
 // https://wiki.wireshark.org/Ethernet
 const unsigned char     IPV6_SIZE               =   40;     //!< Size of IPv6 header
+const unsigned char     MAC_ADDR_SIZE           =   6;      //!< Size of MAC address
 const unsigned char     PROTO_IPV4              =   0x08;   //!< ID of IPv4 protocol
 const unsigned char     PROTO_IPV6              =   0x86;   //!< ID of IPv6 protocol
 const unsigned char     PROTO_UDP               =   0x11;   //!< ID of UDP protocol
@@ -60,6 +61,7 @@ const unsigned int      CACHE_RING_BUFFER_SIZE  =   2000;   //!< Size of the rin
 map<string, vector<Netflow *>> g_finalResults;  //!< Applications and their netflows
 const char * g_dev = nullptr;                   //!< Capturing device name
 vector<in_addr*> g_devIps;                      //!< Capturing device IPv4 address
+mac_addr g_devMac {0};                          //!< Capturing device MAC address
 ofstream oFile;                                 //!< Output file stream
 atomic<int> shouldStop {false};                 //!< Variable which is set if program should stop
 unsigned int rcvdPackets = 0;                   //!< Number of received packets
@@ -113,6 +115,9 @@ int startCapture(const char *oFilename)
             }
         }
         pcap_freealldevs(alldevs);
+
+	// get interface MAC address
+	setDevMac();
 
         if ((handle = pcap_open_live(g_dev, BUFSIZ, false, 1000, errbuf)) == NULL)
             throw pcap_ex("pcap_open_live() failed.",errbuf);
@@ -215,7 +220,7 @@ void packetHandler(u_char *arg_array, const struct pcap_pkthdr *header, const u_
     n.setStartTime(header->ts.tv_usec);
     n.setEndTime(header->ts.tv_usec);
 
-    Directions dir = getPacketDirection((ip*)(packet+ETHER_HDR_LEN));
+    Directions dir = getPacketDirection(eth_hdr);
     if (dir == Directions::UNKNOWN)
         return;
     // Parse IP header
@@ -230,6 +235,18 @@ void packetHandler(u_char *arg_array, const struct pcap_pkthdr *header, const u_
         log(LogLevel::ERROR, "Packet dropped because cache is too slow.");
         return;
     }
+}
+
+
+Directions getPacketDirection(ether_header *eth_hdr)
+{
+    if (memcmp(g_devMac, eth_hdr->ether_shost, sizeof(mac_addr)) == 0)
+        return Directions::OUTBOUND;
+    else if (memcmp(g_devMac, eth_hdr->ether_dhost, sizeof(mac_addr)) == 0)
+        return Directions::INBOUND;
+
+    log(LogLevel::ERROR, "Can't determine packet direction.");
+    return Directions::UNKNOWN;
 }
 
 

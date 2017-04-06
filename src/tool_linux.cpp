@@ -12,6 +12,7 @@
 #include <dirent.h>             //  opendir(), readdir()
 #include <unistd.h>             //  getpid()
 #include <cstring>              //  memset(), strchr()
+#include <netinet/if_ether.h>   //  ether_header
 
 #include "netflow.hpp"          //  Netflow
 #include "cache.hpp"            //  Cache, TEntry
@@ -33,7 +34,28 @@ const char * const  PROCFS          =   "/proc/";
 
 extern map<string, vector<Netflow *>> g_finalResults;
 extern unsigned int g_notFoundApps, g_notFoundInodes;
+extern mac_addr mac;
 
+
+int setDevMac()
+{
+ 	// it's 2B type, so >> will read 2 hexa chars which is 1 normal Byte
+	uint16_t twoCharsInByte {0};
+	string macAddrPath = "/sys/class/net/" + string(g_dev) + "/address"
+	ifstream devMacFile(macAddrPath);
+	if (!devMacFile)
+	    return -1;
+	int i{0};
+	do {
+	    if (i >= MAC_ADDR_SIZE)
+	        return -1;
+
+	    devMacFile >> hex >> twoCharsInByte;
+	    g_devMac[i] = twoCharsInByte;
+	    i++; 
+	} while (devMacFile.get() != '\n');
+    return 0;
+}
 
 int getSocketFile(Netflow *n, string &file)
 {
@@ -186,8 +208,8 @@ int getInode(Netflow *n, ifstream &socketsFile)
             if (foundPort == wantedPort)
             {
                 char c{0}, i{0};
-                vector<char> parts(IP_SIZE,0);
-                const unsigned char CHARS_PER_OCTET = (ipVer == 4) ? 2 : 0; //! @todo implement ipv6
+                vector<unsigned char> parts(IP_SIZE,0);
+                const unsigned char CHARS_PER_OCTET = (ipVer == 4) ? 2 : 1; //! @todo implement ipv6
 
                 // compare localIp
                 socketsFile.seekg(pos_localIp);

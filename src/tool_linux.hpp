@@ -14,7 +14,12 @@
 #include "netflow.hpp"      //  Netflow
 #include "cache.hpp"        //  Cache
 
+typedef struct { 
+    unsigned char bytes[6]; 
+} mac_addr;
 
+int setDevMac();
+Directions getPacketDirection(ether_header *ip_hdr);
 int getSocketFile(Netflow *n, string &file);
 int determineApp(Netflow *n, TEntry &e);
 void updateCacheRecord(TEntry &e);
