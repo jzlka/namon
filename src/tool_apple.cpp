@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 26.03.2017 14:40
- *   - Edited:  02.04.2017 00:41
+ *   - Edited:  06.04.2017 18:48
  *  @todo       rename this file
  */
 
@@ -15,6 +15,10 @@
 #include "cache.hpp"        //  Cache
 
 
+int setDevMac()
+{
+    return -1;
+}
 int getSocketFile(Netflow * /*n*/, string &/*file*/)
 {
     return -1;

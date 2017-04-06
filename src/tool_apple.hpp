@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 18.02.2017 22:55
- *   - Edited:  02.04.2017 00:34
+ *   - Edited:  06.04.2017 18:47
  *  @todo       rename file
  */
 
@@ -16,6 +16,11 @@
 
 
 
+/*!
+ * @brief       Sets mac address of #g_dev interface into #g_devMac
+ * @return      False in case of I/O error. Otherwise true is returned.
+ */
+int setDevMac();
 /*!
  * @brief       Finds out application, which has opened socket which belongs to some IP, proto and port
  * @details     In case it is called with Netflow which is already in cache, but application owner has changed,

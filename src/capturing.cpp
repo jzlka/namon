@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 18.02.2017 22:45
- *   - Edited:  04.04.2017 15:57
+ *   - Edited:  06.04.2017 18:50
  *   @todo      IPv6 implementation
  *   @todo      Comment which functions move classes
  *   @todo      What to do when the cache contains invalid record and getInode returns inode == 0
@@ -59,10 +59,10 @@ const unsigned int      CACHE_RING_BUFFER_SIZE  =   2000;   //!< Size of the rin
 
 map<string, vector<Netflow *>> g_finalResults;  //!< Applications and their netflows
 const char * g_dev = nullptr;                   //!< Capturing device name
-mac_addr g_devMac {0};                          //!< Capturing device MAC address
-const mac_addr g_macMcast4 {0x01,0x00,0x5e};    //!< IPv4 multicast MAC address
-const mac_addr g_macMcast6 {0x33,0x33};         //!< IPv6 multicast MAC address
-const mac_addr g_macBcast {0xff,0xff,0xff};     //!< Broadcast MAC address
+mac_addr g_devMac {{0}};                          //!< Capturing device MAC address
+const mac_addr g_macMcast4 {{0x01,0x00,0x5e}};    //!< IPv4 multicast MAC address
+const mac_addr g_macMcast6 {{0x33,0x33}};         //!< IPv6 multicast MAC address
+const mac_addr g_macBcast {{0xff,0xff,0xff}};     //!< Broadcast MAC address
 vector<in_addr*> g_devIps;                      //!< Capturing device IPv4 address
 ofstream oFile;                                 //!< Output file stream
 atomic<int> shouldStop {false};                 //!< Variable which is set if program should stop

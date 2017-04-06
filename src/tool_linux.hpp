@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 18.02.2017 22:55
- *   - Edited:  02.04.2017 00:43
+ *   - Edited:  06.04.2017 18:47
  *  @todo       rename file
  */
 
@@ -13,10 +13,6 @@
 #include <fstream>          //  ifstream
 #include "netflow.hpp"      //  Netflow
 #include "cache.hpp"        //  Cache
-
-typedef struct { 
-    unsigned char bytes[6]; 
-} mac_addr;
 
 
 
