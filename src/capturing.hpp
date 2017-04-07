@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 18.02.2017 22:48
- *   - Edited:  06.04.2017 18:47
+ *   - Edited:  07.04.2017 00:59
  */
 
 #pragma once
@@ -58,11 +58,6 @@ struct PacketHandlerPointers
     RingBuffer<EnhancedPacketBlock> *fileBuffer = nullptr; //!< Pointer to RingBuffer which will be written to a file
     RingBuffer<Netflow> *cacheBuffer = nullptr;            //!< Used cache
 };
-
-
-typedef struct { 
-    unsigned char bytes[6]; 
-} mac_addr;
 
 
 

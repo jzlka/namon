@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 28.03.2017 14:09
- *   - Edited:  02.04.2017 00:03
+ *   - Edited:  07.04.2017 01:00
  */
 
 #pragma once
@@ -31,6 +31,11 @@ public:
 };
 
 
+struct mac_addr { 
+    unsigned char bytes[6]; 
+};
+
+
 /**
  * @brief       Converts char* string to integer
  * @pre         'str' parameter must be zero terminated
@@ -40,4 +45,6 @@ public:
  * @return      Returns true on success, false otherwise
  */
 int chToInt(char *str, int &res);
+
+
 

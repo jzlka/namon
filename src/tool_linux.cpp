@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 18.02.2017 23:32
- *   - Edited:  02.04.2017 00:33
+ *   - Edited:  07.04.2017 01:01
  *  @todo       rename file
  */
 
@@ -352,7 +352,7 @@ int getApp(const int inode, string &appName)
                    // ifstream appNameFile(PROCFS + string(pidEntry->d_name) + "/cmdline");
                    // // arguments are delimited with '\0' so we read just first argument.
                    // appNameFile >> appName;
-                    char exe[512] = {0};
+                    char exe[512] = {0}; //! @todo size
                     string exeLink = PROCFS + string(pidEntry->d_name) + "/exe";
                     int ll = readlink(exeLink.c_str(), exe, 511);
                     if (ll == -1)

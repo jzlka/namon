@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 18.02.2017 22:45
- *   - Edited:  06.04.2017 18:50
+ *   - Edited:  07.04.2017 01:01
  *   @todo      IPv6 implementation
  *   @todo      Comment which functions move classes
  *   @todo      What to do when the cache contains invalid record and getInode returns inode == 0
@@ -30,6 +30,7 @@
 #include "cache.hpp"            //  TEntryOrTTree
 #include "netflow.hpp"          //  Netflow
 #include "debug.hpp"            //  D()
+#include "utils.hpp"            //  mac_addr
 #include "capturing.hpp"
 
 #if defined(__linux__)
@@ -172,7 +173,7 @@ int startCapture(const char *oFilename)
         cout << stats.ps_drop << "' packets dropped by the driver." << endl;
         cout << "Total " << rcvdPackets << " packets received.\n" << endl;
 
-        cout << "Total " << g_finalResults.size() << " second level entries (same local port)" << endl;
+        cout << "Total " << g_finalResults.size() << " records with exactly the same 3-tuple" << endl;
         cout << "Inode not found for " << g_notFoundInodes << " ports." << endl;
         cout << "Application not found for " << g_notFoundApps << " inodes." << endl;
         cout << g_finalResults.size() << " applications in total:" << endl;
