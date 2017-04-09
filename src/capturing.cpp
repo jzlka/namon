@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 18.02.2017 22:45
- *   - Edited:  07.04.2017 01:01
+ *   - Edited:  08.04.2017 01:25
  *   @todo      IPv6 implementation
  *   @todo      Comment which functions move classes
  *   @todo      What to do when the cache contains invalid record and getInode returns inode == 0
@@ -63,7 +63,7 @@ const char * g_dev = nullptr;                   //!< Capturing device name
 mac_addr g_devMac {{0}};                          //!< Capturing device MAC address
 const mac_addr g_macMcast4 {{0x01,0x00,0x5e}};    //!< IPv4 multicast MAC address
 const mac_addr g_macMcast6 {{0x33,0x33}};         //!< IPv6 multicast MAC address
-const mac_addr g_macBcast {{0xff,0xff,0xff}};     //!< Broadcast MAC address
+const mac_addr g_macBcast {{0xff,0xff,0xff,0xff,0xff,0xff}};  //!< Broadcast MAC address
 vector<in_addr*> g_devIps;                      //!< Capturing device IPv4 address
 ofstream oFile;                                 //!< Output file stream
 atomic<int> shouldStop {false};                 //!< Variable which is set if program should stop
@@ -119,8 +119,8 @@ int startCapture(const char *oFilename)
         }
         pcap_freealldevs(alldevs);
 
-	// get interface MAC address
-	setDevMac();
+        // get interface MAC address
+        setDevMac();
 
         if ((handle = pcap_open_live(g_dev, BUFSIZ, false, 1000, errbuf)) == NULL)
             throw pcap_ex("pcap_open_live() failed.",errbuf);
@@ -259,7 +259,7 @@ Directions getPacketDirection(ether_header *eth_hdr)
     // multicast/broadcast as destination == INBOUND
     else if (memcmp(&g_macMcast4, eth_hdr->ether_dhost, 3) == 0
         || memcmp(&g_macMcast6, eth_hdr->ether_dhost, 2) == 0
-        || memcmp(&g_macBcast, eth_hdr->ether_dhost, 3) == 0)
+        || memcmp(&g_macBcast, eth_hdr->ether_dhost, 6) == 0)
         return Directions::INBOUND;
     // multicast/broadcast as source IP is not valid
 

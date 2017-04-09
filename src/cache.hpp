@@ -4,14 +4,14 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 02.03.2017 04:32
- *   - Edited:  01.04.2017 23:35
+ *   - Edited:  09.04.2017 04:39
  */
 
 #pragma once
 
 #include <string>           //  string
 #include <vector>           //  vector
-#include <map>              //  map
+#include <unordered_map>    //  map
 #include <chrono>           //  seconds
 #include <mutex>            //  mutes
 #include "netflow.hpp"      //  Netflow
@@ -348,7 +348,7 @@ public:
 class Cache
 {
     //! @brief  Map of open local ports
-    std::map<unsigned short,class TEntryOrTTree*> *map = new std::map<unsigned short,class TEntryOrTTree*>;
+    std::unordered_map<unsigned short,class TEntryOrTTree*> *map = new std::unordered_map<unsigned short,class TEntryOrTTree*>;
 public:
     /*!
      * @brief   Default c'tor that initialises Cache 
@@ -363,7 +363,7 @@ public:
      * @brief       Set method for #Cache::map
      * @param[in]   newMap  Pointer to a new actualized map
      */
-    void setCache(std::map<unsigned short,TEntryOrTTree*> *newMap) { map = newMap; }
+    void setCache(std::unordered_map<unsigned short,TEntryOrTTree*> *newMap) { map = newMap; }
     /*!
      * @brief       Function finds a Netflow record in a cache
      * @param[in]   n   Reference to a Netflow class, it tries to find in the cache.

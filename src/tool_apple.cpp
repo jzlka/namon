@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 26.03.2017 14:40
- *   - Edited:  06.04.2017 18:48
+ *   - Edited:  08.04.2017 13:06
  *  @todo       rename this file
  */
 
@@ -24,7 +24,7 @@ int getSocketFile(Netflow * /*n*/, string &/*file*/)
     return -1;
 }
 
-int determineApp(Netflow * /*n*/, TEntry &/*e*/)
+int determineApp(Netflow * /*n*/, TEntry &/*e*/, const char /*mode*/)
 {
     return -1;
 }

@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 18.02.2017 22:55
- *   - Edited:  06.04.2017 18:47
+ *   - Edited:  08.04.2017 13:05
  *  @todo       rename file
  */
 
@@ -14,6 +14,9 @@
 #include "netflow.hpp"      //  Netflow
 #include "cache.hpp"        //  Cache
 
+#define     UPDATE  0
+#define     FIND    1
+
 
 
 /*!
@@ -22,18 +25,18 @@
  */
 int setDevMac();
 /*!
- * @brief       Finds out application, which has opened socket which belongs to some IP, proto and port
- * @details     In case it is called with Netflow which is already in cache, but application owner has changed,
+ * @brief       Identifies application, which has opened socket which belongs to some IP, proto and port
+ * @details     In case it is called with Netflow which is already in cache, but application has changed,
  *              old record is copied into #g_finalResults vector.
- *              If pointer in 'n' parameter is same like Netflow pointer stored in 'e' parameter, this function
- *              is called in update mode. That means that instead of moving 'n' into 'e', we just update times in 'e'
- * @param[in]   n   Netflow information
- * @param[out]  e   Set application and socket inode number with netflow structure
+ *              Update mode means that instead of moving 'n' into 'e', we just update times in 'e'
+ * @param[in]   n       Netflow information
+ * @param[out]  e       Set application and socket inode number with netflow structure
+ * @param[in]   mode    Update of expired record or inserting new record
  * @return      True if there wasn't any input/output error. 
  *              Zerro is also returned if application wasn't found - in this case #TEntry::appName 
- *              is set to empty string. If either inode wasn't foudn then #TEntry::inode is set to zero.
+ *              is set to empty string. If inode wasn't found either, #TEntry::inode is set to zero.
  */
-int determineApp(Netflow *n, TEntry &e);
+int determineApp(Netflow *n, TEntry &e, const char mode);
 /*!
  * @brief       Finds socket inode which belongs to Netflow n
  * @param[in]   n       Netflow information

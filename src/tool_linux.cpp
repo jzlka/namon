@@ -1,10 +1,10 @@
 /**
  *  @file       tool_linux.cpp
- *  @brief      Determining applications and their sockets on macOS
+ *  @brief      Determining applications and their sockets in Linux
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 18.02.2017 23:32
- *   - Edited:  07.04.2017 01:01
+ *   - Edited:  09.04.2017 04:41
  *  @todo       rename file
  */
 
@@ -12,6 +12,7 @@
 #include <dirent.h>             //  opendir(), readdir()
 #include <unistd.h>             //  getpid()
 #include <cstring>              //  memset(), strchr()
+#include <map>                  //  map
 #include <netinet/if_ether.h>   //  ether_header
 
 #include "netflow.hpp"          //  Netflow
@@ -29,7 +30,6 @@ const unsigned char PROTO_TCP       =   0x06;   //!< TCP protocol number
 const unsigned char PROTO_UDPLITE   =   0x88;   //!< UDPLite protocol number
 const unsigned char IPv4_SIZE       =   4;      //!< Size of IPv4 address in Bytes
 const unsigned char IPv6_SIZE       =   16;     //!< Size of IPv6 address in Bytes
-const char * const  PROCFS          =   "/proc/";   //!< Proc filesystem path prefix
 //const vector<string> L2SocketFiles = { "/proc/net/icmp", "/proc/net/igmp", "/proc/net/raw" };
 
 extern const char * g_dev;
@@ -38,11 +38,13 @@ extern unsigned int g_notFoundApps, g_notFoundInodes;
 extern mac_addr g_devMac;
 
 
+
+
 int setDevMac()
 {
- 	// it's 2B type, so >> will read 2 hexa chars which is 1 normal Byte
+ 	// it's 2B type, so >> will read 2 hexa chars, which is 1 normal Byte
 	uint16_t twoCharsInByte {0};
-	string macAddrPath = "/sys/class/net/" + string(g_dev) + "/address";
+	const string macAddrPath = "/sys/class/net/" + string(g_dev) + "/address";
 	ifstream devMacFile(macAddrPath);
 	if (!devMacFile)
 	    return -1;
@@ -57,6 +59,7 @@ int setDevMac()
 	} while (devMacFile.get() != '\n');
     return 0;
 }
+
 
 int getSocketFile(Netflow *n, string &file)
 {
@@ -86,13 +89,15 @@ int getSocketFile(Netflow *n, string &file)
 }
 
 
-int determineApp (Netflow *n, TEntry &e)
+int determineApp (Netflow *n, TEntry &e, const char mode)
 {
-    string filename;
+    static string filename;
+
     if (getSocketFile(n, filename))
         return -1;
 
-    ifstream socketsFile(filename);
+    ifstream socketsFile;
+    socketsFile.open(filename);
     if (!socketsFile)
     {
         log(LogLevel::ERROR, "Can't open file ", filename);
@@ -126,36 +131,39 @@ int determineApp (Netflow *n, TEntry &e)
   //  }
 
     // if we are updating existing cache record
-    if (n == e.getNetflowPtr())
+    if (mode == UPDATE)
     { 
         if (inode == e.getInode())
-        { // if nothing changed, update valid time
+        { // if nothing changed, update time
             e.updateTime();
+            e.getNetflowPtr()->setEndTime(n->getEndTime());
             return 0;
         }
         else if (e.getAppName() != "")
-        { // else save expired record to results
+        { // save expired record to results
             Netflow *res = new Netflow;
             *res = *e.getNetflowPtr();
             g_finalResults[e.getAppName()].push_back(res);
         }
     }
 
-    string appName;
     if (inode == 0)
     {
-        log(LogLevel::WARNING, "Inode not found for port " + to_string(n->getLocalPort()));
-        appName = ""; //! @todo Is inserting into cache valid begavior?
+        log(LogLevel::WARNING, "Inode not found for port ", n->getLocalPort());
         g_notFoundInodes++;
-        //return -1;
     }
-    else if (getApp(inode, appName))
-        return -1;
+    else
+    {
+        string appName;
+        if (getApp(inode, appName))
+            return -1;
+
+        e.setInode(inode);
+        e.setAppName(appName);
+    }
 
 
-    e.setInode(inode);
-    e.setAppName(appName);
-    if (n != e.getNetflowPtr())
+    if (mode == FIND)
     { // if we are not updating same netflow, move if from cacheBuffer
         Netflow *newN = new Netflow;
         *newN = move(*n);
@@ -172,31 +180,37 @@ int determineApp (Netflow *n, TEntry &e)
 
 int getInode(Netflow *n, ifstream &socketsFile)
 {
+    // in6_addr will be always bigger than in_addr so we can use it to store both IPv4 and IPv6
+    static in6_addr foundIp;
+    static size_t ipSize;
+
     const unsigned char ipVer = n->getIpVersion();
-    void* foundIp = nullptr;
-    size_t ipSize = 0;
     if (ipVer == 4)
-       {  ipSize = sizeof(in_addr); foundIp = new in_addr; }
+       ipSize = sizeof(in_addr);
     else if (ipVer == 6)
-       {  ipSize = sizeof(in6_addr); foundIp = new in6_addr; }
+       ipSize = sizeof(in6_addr);
     else
-       { log(LogLevel::ERROR, "IP protocol ", ipVer, " is not supported."); return -1; }
-    memset(foundIp, 0, ipSize);
+    { 
+        log(LogLevel::ERROR, "IP protocol ", ipVer, " is not supported."); 
+        return -1; 
+    }
+    //memset(&foundIp, 0, sizeof(foundIp));
 
     try
     {
         static streamoff pos_localIp, pos_localPort, pos_inode;
-        static string dontCare;
+        static string dummyStr;
         static int lineLength;
+        static uint32_t foundPort;
 
-        const char IP_SIZE = (ipVer == 4) ? IPv4_SIZE : IPv6_SIZE;
         const unsigned short wantedPort = n->getLocalPort();
         unsigned int inode = 0;
-        uint32_t foundPort = 0;
+#if 1
+        const char IP_SIZE = (ipVer == 4) ? IPv4_SIZE : IPv6_SIZE;
 
-        getline(socketsFile, dontCare); // get first line to find out length of the other lines
-        lineLength = dontCare.length() + 1;
-        getline(socketsFile, dontCare, ':'); // get rid of the first column
+        getline(socketsFile, dummyStr); // get first line to find out length of the other lines
+        lineLength = dummyStr.length() + 1;
+        getline(socketsFile, dummyStr, ':'); // get rid of the first column
         pos_localIp = socketsFile.tellg();
         pos_localIp++; // space after first column ("sl")
         pos_localPort = pos_localIp + IP_SIZE*2 + 1; // local ip plus ':' delimiter
@@ -208,6 +222,7 @@ int getInode(Netflow *n, ifstream &socketsFile)
             socketsFile.seekg(pos_localPort); // move before localPort
 
             socketsFile >> hex >> foundPort;
+            D(wantedPort << " vs. " << foundPort);
             if (foundPort == wantedPort)
             {
                 char c{0}, i{0};
@@ -236,7 +251,7 @@ int getInode(Netflow *n, ifstream &socketsFile)
                         parts[i / CHARS_PER_OCTET] = parts[i/CHARS_PER_OCTET]*16 + c;
                         i++;
                     }
-                    static_cast<in_addr*>(foundIp)->s_addr |= (parts[0] << 24) | (parts[1] << 16) | (parts[2] << 8) | parts[3];
+                    reinterpret_cast<in_addr*>(&foundIp)->s_addr |= (parts[0] << 24) | (parts[1] << 16) | (parts[2] << 8) | parts[3];
                 }
                 else
                 {
@@ -244,8 +259,10 @@ int getInode(Netflow *n, ifstream &socketsFile)
                 }
 
                 // if it is our IP address
-                //! @todo zero IP
-                if (!memcmp(n->getLocalIp(), foundIp, ipSize)/* || foundIp.s_addr != 0*/)
+                // static variables are automatically initialized to zero unless there is an initializer
+                // in6_addr is bigger so we can use it to compare for both ip versions
+                //static char zeroBlock [sizeof(in6_addr)];
+                if (!memcmp(n->getLocalIp(), &foundIp, ipSize)/* || !memcmp(&foundIp, zeroBlock, ipSize)*/)
                 {
 
                     socketsFile.seekg(pos_inode);
@@ -282,21 +299,39 @@ int getInode(Netflow *n, ifstream &socketsFile)
             pos_localIp += lineLength; // all lines are the same length
             pos_localPort += lineLength;
             pos_inode += lineLength;
-        } while (getline(socketsFile, dontCare));
+        } while (getline(socketsFile, dummyStr));
+#else
+        socketsFile.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        ///
+        //
+        /
+        string nextLine(istream&, string&& = string());
 
-        if (ipVer == 4)
-            delete static_cast<in_addr*>(foundIp);
-        else
-            delete static_cast<in6_addr*>(foundIp);
+        // calling once, or when allocation cost doesn't matter
+        auto line = nextLine(strm);
+        
+        // calling in a loop
+        string line;
+        for (...)
+            line = nextLine(strm, std::move(line));
+        ///
+        //
+        /
+https://channel9.msdn.com/Events/GoingNative/2013/Writing-Quick-Code-in-Cpp-Quickly
+        typedef std::istreambuf_iterator<char> iter;
+
+        std::ifstream input_file("textfile.txt");
+        iter file_begin(input_file);
+        iter file_end;
+
+        for (iter i = file_begin; i != file_end; ++i)
+            std::clog << *i;
+#endif
         return inode;
     }
     catch(char const *msg)
     {
         cerr << "ERROR: " << msg << endl;
-        if (ipVer == 4)
-            delete static_cast<in_addr*>(foundIp);
-        else
-            delete static_cast<in6_addr*>(foundIp);
         return -1;
     }
 }
@@ -307,9 +342,11 @@ int getApp(const int inode, string &appName)
     DIR *procDir{nullptr}, *fdDir{nullptr};
     try
     {
+        static char inodeBuff[32] ={0}; //! @todo size
+        static string tmpString;
         dirent *pidEntry{nullptr}, *fdEntry{nullptr};
         int pid{0}, fd{0};
-        if ((procDir = opendir(PROCFS)) == nullptr)
+        if ((procDir = opendir("/proc/")) == nullptr)
             throw std_ex("Can't open /proc/ directory");
 
         // WIN: https://msdn.microsoft.com/en-us/library/ms683180(VS.85).aspx
@@ -317,47 +354,43 @@ int getApp(const int inode, string &appName)
 
         while ((pidEntry = readdir(procDir)))
         {
-            if (chToInt(pidEntry->d_name, pid))
-                continue;
-            if (myPid == pid)
+            //if (chToInt(pidEntry->d_name, pid))
+            //    continue;
+            pid = atoi(pidEntry->d_name);
+            if (myPid == pid || pid == 0)
                 continue;
 
-            string descriptorsDir = PROCFS + string(pidEntry->d_name) + "/fd/";
-            if ((fdDir = opendir(descriptorsDir.c_str())) == nullptr)
-                throw std_ex("Can't open " + descriptorsDir);
+            tmpString = concatenate("/proc/", pidEntry->d_name, "/fd/");
+            if ((fdDir = opendir(tmpString.c_str())) == nullptr)
+                throw std_ex("Can't open " + tmpString);
 
             while ((fdEntry = readdir(fdDir)))
             {
-                if (chToInt(fdEntry->d_name, fd))
-                    continue;
+                //if (chToInt(fdEntry->d_name, fd))
+                //    continue;
+                fd = atoi(fdEntry->d_name);
 
                 if (fd <= 2) // stdin, stdout, stderr
                     continue;
-                char buff[1024] ={0}; //! @todo size
-                string descriptor = PROCFS + string(pidEntry->d_name) + "/fd/" + string(fdEntry->d_name);
-                int ll = readlink(descriptor.c_str(), buff, 1023);
+                tmpString = concatenate("/proc/", pidEntry->d_name, "/fd/", fdEntry->d_name);
+                int ll = readlink(tmpString.c_str(), inodeBuff, sizeof(inodeBuff));
                 if (ll == -1)
-                    log(LogLevel::ERROR, "Readlink error: " +descriptor +"\n" + string(strerror(errno)));
-                if (buff[0] != 's' || buff[6] != ':') // socket:[<inode>]
+                    log(LogLevel::ERROR, "Readlink error: " + tmpString +"\n" + string(strerror(errno)));
+                if (inodeBuff[0] != 's' || inodeBuff[6] != ':') // socket:[<inode>]
                     continue;
-                char *tmpPtr = strchr(&buff[7], ']');
+                char *tmpPtr = strchr(&inodeBuff[7], ']');
                 if (tmpPtr == nullptr)
-                    throw std_ex("Right ']' not found in socket link");
+                    throw std_ex("Right ']' not found in the socket link");
                 *tmpPtr = '\0';
                 int foundInode {0};
-                if (chToInt(&buff[8], foundInode))
-                    throw "Can't convert socket inode to integer";
+                //if (chToInt(&buff[8], foundInode))
+                //    throw "Can't convert socket inode to integer";
+                foundInode = atoi(&inodeBuff[8]);
                 if (foundInode == inode)
                 {
-                   // ifstream appNameFile(PROCFS + string(pidEntry->d_name) + "/cmdline");
-                   // // arguments are delimited with '\0' so we read just first argument.
-                   // appNameFile >> appName;
-                    char exe[512] = {0}; //! @todo size
-                    string exeLink = PROCFS + string(pidEntry->d_name) + "/exe";
-                    int ll = readlink(exeLink.c_str(), exe, 511);
-                    if (ll == -1)
-                        log(LogLevel::ERROR, "Readlink error: " +exeLink +"\n" + string(strerror(errno)));
-                    appName = exe;
+                    ifstream appNameFile(concatenate("/proc/", pidEntry->d_name, "/cmdline"));
+                    // arguments are delimited with '\0'
+                    getline(appNameFile,appName);
 
                     closedir(fdDir);
                     goto END;
@@ -370,7 +403,6 @@ END:
         if (pidEntry == nullptr)
         {
             log(LogLevel::ERROR, "Application not found for inode " + to_string(inode));
-            appName = "";
             g_notFoundApps++;
         }
         return 0;

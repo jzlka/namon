@@ -1,10 +1,10 @@
 /**
  *  @file       utils.hpp
- *  @brief      Small useful functions headers
+ *  @brief      Small useful functions header file
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 28.03.2017 14:09
- *   - Edited:  07.04.2017 01:00
+ *   - Edited:  09.04.2017 02:00
  */
 
 #pragma once
@@ -47,4 +47,4 @@ struct mac_addr {
 int chToInt(char *str, int &res);
 
 
-
+#include "utils.tpp"

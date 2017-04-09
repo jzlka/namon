@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 06.03.2017 13:33
- *   - Edited:  04.04.2017 16:36
+ *   - Edited:  09.04.2017 04:41
  */
 
 #pragma once
@@ -13,6 +13,7 @@
 #include <fstream>              //  ofstream
 #include <string>               //  string
 #include <vector>               //  vector
+#include <map>                  //  map
 #include <netinet/if_ether.h>   //  ETHER_MAX_LEN
 #include "cache.hpp"            //  TEntry
 #include "debug.hpp"            //  D()

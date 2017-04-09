@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 22.03.2017 17:04
- *   - Edited:  31.03.2017 13:03
+ *   - Edited:  08.04.2017 11:48
  */
 
 #if defined(__linux__)
@@ -116,7 +116,7 @@ void RingBuffer<Netflow>::run(Cache *cache)
                 // If the record exists but is invalid, run determineApp() in update mode
                 // to find new application, else update endTime.
                 if (!foundEntry->valid())
-                    determineApp(foundEntry->getNetflowPtr(), *foundEntry);
+                    determineApp(&buffer[first], *foundEntry, UPDATE);
                 else
                     foundEntry->getNetflowPtr()->setEndTime(buffer[first].getEndTime());
             }
@@ -125,7 +125,7 @@ void RingBuffer<Netflow>::run(Cache *cache)
               // (both means it's not in the cache at all)
                 TEntry *e = new TEntry;
                 // If an error occured (can't open procfs file, etc.)
-                if (determineApp(&buffer[first], *e))
+                if (determineApp(&buffer[first], *e, FIND))
                 {
                     delete e;
                 }
