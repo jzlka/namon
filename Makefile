@@ -3,13 +3,13 @@
 # @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
 # @date
 #  - Created: 08.02.2017
-#  - Edited:  09.04.2017 03:37
+#  - Edited:  10.04.2017 13:51
 # @version    1.0.0
 # @par        make: GNU Make 3.81
 
 ######################## Compiler & flags  ##########################
 CXX=g++
-CXXFLAGS=-std=c++14 -O3 -Wall -Wextra -pedantic -g
+CXXFLAGS=-std=c++14 -O3 -Wall -Wextra -pedantic
 LDFLAGS=-lpcap -pthread
 
 
@@ -56,7 +56,8 @@ $(BIN): $(OBJ)
 directories:
 	@mkdir -p $(OBJDIR)
 
-debug: CXXFLAGS += -O0 -g -DDEBUG_BUILD
+debug: TMP := $(CXXFLAGS)
+debug: CXXFLAGS = $(filter-out -O3,$(TMP)) -O0 -g -DDEBUG_BUILD
 debug: clean all
 
 unit-tests: CXXFLAGS += -I./src/ -DDEBUG_BUILD -g

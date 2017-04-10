@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 06.03.2017 13:33
- *   - Edited:  09.04.2017 04:41
+ *   - Edited:  10.04.2017 16:07
  */
 
 #pragma once
@@ -267,7 +267,7 @@ public:
      *               and #EnhancedPacketBlock::timestampLo
      * @param[in]   timestamp   Packet timestamp
      */
-    void setTimestamp(uint64_t timestamp) { timestampLo = timestamp; timestampHi = timestamp >> 4; }
+    void setTimestamp(uint64_t timestamp) { timestampLo = timestamp & 0xffffffff; timestampHi = timestamp >> 32; }
     /*!
      * @brief       Set method for #EnhancedPacketBlock::capturedPacketLength
      * @param[in]   len Captured length

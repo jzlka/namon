@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 22.03.2017 17:04
- *   - Edited:  08.04.2017 11:48
+ *   - Edited:  10.04.2017 16:14
  */
 
 #if defined(__linux__)

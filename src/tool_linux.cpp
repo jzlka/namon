@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 18.02.2017 23:32
- *   - Edited:  09.04.2017 04:41
+ *   - Edited:  10.04.2017 16:13
  *  @todo       rename file
  */
 
@@ -222,7 +222,7 @@ int getInode(Netflow *n, ifstream &socketsFile)
             socketsFile.seekg(pos_localPort); // move before localPort
 
             socketsFile >> hex >> foundPort;
-            D(wantedPort << " vs. " << foundPort);
+            //D(wantedPort << " vs. " << foundPort);
             if (foundPort == wantedPort)
             {
                 char c{0}, i{0};
