@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 26.02.2017 23:13
- *   - Edited:  02.04.2017 00:40
+ *   - Edited:  10.04.2017 22:27
  */
 
 #pragma once
@@ -164,10 +164,13 @@ public:
     {
         if (this != &other)
         {
-            if (ipVersion == 4)
-                delete static_cast<in_addr*>(localIp);
-            else
-                delete static_cast<in6_addr*>(localIp);
+            if (localIp != nullptr)
+            { // delete is sloooow
+                if (ipVersion == 4)
+                    delete static_cast<in_addr*>(localIp);
+                else
+                    delete static_cast<in6_addr*>(localIp);
+            }
             
             ipVersion = other.ipVersion;
             localIp = other.localIp;

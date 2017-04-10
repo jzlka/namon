@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 18.02.2017 23:32
- *   - Edited:  10.04.2017 16:13
+ *   - Edited:  10.04.2017 23:11
  *  @todo       rename file
  */
 
@@ -30,13 +30,11 @@ const unsigned char PROTO_TCP       =   0x06;   //!< TCP protocol number
 const unsigned char PROTO_UDPLITE   =   0x88;   //!< UDPLite protocol number
 const unsigned char IPv4_SIZE       =   4;      //!< Size of IPv4 address in Bytes
 const unsigned char IPv6_SIZE       =   16;     //!< Size of IPv6 address in Bytes
-//const vector<string> L2SocketFiles = { "/proc/net/icmp", "/proc/net/igmp", "/proc/net/raw" };
 
 extern const char * g_dev;
 extern map<string, vector<Netflow *>> g_finalResults;
-extern unsigned int g_notFoundApps, g_notFoundInodes;
+extern unsigned int g_notFoundApps, g_notFoundSockets, g_allSockets;
 extern mac_addr g_devMac;
-
 
 
 
@@ -58,6 +56,11 @@ int setDevMac()
 	    i++; 
 	} while (devMacFile.get() != '\n');
     return 0;
+
+    //! @todo reimplement to MAC address + multicast
+    //! sysctl with the MIB { CTL_NET, PF_ROUTE, 0, AF_LINK, NET_RT_IFLIST, 0 }
+    //! SIOCGIFADDR and SIOCGIFHWADDR
+    //! http://stackoverflow.com/questions/2283494/get-ip-address-of-an-interface-on-linux/9436692#9436692
 }
 
 
@@ -107,28 +110,6 @@ int determineApp (Netflow *n, TEntry &e, const char mode)
     int inode = getInode(n, socketsFile);
     if (inode == -1)
         return -1;
-    // we ignore IGMP and ICMP packets so /proc/net/igmp... can be ignored
-  //  if (inode == 0)
-  //  {
-  //      for (auto file : L2SocketFiles)
-  //      {
-  //          socketsFile.close();
-  //          if (ipVer == 6)
-  //              file += '6';
-  //          socketsFile.open(file);
-  //          if (!socketsFile)
-  //          {
-  //              log(LogLevel::ERROR, "Can't open file ", file);
-  //              return -1;
-  //          }
-  //          
-  //          inode = getInode(n, socketsFile);
-  //          if (inode == -1)
-  //              return -1;
-  //          if (inode > 0)
-  //              break;
-  //      }
-  //  }
 
     // if we are updating existing cache record
     if (mode == UPDATE)
@@ -147,10 +128,11 @@ int determineApp (Netflow *n, TEntry &e, const char mode)
         }
     }
 
+    g_allSockets++;
     if (inode == 0)
     {
         log(LogLevel::WARNING, "Inode not found for port ", n->getLocalPort());
-        g_notFoundInodes++;
+        g_notFoundSockets++;
     }
     else
     {
@@ -216,7 +198,7 @@ int getInode(Netflow *n, ifstream &socketsFile)
         pos_localPort = pos_localIp + IP_SIZE*2 + 1; // local ip plus ':' delimiter
         // localPort remoteIp:remotePort st tx_queue:rx_queue tr:tm->when retrnsmt
         pos_inode = pos_localPort+3+ 1 +IP_SIZE*2+1+4+ 1+2+1 +8+1+8+ 1 +2+1+8 +1+8+1;
-
+        
         // cycle over remaining lines
         do {
             socketsFile.seekg(pos_localPort); // move before localPort
@@ -344,35 +326,43 @@ int getApp(const int inode, string &appName)
     {
         static char inodeBuff[32] ={0}; //! @todo size
         static string tmpString;
+        static string tmpString1;
+        // WIN: https://msdn.microsoft.com/en-us/library/ms683180(VS.85).aspx
+        static int myPid = ::getpid();
+
         dirent *pidEntry{nullptr}, *fdEntry{nullptr};
         int pid{0}, fd{0};
+
         if ((procDir = opendir("/proc/")) == nullptr)
             throw std_ex("Can't open /proc/ directory");
 
-        // WIN: https://msdn.microsoft.com/en-us/library/ms683180(VS.85).aspx
-        int myPid = ::getpid();
-
         while ((pidEntry = readdir(procDir)))
         {
-            //if (chToInt(pidEntry->d_name, pid))
-            //    continue;
-            pid = atoi(pidEntry->d_name);
+            if (chToInt(pidEntry->d_name, pid))
+                continue;
             if (myPid == pid || pid == 0)
                 continue;
 
+            tmpString1 = "/proc/";
+            tmpString1 += pidEntry->d_name;
+            tmpString1 += "/fd/";
             tmpString = concatenate("/proc/", pidEntry->d_name, "/fd/");
             if ((fdDir = opendir(tmpString.c_str())) == nullptr)
                 throw std_ex("Can't open " + tmpString);
 
             while ((fdEntry = readdir(fdDir)))
             {
-                //if (chToInt(fdEntry->d_name, fd))
-                //    continue;
-                fd = atoi(fdEntry->d_name);
+                if (chToInt(fdEntry->d_name, fd))
+                    continue;
 
                 if (fd <= 2) // stdin, stdout, stderr
                     continue;
+                tmpString1 = "/proc/";
+                tmpString1 += pidEntry->d_name;
+                tmpString1 += "/fd/";
+                tmpString1 += fdEntry->d_name;
                 tmpString = concatenate("/proc/", pidEntry->d_name, "/fd/", fdEntry->d_name);
+                tmpString1 = "/proc/" + string(pidEntry->d_name) + "/fd/" + string(fdEntry->d_name);
                 int ll = readlink(tmpString.c_str(), inodeBuff, sizeof(inodeBuff));
                 if (ll == -1)
                     log(LogLevel::ERROR, "Readlink error: " + tmpString +"\n" + string(strerror(errno)));
@@ -380,12 +370,11 @@ int getApp(const int inode, string &appName)
                     continue;
                 char *tmpPtr = strchr(&inodeBuff[7], ']');
                 if (tmpPtr == nullptr)
-                    throw std_ex("Right ']' not found in the socket link");
+                    throw std_ex("Right ']' not found in the socket link: " + string(inodeBuff));
                 *tmpPtr = '\0';
                 int foundInode {0};
-                //if (chToInt(&buff[8], foundInode))
-                //    throw "Can't convert socket inode to integer";
-                foundInode = atoi(&inodeBuff[8]);
+                if (chToInt(&inodeBuff[8], foundInode))
+                    throw "Can't convert socket inode to integer";
                 if (foundInode == inode)
                 {
                     ifstream appNameFile(concatenate("/proc/", pidEntry->d_name, "/cmdline"));

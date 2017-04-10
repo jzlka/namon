@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 18.02.2017 22:45
- *   - Edited:  10.04.2017 16:27
+ *   - Edited:  10.04.2017 19:12
  *   @todo      IPv6 implementation
  *   @todo      Comment which functions move classes
  *   @todo      What to do when the cache contains invalid record and getInode returns inode == 0
@@ -64,7 +64,8 @@ vector<in_addr*> g_devIps;                      //!< Capturing device IPv4 addre
 ofstream oFile;                                 //!< Output file stream
 atomic<int> shouldStop {false};                 //!< Variable which is set if program should stop
 unsigned int rcvdPackets = 0;                   //!< Number of received packets
-unsigned int g_notFoundInodes = 0;              //!< Number of unsuccessful searches for inode number
+unsigned int g_allSockets = 0;                  //!< Number of unique sockets
+unsigned int g_notFoundSockets = 0;             //!< Number of unsuccessful searches for inode number
 unsigned int g_notFoundApps = 0;                //!< Number of unsuccessful searches for application
 
 
@@ -170,7 +171,7 @@ int startCapture(const char *oFilename)
         cout << "Total " << rcvdPackets << " packets received.\n" << endl;
 
         cout << "Total " << g_finalResults.size() << " records with exactly the same 3-tuple" << endl;
-        cout << "Inode not found for " << g_notFoundInodes << " ports." << endl;
+        cout << "Inode not found for " << g_notFoundSockets << " ports from " <<  g_allSockets  << "." << endl;
         cout << "Application not found for " << g_notFoundApps << " inodes." << endl;
         cout << g_finalResults.size() << " applications in total:" << endl;
         for (auto record : g_finalResults)
@@ -202,12 +203,13 @@ int startCapture(const char *oFilename)
 void packetHandler(u_char *arg_array, const struct pcap_pkthdr *header, const u_char *packet)
 {
     static Netflow n;
-    static unsigned int ip_size;
+    static unsigned int ip_hdr_size;
     static ether_header *eth_hdr;
     PacketHandlerPointers *ptrs = reinterpret_cast<PacketHandlerPointers*>(arg_array);
-    eth_hdr = (ether_header*) packet;
+
     RingBuffer<Netflow> *cb = ptrs->cacheBuffer;
     RingBuffer<EnhancedPacketBlock> *rb = ptrs->fileBuffer;
+    eth_hdr = (ether_header*) packet;
 
     rcvdPackets++;
     if(rb->push(header, packet))
@@ -219,7 +221,6 @@ void packetHandler(u_char *arg_array, const struct pcap_pkthdr *header, const u_
     // We can't determine app for IGMP, ICMP, etc. https://en.wikipedia.org/wiki/List_of_IP_protocol_numbers
     if (eth_hdr->ether_type != PROTO_IPV4 && eth_hdr->ether_type != PROTO_IPV6)
         return;
-    
 
     uint64_t usecUnixTime = header->ts.tv_sec * (uint64_t)1000000 + header->ts.tv_sec;
     n.setStartTime(usecUnixTime);
@@ -229,10 +230,10 @@ void packetHandler(u_char *arg_array, const struct pcap_pkthdr *header, const u_
     if (dir == Directions::UNKNOWN)
         return;
     // Parse IP header
-    if (parseIp(n, ip_size, dir, (void*)(packet + ETHER_HDR_LEN), eth_hdr->ether_type))
+    if (parseIp(n, ip_hdr_size, dir, (void*)(packet + ETHER_HDR_LEN), eth_hdr->ether_type))
         return;
     // Parse transport layer header
-    if (parsePorts(n, dir, (void*)(packet + ETHER_HDR_LEN + ip_size)))
+    if (parsePorts(n, dir, (void*)(packet + ETHER_HDR_LEN + ip_hdr_size)))
         return;
     // STD::MOVE Netflow into buffer
     if (cb->push(n))
@@ -251,7 +252,7 @@ Directions getPacketDirection(ether_header *eth_hdr)
         return Directions::INBOUND;
     // else compare multicast and broadcast address
     // we don't have have to compare second part of the mac address
-    // because as we don't capture in promiscuous mode we won't receive
+    // because we don't capture in promiscuous mode so we won't receive
     // multicast packet with not our second part the of mac address
     // multicast/broadcast as destination == INBOUND
     else if (memcmp(&g_macMcast4, eth_hdr->ether_dhost, 3) == 0
@@ -260,6 +261,7 @@ Directions getPacketDirection(ether_header *eth_hdr)
         return Directions::INBOUND;
     // multicast/broadcast as source IP is not valid
 
+    D("int vs. src vs. dst");
     D_ARRAY((const unsigned char*)&g_devMac.bytes, 6);
     D_ARRAY(eth_hdr->ether_shost, 6);
     D_ARRAY(eth_hdr->ether_dhost, 6);
@@ -280,10 +282,6 @@ inline int parseIp(Netflow &n, unsigned int &ip_size, Directions dir, void * con
             return EXIT_FAILURE;
         }
 
-        //! @todo reimplement to MAC address + multicast
-        //! sysctl with the MIB { CTL_NET, PF_ROUTE, 0, AF_LINK, NET_RT_IFLIST, 0 }
-        //! SIOCGIFADDR and SIOCGIFHWADDR
-        //! http://stackoverflow.com/questions/2283494/get-ip-address-of-an-interface-on-linux/9436692#9436692
         in_addr* tmpIpPtr = new in_addr;
         if (dir == Directions::INBOUND)
             tmpIpPtr->s_addr = ipv4_hdr->ip_dst.s_addr;
@@ -352,7 +350,10 @@ inline int parsePorts(Netflow &n, Directions dir, void *hdr)
             break;
         }
         default:
+        {
+            log(LogLevel::WARNING, "Unsupported transport layer protocol (", (int)n.getProto(), ")");
             return EXIT_FAILURE;
+        }
     }
     return EXIT_SUCCESS;
 }
