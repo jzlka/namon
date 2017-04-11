@@ -125,11 +125,7 @@ void RingBuffer<Netflow>::run(Cache *cache)
               // (both means it's not in the cache at all)
                 TEntry *e = new TEntry;
                 // If an error occured (can't open procfs file, etc.)
-                if (determineApp(&buffer[first], *e, FIND))
-                {
-                    delete e;
-                }
-                else
+                if (!determineApp(&buffer[first], *e, FIND))
                 {
                     // insert new record into map
                     if (cacheRecord == nullptr)
@@ -137,6 +133,8 @@ void RingBuffer<Netflow>::run(Cache *cache)
                     else // else insert it into subtree
                         static_cast<TTree *>(cacheRecord)->insert(e);
                 }
+                else
+                    delete e;
             }
             pop();
         }

@@ -129,6 +129,7 @@ int determineApp (Netflow *n, TEntry &e, const char mode)
     }
 
     g_allSockets++;
+    e.setInode(inode);
     if (inode == 0)
     {
         log(LogLevel::WARNING, "Inode not found for port ", n->getLocalPort());
@@ -140,7 +141,6 @@ int determineApp (Netflow *n, TEntry &e, const char mode)
         if (getApp(inode, appName))
             return -1;
 
-        e.setInode(inode);
         e.setAppName(appName);
     }
 
@@ -151,6 +151,7 @@ int determineApp (Netflow *n, TEntry &e, const char mode)
         *newN = move(*n);
         e.setNetflowPtr(newN);
     }
+        //! @todo packets destined for closed socket
     else
     { // else we update expired record with a new application so just update times
         e.getNetflowPtr()->setStartTime(n->getStartTime());
@@ -270,8 +271,8 @@ int getInode(Netflow *n, ifstream &socketsFile)
                         else
                             inColumn = false;
                     }
-                    if (!socketsFile)
-                        throw "Input/Output error";
+                    if (column != 3)
+                        throw "Inode column not found";
                     socketsFile.unget();
 
                     socketsFile >> dec >> inode;
@@ -325,7 +326,7 @@ int getApp(const int inode, string &appName)
     DIR *procDir{nullptr}, *fdDir{nullptr};
     try
     {
-        static char inodeBuff[32] ={0}; //! @todo size
+        static char inodeBuff[64] ={0}; //! @todo size
         static string tmpString;
         // WIN: https://msdn.microsoft.com/en-us/library/ms683180(VS.85).aspx
         static int myPid = ::getpid();

@@ -60,7 +60,6 @@ mac_addr g_devMac {{0}};                          //!< Capturing device MAC addr
 const mac_addr g_macMcast4 {{0x01,0x00,0x5e}};    //!< IPv4 multicast MAC address
 const mac_addr g_macMcast6 {{0x33,0x33}};         //!< IPv6 multicast MAC address
 const mac_addr g_macBcast {{0xff,0xff,0xff,0xff,0xff,0xff}};  //!< Broadcast MAC address
-vector<in_addr*> g_devIps;                      //!< Capturing device IPv4 address
 ofstream oFile;                                 //!< Output file stream
 atomic<int> shouldStop {false};                 //!< Variable which is set if program should stop
 unsigned int rcvdPackets = 0;                   //!< Number of received packets
@@ -91,30 +90,6 @@ int startCapture(const char *oFilename)
         // if the interface wasn't specified by user open the first active one
         if (g_dev == nullptr && (g_dev = pcap_lookupdev(errbuf)) == nullptr)
             throw pcap_ex("Can't open input device.",errbuf);
-
-        // get interface IP
-        pcap_if_t *alldevs;
-        int status = pcap_findalldevs(&alldevs, errbuf);
-        if(status != 0)
-            throw pcap_ex("pcap_findalldevs() error.", errbuf);
-        for(pcap_if_t *d=alldevs; d!=NULL; d=d->next)
-        {
-            if (strcmp(g_dev, d->name))
-                continue;
-
-            for(pcap_addr_t *a=d->addresses; a!=NULL; a=a->next)
-            {
-                if(a->addr->sa_family == AF_INET)
-                {
-                    in_addr* ip = new in_addr;
-                    *ip = ((struct sockaddr_in*)a->addr)->sin_addr;
-                    g_devIps.push_back(ip);
-                }
-                else
-                    ;//throw "IPv6 is not implemented yet"; //! @todo implement
-            }
-        }
-        pcap_freealldevs(alldevs);
 
         // get interface MAC address
         setDevMac();

@@ -24,7 +24,7 @@ using namespace std;
 
 extern map<string, vector<Netflow *>> g_finalResults;
 extern const atomic<int> shouldStop;
-const int VALID_TIME = 1;      //!< Time of validity of TEntry record in cache in seconds
+const int VALID_TIME = 10;      //!< Time of validity of TEntry record in cache in seconds
 
 
 
