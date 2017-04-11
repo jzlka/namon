@@ -46,7 +46,7 @@ TESTS=$(patsubst %.cpp, %, $(wildcard $(TESTSDIR)/*.cpp))
 
 ######################    #######################
 $(OBJDIR)/%.o: $(SRCDIR)/%.cpp
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) -I./libs/netmap/libpcap -I./libs/netmap/lib -c $< -o $@
 
 all: directories $(BIN)
 
@@ -73,16 +73,16 @@ libs:
 	@mkdir -p libs
 	@cd scripts && ./install_libs.sh
 	
-pf_ring: CXXFLAGS += -I./libs/PF_RING/libpcap -I./libs/pf_ring/lib
-pf_ring: LDFLAGS = $(LDFLAGS) -L./libs/PF_RING/libpcap -L./libs/pf_ring/lib
+pf_ring: CXXFLAGS += -I./libs/PF_RING/libpcap -I./libs/PF_RING/lib
+pf_ring: LDFLAGS += -L./libs/PF_RING/libpcap -L./libs/PF_RING/lib
 pf_ring: debug
 
 netmap: CXXFLAGS += -I./libs/netmap/libpcap -I./libs/netmap/lib
-netmap: LDFLAGS = $(LDFLAGS) -L./libs/netmap/libpcap -L./libs/netmap/lib
+netmap: LDFLAGS += -L./libs/netmap/libpcap -L./libs/netmap/lib
 netmap: debug
 
 pfq: CXXFLAGS += -I./libs/PFQ/libpcap -I./libs/PFQ/lib
-pfq: LDFLAGS = $(LDFLAGS) -L./libs/PFQ/libpcap -L./libs/PFQ/lib
+pfq: LDFLAGS += -L./libs/PFQ/libpcap -L./libs/PFQ/lib
 pfq: debug
 
 # -------------------------------------
