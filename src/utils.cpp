@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 28.03.2017 14:14
- *   - Edited:  28.03.2017 14:45
+ *   - Edited:  10.04.2017 23:36
  */
 
 #include <cctype>       //  isdigit()

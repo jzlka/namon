@@ -3,7 +3,7 @@
 # @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
 # @date
 #  - Created: 08.02.2017
-#  - Edited:  10.04.2017 13:51
+#  - Edited:  11.04.2017 10:53
 # @version    1.0.0
 # @par        make: GNU Make 3.81
 
@@ -56,16 +56,34 @@ $(BIN): $(OBJ)
 directories:
 	@mkdir -p $(OBJDIR)
 
+
 debug: TMP := $(CXXFLAGS)
 debug: CXXFLAGS = $(filter-out -O3,$(TMP)) -O0 -g -DDEBUG_BUILD
 debug: clean all
 
-unit-tests: CXXFLAGS += -I./src/ -DDEBUG_BUILD -g
-#unit-tests: clean-tests $(TESTS)
-unit-tests: $(TESTS)
+tests: CXXFLAGS += -I./src/ -DDEBUG_BUILD -g
+#tests: clean-tests $(TESTS)
+tests: $(TESTS)
 $(TESTS): %: %.cpp $(filter-out src/main.cpp,$(SRC))
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
+
+
+# -------------------------------------
+libs:
+	@mkdir -p libs
+	@cd scripts && ./install_libs.sh
 	
+pf_ring: CXXFLAGS += -I./libs/PF_RING/libpcap -I./libs/pf_ring/lib
+pf_ring: LDFLAGS = $(LDFLAGS) -L./libs/PF_RING/libpcap -L./libs/pf_ring/lib
+pf_ring: debug
+
+netmap: CXXFLAGS += -I./libs/netmap/libpcap -I./libs/netmap/lib
+netmap: LDFLAGS = $(LDFLAGS) -L./libs/netmap/libpcap -L./libs/netmap/lib
+netmap: debug
+
+pfq: CXXFLAGS += -I./libs/PFQ/libpcap -I./libs/PFQ/lib
+pfq: LDFLAGS = $(LDFLAGS) -L./libs/PFQ/libpcap -L./libs/PFQ/lib
+pfq: debug
 
 # -------------------------------------
 test: all

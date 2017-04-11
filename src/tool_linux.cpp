@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 18.02.2017 23:32
- *   - Edited:  10.04.2017 23:11
+ *   - Edited:  11.04.2017 00:11
  *  @todo       rename file
  */
 
@@ -182,11 +182,12 @@ int getInode(Netflow *n, ifstream &socketsFile)
     {
         static streamoff pos_localIp, pos_localPort, pos_inode;
         static string dummyStr;
-        static int lineLength;
+        static unsigned int lineLength, inode;
         static uint32_t foundPort;
+        static uint16_t wantedPort;
 
-        const unsigned short wantedPort = n->getLocalPort();
-        unsigned int inode = 0;
+        wantedPort = n->getLocalPort();
+        inode = 0;
 #if 1
         const char IP_SIZE = (ipVer == 4) ? IPv4_SIZE : IPv6_SIZE;
 
@@ -326,7 +327,6 @@ int getApp(const int inode, string &appName)
     {
         static char inodeBuff[32] ={0}; //! @todo size
         static string tmpString;
-        static string tmpString1;
         // WIN: https://msdn.microsoft.com/en-us/library/ms683180(VS.85).aspx
         static int myPid = ::getpid();
 
@@ -343,10 +343,7 @@ int getApp(const int inode, string &appName)
             if (myPid == pid || pid == 0)
                 continue;
 
-            tmpString1 = "/proc/";
-            tmpString1 += pidEntry->d_name;
-            tmpString1 += "/fd/";
-            tmpString = concatenate("/proc/", pidEntry->d_name, "/fd/");
+            tmpString = "/proc/"; tmpString += pidEntry->d_name; tmpString += "/fd/";
             if ((fdDir = opendir(tmpString.c_str())) == nullptr)
                 throw std_ex("Can't open " + tmpString);
 
@@ -357,20 +354,17 @@ int getApp(const int inode, string &appName)
 
                 if (fd <= 2) // stdin, stdout, stderr
                     continue;
-                tmpString1 = "/proc/";
-                tmpString1 += pidEntry->d_name;
-                tmpString1 += "/fd/";
-                tmpString1 += fdEntry->d_name;
-                tmpString = concatenate("/proc/", pidEntry->d_name, "/fd/", fdEntry->d_name);
-                tmpString1 = "/proc/" + string(pidEntry->d_name) + "/fd/" + string(fdEntry->d_name);
+                // the fastest option
+                tmpString = "/proc/";  tmpString += pidEntry->d_name;
+                tmpString += "/fd/";   tmpString += fdEntry->d_name;
                 int ll = readlink(tmpString.c_str(), inodeBuff, sizeof(inodeBuff));
                 if (ll == -1)
-                    log(LogLevel::ERROR, "Readlink error: " + tmpString +"\n" + string(strerror(errno)));
+                    log(LogLevel::ERROR, "Readlink error: ", tmpString, "\n", strerror(errno));
                 if (inodeBuff[0] != 's' || inodeBuff[6] != ':') // socket:[<inode>]
                     continue;
                 char *tmpPtr = strchr(&inodeBuff[7], ']');
                 if (tmpPtr == nullptr)
-                    throw std_ex("Right ']' not found in the socket link: " + string(inodeBuff));
+                    throw std_ex(concatenate("Right ']' not found in the socket link: ", inodeBuff));
                 *tmpPtr = '\0';
                 int foundInode {0};
                 if (chToInt(&inodeBuff[8], foundInode))
@@ -391,7 +385,7 @@ END:
         closedir(procDir);
         if (pidEntry == nullptr)
         {
-            log(LogLevel::ERROR, "Application not found for inode " + to_string(inode));
+            log(LogLevel::ERROR, "Application not found for inode ", inode);
             g_notFoundApps++;
         }
         return 0;

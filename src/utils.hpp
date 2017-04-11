@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 28.03.2017 14:09
- *   - Edited:  09.04.2017 02:00
+ *   - Edited:  11.04.2017 00:10
  */
 
 #pragma once

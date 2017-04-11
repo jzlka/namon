@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 26.09.2016 23:59
- *   - Edited:  27.03.2017 00:15
+ *   - Edited:  11.04.2017 00:16
  */
 
 #pragma once
@@ -56,6 +56,8 @@ inline void printArray(const unsigned char *bitArray, const unsigned int dataSiz
  * @todo        Improve param description
  * @param[in]   args    Variadic parametes
  */
+//#define log(x, ...)
+
 template <typename ... Ts>
 void log(LogLevel ll, Ts&&... args)
 {
