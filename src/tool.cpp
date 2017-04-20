@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 20.03.2017 16:34
- *   - Edited:  27.03.2017 00:15
+ *   - Edited:  20.04.2017 08:32
  *  @todo       rename file
  */
 
