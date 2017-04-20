@@ -283,11 +283,7 @@ void TTree::print()
             if (ipVersion == 4)
             {
                 char str[IPv4_ADDRSTRLEN];
-//#if defined(_WIN32)
-//				InetNtop(AF_INET, cv.ip, str, INET_ADDRSTRLEN);
-//#else
 				inet_ntop(AF_INET, cv.ip, str, IPv4_ADDRSTRLEN);
-//#endif
                 cout << "IPv4: <" << str;
             }
             else if (ipVersion == 6)
