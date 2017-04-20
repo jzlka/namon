@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 26.02.2017 23:52
- *   - Edited:  20.04.2017 08:11
+ *   - Edited:  20.04.2017 08:42
  */
 
 #include <iostream>             //  cout, endl;
@@ -79,7 +79,7 @@ bool TEntry::levelCompare(Netflow *n1)
         case TreeLevel::LOCAL_IP:
         {
             if (n->getIpVersion() == 4)
-                return memcmp(n->getLocalIp(), n1->getLocalIp(), IPv4_ADDRLEN);
+                return !memcmp(n->getLocalIp(), n1->getLocalIp(), IPv4_ADDRLEN);
             else if (n->getIpVersion() == 6)
                 return !memcmp(n->getLocalIp(), n1->getLocalIp(), IPv6_ADDRLEN);
             else
