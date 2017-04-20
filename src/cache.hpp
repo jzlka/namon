@@ -14,14 +14,21 @@
 #include <unordered_map>    //  map
 #include <chrono>           //  seconds
 #include <mutex>            //  mutes
-#include "netflow.hpp"      //  Netflow
 
+#include "netflow.hpp"      //  Netflow
 
 using clock_type = std::chrono::high_resolution_clock;
 using std::string;
 using std::mutex;
 using std::chrono::seconds;
 using std::chrono::duration_cast;
+
+
+
+
+namespace TOOL
+{
+
 
 extern const int VALID_TIME;
 
@@ -142,14 +149,14 @@ public:
 
 /*!
  * @class TEntry
- * @brief Class with application name, its socket inode and a pointer to Netflow class
+ * @brief Class with application name, its socket inode (Linux) or PID (windows) and a pointer to Netflow class
  */
 class TEntry : public TEntryOrTTree
 {
     //! @brief  Time of last update
     clock_type::time_point lastUpdate = clock_type::now();
     string appName ="";             //!< Application name which #TEntry::n belongs to
-    int inode =0;                   //!< Inode number of #TEntry::appName 's socket
+    int inodeOrPid =0;                   //!< Inode number of #TEntry::appName 's socket
     Netflow *n = nullptr;           //!< Pointer to a netflow record
 public:
     /*!
@@ -186,15 +193,15 @@ public:
      */
     string const & getAppName()             { return appName; }
     /*!
-     * @brief       Set method for #TEntry::inode
-     * @param[in]   i   New inode number
+     * @brief       Set method for #TEntry::inodeOrPid
+     * @param[in]   i   New inode (Linux) or PID (Win) number
      */
-    void setInode(int i)                    { inode = i; }
+    void setInodeOrPid(int i)                    { inodeOrPid = i; }
     /*!
-     * @brief   Get method for #TEntry::inode
-     * @return  Inode number
+     * @brief   Get method for #TEntry::inodeOrPid
+     * @return  Inode number (Linux) or PID (Win)
      */
-    int getInode()                          { return inode; }
+    int getInodeOrPid()                          { return inodeOrPid; }
     /*!
      * @brief       Set method for #TEntry::n
      * @pre         newNetflow must be a valid Netflow pointer
@@ -228,7 +235,7 @@ public:
         {
             lastUpdate = other.lastUpdate;
             appName = other.appName;
-            inode = other.inode;
+            inodeOrPid = other.inodeOrPid;
             if (n == nullptr)
                 n = new Netflow;
             *n = *other.n;
@@ -245,13 +252,13 @@ public:
         {
             lastUpdate = other.lastUpdate;
             appName = other.appName;
-            inode = other.inode;
+            inodeOrPid = other.inodeOrPid;
             delete n;
             n = other.n;
             
             other.lastUpdate = clock_type::now();
             other.appName = "";
-            other.inode = 0;
+            other.inodeOrPid = 0;
             other.n = nullptr;
         }
         return *this;
@@ -391,3 +398,6 @@ public:
      */
     void print();
 };
+
+
+}	// namespace TOOL

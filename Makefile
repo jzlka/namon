@@ -3,7 +3,7 @@
 # @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
 # @date
 #  - Created: 08.02.2017
-#  - Edited:  11.04.2017 10:53
+#  - Edited:  20.04.2017 08:06
 # @version    1.0.0
 # @par        make: GNU Make 3.81
 
@@ -18,6 +18,7 @@ SHELL:=/bin/bash
 SRCDIR=src
 OBJDIR=obj
 TESTSDIR=tests
+BINDIR=bin
 BIN=tool
 SRC_TMP=$(wildcard $(SRCDIR)/*.cpp)
 SRC=$(filter-out src/tool%,$(SRC_TMP))
@@ -51,10 +52,10 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.cpp
 all: directories $(BIN)
 
 $(BIN): $(OBJ) 
-	$(CXX) -o $@ $^ $(LDFLAGS)
+	$(CXX) -o $(BINDIR)/$@ $^ $(LDFLAGS)
 
 directories:
-	@mkdir -p $(OBJDIR)
+	@mkdir -p $(BINDIR) $(OBJDIR)
 
 
 debug: TMP := $(CXXFLAGS)
@@ -103,7 +104,7 @@ doxygen:
 	doxygen doxygen.conf
 
 clean: 
-	rm -f  $(BIN) xzuzel00.tar.gz .fuse_hidden*
+	rm -f  $(BINDIR)/$(BIN) xzuzel00.tar.gz .fuse_hidden*
 	rm -rf *.dSYM $(OBJDIR)
 clean-tests:
 	rm -f $(TESTS)

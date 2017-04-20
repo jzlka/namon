@@ -11,9 +11,18 @@
 
 #include <string>           //  string
 #include <fstream>          //  ostream
-#include <netinet/in.h>     //  in_addr, in6_addr
-#include <arpa/inet.h>      //  inet_ntop()
+//#include <netinet/in.h>     //  in_addr, in6_addr
+//#include <arpa/inet.h>      //  inet_ntop()
 #include <cstring>          //  memcpy()
+
+#include "tcpip_headers.hpp"	//	ip4_addr, ip6_addr, IPv4_ADDRLEN, IPv6_ADDRLEN
+
+
+
+
+namespace TOOL
+{
+
 
 class TEntry;
 
@@ -119,75 +128,75 @@ public:
     /*!
      * @brief   Copy assignment operator
      */
-    Netflow& operator=(const Netflow& other)
-    {
-        if (this != &other)
-        {
-            if (ipVersion != other.ipVersion)
-            {
-                if (ipVersion == 4)
-                {
-                    delete static_cast<in_addr*>(localIp);
-                }
-                else if (ipVersion == 6)
-                {
-                    delete static_cast<in6_addr*>(localIp);
-                }
-            }
-            if (other.ipVersion == 4)
-            {
-                if (localIp == nullptr)
-                    localIp = new in_addr;
-                memcpy(localIp, other.localIp, sizeof(in_addr));
-            }
-            else if (other.ipVersion == 6)
-            {
-                if (localIp == nullptr)
-                    localIp = new in6_addr;
-                memcpy(localIp, other.localIp, sizeof(in6_addr));
-            }
-            else
-                throw "Not supported"; //! @todo catch
-            
-            ipVersion = other.ipVersion;
-            localPort = other.localPort;
-            proto = other.proto;
-            startTime = other.startTime;
-            endTime = other.endTime;
-        }
-        return *this;
-    }
+	Netflow& operator=(const Netflow& other)
+	{
+		if (this != &other)
+		{
+			if (ipVersion != other.ipVersion)
+			{
+				if (ipVersion == 4)
+				{
+					delete static_cast<ip4_addr*>(localIp);
+				}
+				else if (ipVersion == 6)
+				{
+					delete static_cast<ip6_addr*>(localIp);
+				}
+			}
+			if (other.ipVersion == 4)
+			{
+				if (localIp == nullptr)
+					localIp = new ip4_addr;
+				memcpy(localIp, other.localIp, IPv4_ADDRLEN);
+			}
+			else if (other.ipVersion == 6)
+			{
+				if (localIp == nullptr)
+					localIp = new ip6_addr;
+				memcpy(localIp, other.localIp, IPv6_ADDRLEN);
+			}
+			else
+				throw "Not supported"; //! @todo catch
+
+			ipVersion = other.ipVersion;
+			localPort = other.localPort;
+			proto = other.proto;
+			startTime = other.startTime;
+			endTime = other.endTime;
+		}
+		return *this;
+	}
     /*!
      * @brief   Move assignment operator
      */
-    Netflow& operator=(Netflow&& other)
-    {
-        if (this != &other)
-        {
-            if (localIp != nullptr)
-            { // delete is sloooow
-                if (ipVersion == 4)
-                    delete static_cast<in_addr*>(localIp);
-                else
-                    delete static_cast<in6_addr*>(localIp);
-            }
-            
-            ipVersion = other.ipVersion;
-            localIp = other.localIp;
-            localPort = other.localPort;
-            proto = other.proto;
-            startTime = other.startTime;
-            endTime = other.endTime;
-            
-            other.ipVersion = 0;
-            other.localIp = nullptr;
-            other.localPort = 0;
-            other.proto = 0;
-            other.startTime = 0;
-            other.endTime = 0;
-        }
-        return *this;
-    }
+	Netflow& operator=(Netflow&& other)
+	{
+		if (this != &other)
+		{
+			if (localIp != nullptr)
+			{ // delete is sloooow
+				if (ipVersion == 4)
+					delete static_cast<ip4_addr*>(localIp);
+				else
+					delete static_cast<ip6_addr*>(localIp);
+			}
+
+			ipVersion = other.ipVersion;
+			localIp = other.localIp;
+			localPort = other.localPort;
+			proto = other.proto;
+			startTime = other.startTime;
+			endTime = other.endTime;
+
+			other.ipVersion = 0;
+			other.localIp = nullptr;
+			other.localPort = 0;
+			other.proto = 0;
+			other.startTime = 0;
+			other.endTime = 0;
+		}
+		return *this;
+	}
     /*!
      * @brief       Writes structure into the output file
      * @param[in]   file    The output file
@@ -196,3 +205,6 @@ public:
     unsigned int write(std::ofstream & file);
     friend class TEntry;
 };
+
+
+}	// namespace TOOL

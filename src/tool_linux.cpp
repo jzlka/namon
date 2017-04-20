@@ -12,9 +12,10 @@
 #include <dirent.h>             //  opendir(), readdir()
 #include <unistd.h>             //  getpid()
 #include <cstring>              //  memset(), strchr()
-#include <map>                  //  map
-#include <netinet/if_ether.h>   //  ether_header
 
+//#include <netinet/if_ether.h>   //  ether_header
+
+#include "tcpip_headers.hpp"	//
 #include "netflow.hpp"          //  Netflow
 #include "cache.hpp"            //  Cache, TEntry
 #include "debug.hpp"            //  log()
@@ -24,16 +25,14 @@
 using namespace std;
 
 
-const unsigned char MAC_ADDR_SIZE   =   6;      //!< Size of MAC address
-const unsigned char PROTO_UDP       =   0x11;   //!< UDP protocol number
-const unsigned char PROTO_TCP       =   0x06;   //!< TCP protocol number
-const unsigned char PROTO_UDPLITE   =   0x88;   //!< UDPLite protocol number
-const unsigned char IPv4_SIZE       =   4;      //!< Size of IPv4 address in Bytes
-const unsigned char IPv6_SIZE       =   16;     //!< Size of IPv6 address in Bytes
+
+
+namespace TOOL
+{
+
 
 extern const char * g_dev;
-extern map<string, vector<Netflow *>> g_finalResults;
-extern unsigned int g_notFoundApps, g_notFoundSockets, g_allSockets;
+extern unsigned int g_notFoundApps;
 extern mac_addr g_devMac;
 
 
@@ -48,7 +47,7 @@ int setDevMac()
 	    return -1;
 	int i{0};
 	do {
-	    if (i >= MAC_ADDR_SIZE)
+	    if (i >= ETHER_ADDRLEN)
 	        return -1;
 
 	    devMacFile >> hex >> twoCharsInByte;
@@ -77,7 +76,7 @@ int getSocketFile(Netflow *n, string &file)
         file = "/proc/net/tcp";
     else
     {
-        log(LogLevel::ERROR, "Unsupported L4 protocol");
+        log(LogLevel::ERR, "Unsupported L4 protocol");
         return -1;
     }
     
@@ -85,102 +84,43 @@ int getSocketFile(Netflow *n, string &file)
         file += '6';
     else if (ipVer != 4)
     {
-        log(LogLevel::ERROR, "Unsupported IP protocol");
+        log(LogLevel::ERR, "Unsupported IP protocol");
         return -1;
     }
     return 0;
 }
 
 
-int determineApp (Netflow *n, TEntry &e, const char mode)
-{
-    static string filename;
-
-    if (getSocketFile(n, filename))
-        return -1;
-
-    ifstream socketsFile;
-    socketsFile.open(filename);
-    if (!socketsFile)
-    {
-        log(LogLevel::ERROR, "Can't open file ", filename);
-        return -1;
-    }
-
-    int inode = getInode(n, socketsFile);
-    if (inode == -1)
-        return -1;
-
-    // if we are updating existing cache record
-    if (mode == UPDATE)
-    { 
-        if (inode == e.getInode())
-        { // if nothing changed, update time
-            e.updateTime();
-            e.getNetflowPtr()->setEndTime(n->getEndTime());
-            return 0;
-        }
-        else if (e.getAppName() != "")
-        { // save expired record to results
-            Netflow *res = new Netflow;
-            *res = *e.getNetflowPtr();
-            g_finalResults[e.getAppName()].push_back(res);
-        }
-    }
-
-    g_allSockets++;
-    e.setInode(inode);
-    if (inode == 0)
-    {
-        log(LogLevel::WARNING, "Inode not found for port ", n->getLocalPort());
-        g_notFoundSockets++;
-    }
-    else
-    {
-        string appName;
-        if (getApp(inode, appName))
-            return -1;
-
-        e.setAppName(appName);
-    }
-
-
-    if (mode == FIND)
-    { // if we are not updating same netflow, move if from cacheBuffer
-        Netflow *newN = new Netflow;
-        *newN = move(*n);
-        e.setNetflowPtr(newN);
-    }
-        //! @todo packets destined for closed socket
-    else
-    { // else we update expired record with a new application so just update times
-        e.getNetflowPtr()->setStartTime(n->getStartTime());
-        e.getNetflowPtr()->setEndTime(n->getEndTime());
-    }
-    return 0;
-}
-
-
-int getInode(Netflow *n, ifstream &socketsFile)
+int getInode(Netflow *n)
 {
     // in6_addr will be always bigger than in_addr so we can use it to store both IPv4 and IPv6
-    static in6_addr foundIp;
+    static ip6_addr foundIp;
     static size_t ipSize;
 
     const unsigned char ipVer = n->getIpVersion();
     if (ipVer == 4)
-       ipSize = sizeof(in_addr);
+       ipSize = IPv4_ADDRLEN;
     else if (ipVer == 6)
-       ipSize = sizeof(in6_addr);
+       ipSize = IPv6_ADDRLEN;
     else
     { 
-        log(LogLevel::ERROR, "IP protocol ", ipVer, " is not supported."); 
+        log(LogLevel::ERR, "IP protocol ", ipVer, " is not supported."); 
         return -1; 
     }
     //memset(&foundIp, 0, sizeof(foundIp));
 
     try
     {
+		static string filename;
+
+		if (getSocketFile(n, filename))
+			return -1;
+
+		ifstream socketsFile;
+		socketsFile.open(filename);
+		if (!socketsFile)
+			throw ("Can't open file " + filename);
+
         static streamoff pos_localIp, pos_localPort, pos_inode;
         static string dummyStr;
         static unsigned int lineLength, inode;
@@ -190,7 +130,7 @@ int getInode(Netflow *n, ifstream &socketsFile)
         wantedPort = n->getLocalPort();
         inode = 0;
 #if 1
-        const char IP_SIZE = (ipVer == 4) ? IPv4_SIZE : IPv6_SIZE;
+        const char IP_SIZE = (ipVer == 4) ? IPv4_ADDRSTRLEN : IPv6_ADDRSTRLEN;
 
         getline(socketsFile, dummyStr); // get first line to find out length of the other lines
         lineLength = dummyStr.length() + 1;
@@ -226,7 +166,7 @@ int getInode(Netflow *n, ifstream &socketsFile)
                             c = 10 + c - 'A'; // get from 'A' decimal 10
                         else
                         {
-                            log(LogLevel::ERROR, "An Unexpected hexadecimal character in IP address in procfs: ", c);
+                            log(LogLevel::ERR, "An Unexpected hexadecimal character in IP address in procfs: ", c);
                             break;
                         }
                         // 01 23 45 67      :i                   (position)
@@ -235,7 +175,7 @@ int getInode(Netflow *n, ifstream &socketsFile)
                         parts[i / CHARS_PER_OCTET] = parts[i/CHARS_PER_OCTET]*16 + c;
                         i++;
                     }
-                    reinterpret_cast<in_addr*>(&foundIp)->s_addr |= (parts[0] << 24) | (parts[1] << 16) | (parts[2] << 8) | parts[3];
+                    reinterpret_cast<ip4_addr*>(&foundIp)->bytes |= (parts[0] << 24) | (parts[1] << 16) | (parts[2] << 8) | parts[3];
                 }
                 else
                 {
@@ -360,7 +300,7 @@ int getApp(const int inode, string &appName)
                 tmpString += "/fd/";   tmpString += fdEntry->d_name;
                 int ll = readlink(tmpString.c_str(), inodeBuff, sizeof(inodeBuff));
                 if (ll == -1)
-                    log(LogLevel::ERROR, "Readlink error: ", tmpString, "\n", strerror(errno));
+                    log(LogLevel::ERR, "Readlink error: ", tmpString, "\n", strerror(errno));
                 if (inodeBuff[0] != 's' || inodeBuff[6] != ':') // socket:[<inode>]
                     continue;
                 char *tmpPtr = strchr(&inodeBuff[7], ']');
@@ -386,7 +326,7 @@ END:
         closedir(procDir);
         if (pidEntry == nullptr)
         {
-            log(LogLevel::ERROR, "Application not found for inode ", inode);
+            log(LogLevel::ERR, "Application not found for inode ", inode);
             g_notFoundApps++;
         }
         return 0;
@@ -408,4 +348,7 @@ END:
             closedir(fdDir);
         return -1;
     }
+}
+
+
 }

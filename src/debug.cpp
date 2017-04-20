@@ -11,8 +11,13 @@
 
 
 
+
+namespace TOOL
+{
+
+
 std::mutex m_debugPrint;                    //!< Mutex used to synchronize debug prints
-LogLevel generalLogLevel = LogLevel::ERROR; //!< General log level
+LogLevel generalLogLevel = LogLevel::ERR; //!< General log level
 
 void setLogLevel(char *ll)
 {
@@ -23,5 +28,8 @@ void setLogLevel(char *ll)
             generalLogLevel = LogLevel::INFO;
     }
     else
-        generalLogLevel = LogLevel::ERROR;
+        generalLogLevel = LogLevel::ERR;
 }
+
+
+}	// namespace TOOL

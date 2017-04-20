@@ -16,6 +16,11 @@ using std::string;
 
 
 
+
+namespace TOOL
+{
+
+
 /*!
  * @brief   Exception, which takes also string as parameter
  */
@@ -31,11 +36,6 @@ public:
 };
 
 
-struct mac_addr { 
-    unsigned char bytes[6]; 
-};
-
-
 /**
  * @brief       Converts char* string to integer
  * @pre         'str' parameter must be zero terminated
@@ -46,5 +46,9 @@ struct mac_addr {
  */
 int chToInt(char *str, int &res);
 
+int inet_ntop(const int af, const void *src, char *dst, size_t size);
 
 #include "utils.tpp"
+
+
+}	// namespace TOOL

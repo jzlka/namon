@@ -12,6 +12,13 @@
 #include <iostream>     //  cerr, uint8_t
 #include <mutex>        //  mutex
 
+
+
+
+namespace TOOL
+{
+
+
 #define CLR  "\x1B[0m"  //!< Terminal normal color escape sequence
 #define RED  "\x1B[31m" //!< Terminal red color escape sequence
 
@@ -25,7 +32,7 @@ extern std::mutex m_debugPrint;
 enum class LogLevel : uint8_t
 {
     NONE     = 0,   //!< Nothing is printed
-    ERROR    = 1,   //!< Error messages
+    ERR      = 1,   //!< Error messages
     WARNING  = 2,   //!< Warning messages
     INFO     = 3,   //!< Informational messages
 };
@@ -44,6 +51,7 @@ const char * const msgPrefix[] = { "", "[EE]", "[WW]", "[II]"};
  */
 inline void printArray(const unsigned char *bitArray, const unsigned int dataSize)
 {
+	std::lock_guard<std::mutex> guard(m_debugPrint);
     std::cerr << "Data (" << dataSize << "): ";
     for (unsigned int i=0; i != dataSize; i++)
         std::cerr << std::hex << (bitArray[i]>>4) << (bitArray[i]&0x0f) << std::dec;
@@ -79,6 +87,11 @@ void log(LogLevel ll, Ts&&... args)
 void setLogLevel(char *ll);
 
 
+}	// namespace TOOL
+
+
+
+
 #ifdef DEBUG_BUILD
 
 /*!
@@ -106,9 +119,9 @@ do { \
  * @param[in]   y   Size of the array
  */
 #define D_ARRAY(x,y)    
-/*!
- * @brief   Variadic debug macro which is substituted to nothing
- */
+ /*!
+  * @brief   Variadic debug macro which is substituted to nothing
+  */
 #define D(...)
 
 #endif  // DEBUG_BUILD

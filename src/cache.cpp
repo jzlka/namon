@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 26.02.2017 23:52
- *   - Edited:  09.04.2017 04:41
+ *   - Edited:  20.04.2017 08:11
  */
 
 #include <iostream>             //  cout, endl;
@@ -12,18 +12,41 @@
 #include <thread>               //  sleep_for
 #include <atomic>               //  atomic
 #include <map>                  //  map
+
+#if defined(__APPLE__)
+#include <sys/socket.h>         //  AF_INET, AF_INET6
+#elif defined(__linux__)
+#include <cstring>              //  memcmp(), memcpy()
+#include <sys/socket.h>         //  AF_INET, AF_INET6   //! @todo define in tcpip_headers.hpp?
+
+#elif defined(_WIN32)
+//#include <Windows.h>			//	?
+//#include <ws2def.h>				//	AF_INET, AF_INET6
+//#include <WS2tcpip.h>			//	inet_ntop()
+#include <Winsock2.h>			//	in_addr, AF_INET
+//#include <in6addr.h>			//	in6_addr
+#endif
+
+#include "tcpip_headers.hpp"	//	ip4_addr, ip6_addr, 
 #include "netflow.hpp"          //  Netflow
 #include "debug.hpp"            //  log()
 #include "cache.hpp"            //  Cache
+#include "utils.hpp"			//  inet_ntop()
 
-#if defined(__linux__)
-#include <cstring>              //  memcmp(), memcpy()
-#endif
 
 using namespace std;
 
-extern map<string, vector<Netflow *>> g_finalResults;
+
+extern map<string, vector<TOOL::Netflow *>> g_finalResults;
 extern const atomic<int> shouldStop;
+
+
+
+
+namespace TOOL
+{
+
+
 const int VALID_TIME = 10;      //!< Time of validity of TEntry record in cache in seconds
 
 
@@ -56,10 +79,9 @@ bool TEntry::levelCompare(Netflow *n1)
         case TreeLevel::LOCAL_IP:
         {
             if (n->getIpVersion() == 4)
-                return static_cast<in_addr*>(n->getLocalIp())->s_addr ==
-                       static_cast<in_addr*>(n1->getLocalIp())->s_addr;
+                return memcmp(n->getLocalIp(), n1->getLocalIp(), IPv4_ADDRLEN);
             else if (n->getIpVersion() == 6)
-                return !memcmp(n->getLocalIp(), n1->getLocalIp(), sizeof(struct in6_addr));
+                return !memcmp(n->getLocalIp(), n1->getLocalIp(), IPv6_ADDRLEN);
             else
                 throw "Should not came in here"; //! @todo catch
         }
@@ -73,7 +95,7 @@ bool TEntry::levelCompare(Netflow *n1)
 void TEntry::print()
 {
 
-    cout << string((int)level, '-') << ">[" << (int)level << "] \"" << appName << "\" (inode:" << inode << ")\t"/* << (valid() ? "(valid)" : "(expired)") << "\t"*/;
+    cout << string((int)level, '-') << ">[" << (int)level << "] \"" << appName << "\" (inode/PID:" << inodeOrPid << ")\t"/* << (valid() ? "(valid)" : "(expired)") << "\t"*/;
     n->print();
 }
 
@@ -92,11 +114,11 @@ TTree::~TTree()
     if (level == TreeLevel::LOCAL_IP)
     {
         if (ipVersion == 4)
-            delete static_cast<in_addr*>(cv.ip);
+            delete static_cast<ip4_addr*>(cv.ip);
         else if (ipVersion == 6)
-            delete static_cast<in6_addr*>(cv.ip);
+            delete static_cast<ip6_addr*>(cv.ip);
         else
-            throw "Should not came in here";
+            throw "Should not came in here";  //! @todo catch
     }
 }
 
@@ -132,7 +154,7 @@ void TTree::insert(TEntry *newEntry)
                 TEntry *oldEntry = static_cast<TEntry*>(v[i]);
                 if (*oldEntry->getNetflowPtr() == *newEntry->getNetflowPtr())
                 {
-                    log(LogLevel::ERROR, "TTree::insert called two times with the same Netflow.");//! @todo what to do?
+                    log(LogLevel::ERR, "TTree::insert called two times with the same Netflow.");//! @todo what to do?
                     return;
                 }
                 // Create a new tree
@@ -176,14 +198,14 @@ void TTree::setCommonValue(Netflow *n)
             unsigned char ipVersion = n->getIpVersion();
             if (ipVersion == 4)
             {
-                in_addr *tmpIpPtr = new in_addr;
-                memcpy(tmpIpPtr, n->getLocalIp(), sizeof(in_addr));
+                ip4_addr *tmpIpPtr = new ip4_addr;
+                memcpy(tmpIpPtr, n->getLocalIp(), IPv4_ADDRLEN);
                 setIp(tmpIpPtr, ipVersion);
             }
             else if (ipVersion == 6)
             {
-                in6_addr *tmpIpPtr = new in6_addr;
-                memcpy(tmpIpPtr, n->getLocalIp(), sizeof(in6_addr));
+                ip6_addr *tmpIpPtr = new ip6_addr;
+                memcpy(tmpIpPtr, n->getLocalIp(), IPv6_ADDRLEN);
                 setIp(tmpIpPtr, ipVersion);
             }
             else
@@ -213,10 +235,9 @@ bool TTree::levelCompare(Netflow *n)
             if (n->getIpVersion() != ipVersion)
                 return false;
             if (ipVersion == 4)
-                return static_cast<in_addr*>(cv.ip)->s_addr ==
-                       static_cast<in_addr*>(n->getLocalIp())->s_addr;
+                return !memcmp(cv.ip, n->getLocalIp(), IPv4_ADDRLEN);
             else if (ipVersion == 6)
-                return !memcmp(cv.ip, n->getLocalIp(), sizeof(struct in6_addr));
+                return !memcmp(cv.ip, n->getLocalIp(), IPv6_ADDRLEN);
             else
                 throw "Should not come in here"; //! @todo catch
         }
@@ -261,14 +282,18 @@ void TTree::print()
         {
             if (ipVersion == 4)
             {
-                char str[INET_ADDRSTRLEN];
-                inet_ntop(AF_INET, cv.ip, str, INET_ADDRSTRLEN);
+                char str[IPv4_ADDRSTRLEN];
+//#if defined(_WIN32)
+//				InetNtop(AF_INET, cv.ip, str, INET_ADDRSTRLEN);
+//#else
+				inet_ntop(AF_INET, cv.ip, str, IPv4_ADDRSTRLEN);
+//#endif
                 cout << "IPv4: <" << str;
             }
             else if (ipVersion == 6)
             {
-                char str[INET6_ADDRSTRLEN];
-                inet_ntop(AF_INET6, cv.ip, str, INET6_ADDRSTRLEN);
+                char str[IPv6_ADDRSTRLEN];
+                inet_ntop(AF_INET6, cv.ip, str, IPv6_ADDRSTRLEN);
                 cout << "IPv6: <" <<str;
             }
             else
@@ -335,7 +360,7 @@ void Cache::insert(TEntry *newEntry)
             TEntry *oldEntry = static_cast<TEntry*>(iter->second);
             // If the same netflow record already exists
             if (*oldEntry->getNetflowPtr() == newNetflow)
-                log(LogLevel::ERROR, "Cache::insert called two times with the same Netflow.");//! @todo what to do?
+                log(LogLevel::ERR, "Cache::insert called two times with the same Netflow.");//! @todo what to do?
             else
             {
                 // Create a new tree
@@ -381,3 +406,6 @@ void Cache::print()
     for (auto m : *map)
         m.second->print();
 }
+
+
+}	// namespace TOOL

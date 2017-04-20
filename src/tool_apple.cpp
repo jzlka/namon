@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 26.03.2017 14:40
- *   - Edited:  08.04.2017 13:06
+ *   - Edited:  20.04.2017 08:14
  *  @todo       rename this file
  */
 
@@ -15,11 +15,13 @@
 #include "cache.hpp"        //  Cache
 
 
-int setDevMac()
+
+
+namespace TOOL
 {
-    return -1;
-}
-int getSocketFile(Netflow * /*n*/, string &/*file*/)
+
+
+int setDevMac()
 {
     return -1;
 }
@@ -29,12 +31,15 @@ int determineApp(Netflow * /*n*/, TEntry &/*e*/, const char /*mode*/)
     return -1;
 }
 
-int getInode(Netflow * /*n*/, std::ifstream &/*file*/)
+int getInode(Netflow * /*n*/)
 {
     return 0;
 }
 
-int getApp(const int/* inode*/, string &/*appname*/)
+int getApp(const int/* inode*/, std::string &/*appname*/)
 {
     return -1;
+}
+
+
 }

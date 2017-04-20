@@ -14,35 +14,44 @@
 #include <string>               //  string
 #include <vector>               //  vector
 #include <map>                  //  map
-#include <netinet/if_ether.h>   //  ETHER_MAX_LEN
-#include "cache.hpp"            //  TEntry
-#include "debug.hpp"            //  D()
 
 #if defined(__linux__)
 #include <cstring>              //  strlen()
 #endif
 
-//! Macro to hide compiler warning messages about unused variables
+#include "tcpip_headers.hpp"    //  ETHER_MAX_LEN
+#include "cache.hpp"            //  TEntry
+#include "debug.hpp"            //  D()
+
+
+
+ //! Macro to hide compiler warning messages about unused variables
 #ifdef UNUSED
-/* nothing */
+ /* nothing */
 #elif defined(__linux__)
 # define UNUSED(x) x
 #elif defined(__GNUC__)
 #  define UNUSED(x) x __attribute__((unused))
-//#  define UNUSED(x) x [[gnu::unused]]
-#elif defined(__LCLINT__)
+ //#  define UNUSED(x) x [[gnu::unused]]
+ //#elif defined(__LCLINT__)
+#elif defined(_WIN32)
 #  define UNUSED(x) /*@unused@*/ x
 #else                /* !__GNUC__ && !__LCLINT__ */
 #  define UNUSED(x) x
-#endif    
+#endif 
 
 
 using namespace std;
 
 extern const char * g_dev;
-extern map<string, vector<Netflow *>> g_finalResults;
+extern map<string, vector<TOOL::Netflow *>> g_finalResults;
 
 
+
+
+namespace TOOL
+{
+   
 
 /*!
  * @brief       Computes number of padding bytes to be inserted in order to reach multiple of x
@@ -247,8 +256,8 @@ class EnhancedPacketBlock {
     UNUSED(uint32_t timestampLo)            = 0;
     UNUSED(uint32_t capturedPacketLength)   = 0;
     UNUSED(uint32_t originalPacketLength)   = 0;
-    UNUSED(size_t allocatedBytes)           = ETHER_MAX_LEN; // finally not in EnhancedPacketBlock
-    UNUSED(u_char *packetData)              = nullptr;
+    UNUSED(size_t allocatedBytes)           = ETHERMTU; // not in EnhancedPacketBlock
+    UNUSED(uint8_t *packetData)              = nullptr;
     UNUSED(uint32_t blockTotalLength2)      = blockTotalLength;
 public:
     /*!
@@ -257,7 +266,7 @@ public:
      *          http://stackoverflow.com/questions/33706528/is-it-safe-to-realloc-memory-allocated-with-new
      * @todo    Catch exception
      */
-    EnhancedPacketBlock()     { packetData = (u_char*)malloc(ETHER_MAX_LEN); if (packetData == nullptr) throw "Err"; }
+    EnhancedPacketBlock()     { packetData = (uint8_t*)malloc(ETHERMTU); if (packetData == nullptr) throw "Err"; }
     /*!
      * @brief   Default d'tor that deletes preallocated packet memory
      */
@@ -286,11 +295,11 @@ public:
      * @param[in]   ptr Pointer to a received packet
      * @param[in]   len Length of the packet
      */
-    void setPacketData(const u_char *ptr, uint32_t len) 
+    void setPacketData(const uint8_t *ptr, uint32_t len) 
     {
         if (len > allocatedBytes)
         {
-            u_char *tmpPtr = (u_char*)realloc(packetData, len);
+            uint8_t *tmpPtr = (uint8_t*)realloc(packetData, len);
             if (tmpPtr == nullptr)
                 throw "Err"; //! @todo catch and free
             packetData = tmpPtr;
@@ -389,3 +398,6 @@ public:
  * such as the GNU and IBM language extensions __attribute__((...)), 
  * Microsoft extension __declspec(), etc.
  */
+
+
+}	// namespace TOOL

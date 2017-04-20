@@ -7,19 +7,6 @@
  *   - Edited:  11.04.2017 00:12
  */
 
-#if defined(__linux__)
-#include "tool_linux.hpp"
-#endif
-#if defined(__FreeBSD__)
-#include "tool_bsd.hpp"
-#endif
-#if defined(__APPLE__)
-#include "tool_apple.hpp"
-#endif
-#if defined(WIN32) || defined(WINx64) || (defined(__MSDOS__) || defined(__WIN32__))
-#include "tool_win.hpp"
-#endif
-
 
 template <class EnhancedPacketBlock>
 int RingBuffer<EnhancedPacketBlock>::push(const pcap_pkthdr *header, const u_char *packet)
@@ -90,7 +77,7 @@ void RingBuffer<EnhancedPacketBlock>::write(ofstream &file)
         file.flush();
     if (file.bad()) // e.g. out of space
     {
-        log(LogLevel::ERROR, "Output error.");
+        log(LogLevel::ERR, "Output error.");
             throw "Output file error"; //! @todo catch it
         }
     }

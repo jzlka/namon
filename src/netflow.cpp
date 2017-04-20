@@ -4,24 +4,41 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 15.03.2017 23:27
- *   - Edited:  04.04.2017 16:02
+ *   - Edited:  20.04.2017 08:21
  */
 
-#include <iostream>         //  cout, endl
-#include <fstream>          //  ofstream
-#include "netflow.hpp"
+#include <iostream>				//  cout, endl
+#include <fstream>				//  ofstream
 
-#if defined(__linux__)
-#include <cstring>          //  memcmp()
+#if defined(__APPLE__)
+#include <sys/socket.h>         // AF_INET, AF_INET6
+
+#elif defined(__linux__)
+#include <cstring>              //  memcmp()
+#include <sys/socket.h>         // AF_INET, AF_INET6
+
+#elif defined(_WIN32)
+#include <winsock2.h>			//	?
+//#include <ws2def.h>			//	AF_INET, AF_INET6
 #endif
 
+#include "tcpip_headers.hpp"	//	ip4_addr, ip6_addr
+#include "utils.hpp"			//  inet_ntop()
+#include "netflow.hpp"
+
+
+
+
+namespace TOOL
+{
+	
 
 Netflow::~Netflow()                                  
 { 
     if (ipVersion == 4)
-        delete static_cast<in_addr*>(localIp);
+        delete static_cast<ip4_addr*>(localIp);
     else
-        delete static_cast<in6_addr*>(localIp);
+        delete static_cast<ip6_addr*>(localIp);
 }
 
 
@@ -30,10 +47,9 @@ bool Netflow::operator==(const Netflow& other) const
     if(localPort == other.localPort && proto == other.proto)
     {
         if (ipVersion == 4)
-            return (static_cast<in_addr*>(localIp)->s_addr ==
-                    static_cast<in_addr*>(other.localIp)->s_addr);
+            return !memcmp(localIp, other.localIp, IPv4_ADDRLEN);
         else
-            return !memcmp(static_cast<in6_addr*>(localIp), static_cast<in6_addr*>(other.localIp), sizeof(struct in6_addr));
+            return !memcmp(localIp, other.localIp, IPv6_ADDRLEN);
     }
     return false;
 }
@@ -48,7 +64,7 @@ unsigned int Netflow::write(std::ofstream &file)
     writtenBytes += size;
 
     //! @todo Can ipVersion contain other number?
-    size = (ipVersion == 4) ? sizeof(in_addr) : sizeof(in6_addr);
+    size = (ipVersion == 4) ? IPv4_ADDRLEN : IPv6_ADDRLEN;
     file.write(reinterpret_cast<char*>(localIp), size);
     writtenBytes += size;
 
@@ -72,14 +88,14 @@ void Netflow::print()
 {
     if (ipVersion == 4)
     {
-        char str[INET_ADDRSTRLEN];
-        inet_ntop(AF_INET, localIp, str, INET_ADDRSTRLEN);
+        char str[IPv4_ADDRSTRLEN];
+        inet_ntop(AF_INET, localIp, str, IPv4_ADDRSTRLEN);
         std::cout << str;
     }
     else if (ipVersion == 6)
     {
-        char str[INET6_ADDRSTRLEN];
-        inet_ntop(AF_INET6, localIp, str, INET6_ADDRSTRLEN);
+        char str[IPv6_ADDRSTRLEN];
+        inet_ntop(AF_INET6, localIp, str, IPv6_ADDRSTRLEN);
         std::cout << str;
     }
     else
@@ -99,3 +115,6 @@ void Netflow::print()
 
     std::cout << "\tTime:" << startTime << "-" << endTime << std::endl;
 }
+
+
+}	// namespace TOOL

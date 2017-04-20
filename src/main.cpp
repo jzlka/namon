@@ -12,17 +12,28 @@
  */
 
 #include <iostream>             //  EXIT_*, cout, cerr
+
+#if defined(_WIN32)
+extern "C" {
+#include "getopt_long.h"		//	getopt_long(), optarg
+}
+#else
 #include <getopt.h>             //  getopt_long()
+#endif
+
 #include "capturing.hpp"        //  startCapture()
 #include "debug.hpp"            //  D(), log(), setLogLevel()
 #include "main.hpp"
 
-using namespace std;
+
 
 extern const char * g_dev;
 
+
+extern "C" const char * program_name = nullptr;
+
 //! @brief  Struct with long options
-static struct option longopts[] = 
+static const struct option longopts[] = 
 {
     { "interface",   required_argument, nullptr,    'i' },
     { "output-file", required_argument, nullptr,    'w' },
@@ -39,6 +50,12 @@ int main (int argc, char *argv[])
 
     int optionIndex = 0;
     char opt = 0;
+	char *cp = nullptr;
+	if ((cp = strrchr(argv[0], '/')) != nullptr)
+		program_name = cp + 1;
+	else
+		program_name = argv[0];
+
     while((opt = getopt_long(argc, argv, "i:w:v::h", longopts, &optionIndex)) != -1)
     {
         switch (opt)
@@ -46,7 +63,7 @@ int main (int argc, char *argv[])
             case 0:                          break;
             case 'i':   g_dev = optarg;      break;
             case 'w':   oFilename = optarg;  break;
-            case 'v':   setLogLevel(optarg); break;
+			case 'v':   TOOL::setLogLevel(optarg); break;
             case 'h':   printUsage();   return EXIT_SUCCESS;
             default:    printUsage();   return EXIT_FAILURE;
         }
@@ -58,7 +75,7 @@ int main (int argc, char *argv[])
 
 void printUsage()
 {
-    cout << "Usage: tool [-v[<level>]] [-i <interface>] [-w <output_filename>]" << endl; //TODO zmenit nazov nastroja
+    cout << "Usage: tool [-v[<level>]] [-i <interface>] [-w <output_filename>]" << endl; //! @todo zmenit nazov nastroja
     cout << "\t-v\tVerbosity level. Possible values are 0-3." << endl;
     cout << "\t-i\tCapturing interface." << endl;
     cout << "\t-w\tOutput file." << endl;

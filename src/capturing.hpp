@@ -16,12 +16,25 @@
 #include <atomic>               //  atomic
 
 #if defined(__APPLE__) || defined(__linux__)
-#include <netinet/if_ether.h>   //  ether_header
-#include <netinet/ip.h>         //  ip
-#include <netinet/ip6.h>        //  ip6_hdr
+//#include <netinet/if_ether.h>   //  ether_header
+//#include <netinet/ip.h>         //  ip
+//#include <netinet/ip6.h>        //  ip6_hdr
 #endif
 
+#include "tcpip_headers.hpp"	//	ether_hdr
+#include "netflow.hpp"			//	Netflow
+#include "ringBuffer.hpp"		//	RingBuffer
+#include "pcapng_blocks.hpp"	//	EnhancedPackedBlock
+#include "cache.hpp"			//	TEntry
 #include "debug.hpp"            //  log()
+
+using TOOL::ip4_addr;
+using TOOL::ether_hdr;
+using TOOL::Netflow;
+using TOOL::TEntry;
+using TOOL::EnhancedPacketBlock;
+//template <class T>
+using TOOL::RingBuffer;
 
 
 //! Size of a libpcap error buffer
@@ -29,100 +42,83 @@
 #define PCAP_ERRBUF_SIZE (256)
 #endif
 
-class Netflow;
-class TEntry;
-class EnhancedPacketBlock;
-template <class T>
-class RingBuffer;
 extern std::atomic<int> shouldStop;
-extern std::vector<in_addr*> g_devIps;
 
 /*!
- * An enum representing packet flow direction
- */
-enum class Directions { 
-    OUTBOUND, //!< Outgoing packets
-    INBOUND,  //!< Incoming packets
-    UNKNOWN,  //!< Direction is not known
+* An enum representing packet flow direction
+*/
+enum class Directions {
+	OUTBOUND, //!< Outgoing packets
+	INBOUND,  //!< Incoming packets
+	UNKNOWN,  //!< Direction is not known
 };
 
 /*!
- * @struct  PacketHandlerPointers
- * @brief   Struct used to pass packetHandler more pointers in one argument
- */
+* @struct  PacketHandlerPointers
+* @brief   Struct used to pass packetHandler more pointers in one argument
+*/
 struct PacketHandlerPointers
 {
-    //! @brief  Default c'tor that sets pointers with parameters
-    PacketHandlerPointers(RingBuffer<EnhancedPacketBlock> *fb, RingBuffer<Netflow> *cb) 
-        : fileBuffer(fb), cacheBuffer(cb) {}
-    RingBuffer<EnhancedPacketBlock> *fileBuffer = nullptr; //!< Pointer to RingBuffer which will be written to a file
-    RingBuffer<Netflow> *cacheBuffer = nullptr;            //!< Used cache
+	//! @brief  Default c'tor that sets pointers with parameters
+	PacketHandlerPointers(RingBuffer<EnhancedPacketBlock> *fb, RingBuffer<Netflow> *cb)
+		: fileBuffer(fb), cacheBuffer(cb) {}
+	RingBuffer<EnhancedPacketBlock> *fileBuffer = nullptr; //!< Pointer to RingBuffer which will be written to a file
+	RingBuffer<Netflow> *cacheBuffer = nullptr;            //!< Used cache
 };
 
 
 
-Directions getPacketDirection(ether_header *eth_hdr);
+Directions getPacketDirection(TOOL::ether_hdr *eth_hdr);
 /*!
- * @brief       Starts network traffic capture
- * @param[in]   oFilename   Output file name
- * @return      Result of the capturing
- */
+* @brief       Starts network traffic capture
+* @param[in]   oFilename   Output file name
+* @return      Result of the capturing
+*/
 int startCapture(const char *oFilename);
 /*!
- * @brief       Function that processes every packet
- * @param[in]   args    Array with pointer to RingBuffer and Cache
- * @param[in]   header  Libpcap header
- * @param[in]   bytes   Captured packet
- */
-void packetHandler(u_char *args, const struct pcap_pkthdr *header, const u_char *bytes);
+* @brief       Function that processes every packet
+* @param[in]   args    Array with pointer to RingBuffer and Cache
+* @param[in]   header  Libpcap header
+* @param[in]   bytes   Captured packet
+*/
+void packetHandler(unsigned char *args, const struct pcap_pkthdr *header, const unsigned char *bytes);
 /*!
- * @brief       Parses IP header
- * @param[out]  n           Netflow which will be filled with parsed information
- * @param[out]  ip_size     Size of the IP header
- * @param[in]   dir         Packet direction
- * @param[in]   ip_hdr      Pointer to the IP header
- * @param[in]   ether_type  Ethernet frame type
- * @return      IP header's validity
- */
+* @brief       Parses IP header
+* @param[out]  n           Netflow which will be filled with parsed information
+* @param[out]  ip_size     Size of the IP header
+* @param[in]   dir         Packet direction
+* @param[in]   ip_hdr      Pointer to the IP header
+* @param[in]   ether_type  Ethernet frame type
+* @return      IP header's validity
+*/
 inline int parseIp(Netflow &n, unsigned int &ip_size, Directions dir, void * const ip_hdr, const unsigned short ether_type);
 /*!
- * @brief       Parses layer 4 header
- * @param[out]  n   Netflow which will be filled with parsed information
- * @param[in]   dir         Packet direction
- * @param[in]   hdr Header pointer
- * @return      Layer 4 header's validity
- */
+* @brief       Parses layer 4 header
+* @param[out]  n   Netflow which will be filled with parsed information
+* @param[in]   dir         Packet direction
+* @param[in]   hdr Header pointer
+* @return      Layer 4 header's validity
+*/
 inline int parsePorts(Netflow &n, Directions dir, void *hdr);
 /*!
- * @brief       Determine packet direction
- * @todo        Add IPv6 support
- *              - we don't have IPv6 address of our interface (libpcap doesn't provide it)
- *              - libpcap niether provides MAC address nor socet to find out it
- * @param[in]   ip_hdr  Pointer to IPv4 header
- * @return      Packet direction
- */
-template<typename T>
-Directions getPacketDirection(T *ip_hdr);
-/*!
- * @brief       Signal handler function
- * @param[in]   signum  Received interrupt signal
- */
+* @brief       Signal handler function
+* @param[in]   signum  Received interrupt signal
+*/
 void signalHandler(int signum);
 
 
 
 /*!
- * @class   pcap_ex
- * @brief   Exception used during pcap related errors
- */
-struct pcap_ex: public std::exception
+* @class   pcap_ex
+* @brief   Exception used during pcap related errors
+*/
+struct pcap_ex : public std::exception
 {
-    std::string msg;
+	std::string msg;
 public:
-    pcap_ex(const std::string &m, const char *errbuf): msg(m + "\nlibpcap: " + errbuf) {}
-    const char *what() const throw() 
-        { return msg.c_str(); }
+	pcap_ex(const std::string &m, const char *errbuf) : msg(m + "\nlibpcap: " + errbuf) {}
+	const char *what() const throw()
+	{
+		return msg.c_str();
+	}
 };
-
-
-#include "capturing.tpp"
