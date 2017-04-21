@@ -10,12 +10,8 @@
 #include <iostream>				//  cout, endl
 #include <fstream>              //  ofstream
 
-#if defined(__APPLE__)
-#include <sys/socket.h>         // AF_INET, AF_INET6
-
-#elif defined(__linux__)
+#if defined(__linux__)
 #include <cstring>              //  memcmp()
-#include <sys/socket.h>         // AF_INET, AF_INET6
 
 #elif defined(_WIN32)
 #include <winsock2.h>			//	?

@@ -21,7 +21,7 @@ TESTSDIR=tests
 BINDIR=bin
 BIN=tool
 SRC_TMP=$(wildcard $(SRCDIR)/*.cpp)
-SRC=$(filter-out src/tool%,$(SRC_TMP))
+SRC=$(filter-out src/tool_%,$(SRC_TMP))
 
 ifeq ($(OS),Windows_NT)
 	SRC += $(SRCDIR)/tool_win.cpp
