@@ -4,15 +4,12 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 26.02.2017 23:13
- *   - Edited:  10.04.2017 22:27
+ *   - Edited:  21.04.2017 00:56
  */
 
 #pragma once
 
 #include <string>           //  string
-#include <fstream>          //  ostream
-//#include <netinet/in.h>     //  in_addr, in6_addr
-//#include <arpa/inet.h>      //  inet_ntop()
 #include <cstring>          //  memcpy()
 
 #include "tcpip_headers.hpp"	//	ip4_addr, ip6_addr, IPv4_ADDRLEN, IPv6_ADDRLEN

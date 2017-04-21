@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 18.02.2017 23:32
- *   - Edited:  11.04.2017 00:11
+ *   - Edited:  21.04.2017 01:19
  *  @todo       rename file
  */
 
@@ -12,8 +12,6 @@
 #include <dirent.h>             //  opendir(), readdir()
 #include <unistd.h>             //  getpid()
 #include <cstring>              //  memset(), strchr()
-
-//#include <netinet/if_ether.h>   //  ether_header
 
 #include "tcpip_headers.hpp"	//
 #include "netflow.hpp"          //  Netflow
@@ -150,7 +148,7 @@ int getInode(Netflow *n)
             if (foundPort == wantedPort)
             {
                 char c{0}, i{0};
-                vector<unsigned char> parts(IP_SIZE,0);
+                vector<uint8_t> parts(IP_SIZE,0);
                 const unsigned char CHARS_PER_OCTET = (ipVer == 4) ? 2 : 1; //! @todo implement ipv6
 
                 // compare localIp

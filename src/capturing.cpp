@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 18.02.2017 22:45
- *   - Edited:  20.04.2017 08:18
+ *   - Edited:  21.04.2017 01:27
  *   @todo      IPv6 implementation
  *   @todo      Comment which functions move classes
  *   @todo      What to do when the cache contains invalid record and getInode returns inode == 0
@@ -17,7 +17,6 @@
 
 #include <map>                  //  map
 #include <pcap.h>               //  pcap_lookupdev(), pcap_open_live(), pcap_dispatch(), pcap_close()
-#include <mutex>                //  mutex
 #include <thread>               //  thread
 #include <atomic>               //  atomic::store()
 
@@ -52,14 +51,6 @@
 
 
 using namespace TOOL;
-//using namespace std;
-//using TOOL::log;  using TOOL::LogLevel;
-//using TOOL::ether_hdr;  using TOOL::mac_addr;
-//using TOOL::ip4_hdr;  using TOOL::ip4_addr;
-//using TOOL::ip6_hdr;  using TOOL::ip6_addr;
-//using TOOL::udp_hdr;  using TOOL::tcp_hdr;
-//using TOOL::Netflow;  using TOOL::Cache;  using TOOL::RingBuffer;
-//using TOOL::CustomBlock;  using TOOL::EnhancedPacketBlock;
 
 
 
@@ -69,12 +60,12 @@ const mac_addr			g_macMcast4				{ { 0x01,0x00,0x5e } };					//!< IPv4 multicast 
 const mac_addr			g_macMcast6				{ { 0x33,0x33 } };						//!< IPv6 multicast MAC address
 const mac_addr			g_macBcast				{ { 0xff,0xff,0xff,0xff,0xff,0xff } };  //!< Broadcast MAC address
 
+map<string, vector<Netflow *>> g_finalResults;			//!< Applications and their netflows
 pcap_t *g_pcapHandle			= nullptr;
 const char * g_dev				= nullptr;              //!< Capturing device name
 mac_addr g_devMac				{ {0} };				//!< Capturing device MAC address
 ofstream oFile;											//!< Output file stream
 atomic<int> shouldStop			{ false };              //!< Variable which is set if program should stop
-map<string, vector<Netflow *>> g_finalResults;			//!< Applications and their netflows
 unsigned int rcvdPackets		= 0;					//!< Number of received packets
 unsigned int g_allSockets		= 0;					//!< Number of unique sockets
 unsigned int g_notFoundSockets	= 0;					//!< Number of unsuccessful searches for inode number
@@ -126,7 +117,7 @@ int startCapture(const char *oFilename)
 		RingBuffer<Netflow> cacheBuffer(CACHE_RING_BUFFER_SIZE);
 		thread t2([&cacheBuffer, &cache]() { cacheBuffer.run(&cache); });
 
-		PacketHandlerPointers ptrs{ &fileBuffer, &cacheBuffer };
+		PacketHandlerParams ptrs{ &fileBuffer, &cacheBuffer };
 
 		log(LogLevel::INFO, "Capturing...");
 		//        while (!shouldStop)
@@ -190,7 +181,7 @@ void packetHandler(unsigned char *arg_array, const struct pcap_pkthdr *header, c
 	static Netflow n;
 	static unsigned int ip4_hdrlen;
 	static ether_hdr *eth_hdr;
-	PacketHandlerPointers *ptrs = reinterpret_cast<PacketHandlerPointers*>(arg_array);
+	PacketHandlerParams *ptrs = reinterpret_cast<PacketHandlerParams*>(arg_array);
 
 	RingBuffer<Netflow> *cb = ptrs->cacheBuffer;
 	RingBuffer<EnhancedPacketBlock> *rb = ptrs->fileBuffer;
@@ -269,9 +260,9 @@ inline int parseIp(Netflow &n, unsigned int &ip_size, Directions dir, void * con
 
 		ip4_addr* tmpIpPtr = new ip4_addr;
 		if (dir == Directions::INBOUND)
-			memcpy(tmpIpPtr, &hdr->ip_dst, IPv4_ADDRLEN); //tmpIpPtr->bytes = ipv4_hdr->ip_dst.bytes;
+		    tmpIpPtr->addr = hdr->ip_dst.addr;
 		else
-			memcpy(tmpIpPtr, &hdr->ip_src, IPv4_ADDRLEN); //tmpIpPtr->bytes = ipv4_hdr->ip_src.bytes;
+			tmpIpPtr->addr = hdr->ip_src.addr;
 		
 		n.setLocalIp((void*)(tmpIpPtr));
 		n.setIpVersion(4);
@@ -279,8 +270,6 @@ inline int parseIp(Netflow &n, unsigned int &ip_size, Directions dir, void * con
 	}
 	else
 	{
-		log(LogLevel::ERR, "IPv6 is not implemented yet."); // we can't determine packet direction
-		return EXIT_FAILURE;
 		const ip6_hdr * const hdr = (ip6_hdr*)ip_hdr;
 		ip_size = IPv6_HDRLEN;
 		ip6_addr* tmpIpPtr = new ip6_addr;

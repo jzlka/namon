@@ -4,22 +4,14 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 18.02.2017 22:48
- *   - Edited:  07.04.2017 00:59
+ *   - Edited:  21.04.2017 00:52
  */
 
 #pragma once
 
 #include <iostream>             //  exception, string
-#include <fstream>              //  fstream
 #include <sys/types.h>          //  u_char
-#include <vector>               //  vector
 #include <atomic>               //  atomic
-
-#if defined(__APPLE__) || defined(__linux__)
-//#include <netinet/if_ether.h>   //  ether_header
-//#include <netinet/ip.h>         //  ip
-//#include <netinet/ip6.h>        //  ip6_hdr
-#endif
 
 #include "tcpip_headers.hpp"	//	ether_hdr
 #include "netflow.hpp"			//	Netflow
@@ -28,12 +20,12 @@
 #include "cache.hpp"			//	TEntry
 #include "debug.hpp"            //  log()
 
+
 using TOOL::ip4_addr;
 using TOOL::ether_hdr;
 using TOOL::Netflow;
 using TOOL::TEntry;
 using TOOL::EnhancedPacketBlock;
-//template <class T>
 using TOOL::RingBuffer;
 
 
@@ -54,13 +46,13 @@ enum class Directions {
 };
 
 /*!
-* @struct  PacketHandlerPointers
+* @struct  PacketHandlerParams
 * @brief   Struct used to pass packetHandler more pointers in one argument
 */
-struct PacketHandlerPointers
+struct PacketHandlerParams
 {
 	//! @brief  Default c'tor that sets pointers with parameters
-	PacketHandlerPointers(RingBuffer<EnhancedPacketBlock> *fb, RingBuffer<Netflow> *cb)
+	PacketHandlerParams(RingBuffer<EnhancedPacketBlock> *fb, RingBuffer<Netflow> *cb)
 		: fileBuffer(fb), cacheBuffer(cb) {}
 	RingBuffer<EnhancedPacketBlock> *fileBuffer = nullptr; //!< Pointer to RingBuffer which will be written to a file
 	RingBuffer<Netflow> *cacheBuffer = nullptr;            //!< Used cache

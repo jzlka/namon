@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 02.03.2017 04:32
- *   - Edited:  09.04.2017 04:39
+ *   - Edited:  21.04.2017 00:46
  */
 
 #pragma once
@@ -13,13 +13,11 @@
 #include <vector>           //  vector
 #include <unordered_map>    //  map
 #include <chrono>           //  seconds
-#include <mutex>            //  mutes
 
 #include "netflow.hpp"      //  Netflow
 
 using clock_type = std::chrono::high_resolution_clock;
 using std::string;
-using std::mutex;
 using std::chrono::seconds;
 using std::chrono::duration_cast;
 

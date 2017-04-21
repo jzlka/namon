@@ -10,7 +10,6 @@
 
 
 #define _WIN32_DCOM
-#include <fstream>          //  ifstream
 #include <winsock2.h>
 #include <WS2tcpip.h>		//	PMIB_*6*_OWNER_PID
 #include <Iphlpapi.h>		//	GetAdaptersAddresses(), GetExtended*Table()

@@ -4,11 +4,11 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 15.03.2017 23:27
- *   - Edited:  20.04.2017 08:21
+ *   - Edited:  21.04.2017 01:16
  */
 
 #include <iostream>				//  cout, endl
-#include <fstream>				//  ofstream
+#include <fstream>              //  ofstream
 
 #if defined(__APPLE__)
 #include <sys/socket.h>         // AF_INET, AF_INET6

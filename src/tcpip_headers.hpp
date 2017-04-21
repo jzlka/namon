@@ -4,7 +4,7 @@
  * @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  * @date
  *  - Created: 12.04.2017 23:21
- *  - Edited:  20.04.2017 08:17
+ *  - Edited:  21.04.2017 01:19
  * @todo       rename namespace
 */
 
@@ -60,7 +60,7 @@ struct	ether_hdr {
 
 //! IPv4 address
 struct ip4_addr {
-	uint8_t bytes[4];					//!< IPv4 address octets
+	uint32_t addr;					//!< IPv4 address
 };
 
 //! IPv4 header structure

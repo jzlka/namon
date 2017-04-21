@@ -4,13 +4,11 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 18.02.2017 22:55
- *   - Edited:  20.04.2017 08:19
+ *   - Edited:  21.04.2017 01:01
  *  @todo       rename file
  */
 
 #pragma once
-
-#include <fstream>          //  ifstream
 
 #include "netflow.hpp"      //  Netflow
 

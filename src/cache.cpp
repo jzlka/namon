@@ -4,27 +4,22 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 26.02.2017 23:52
- *   - Edited:  20.04.2017 08:42
+ *   - Edited:  21.04.2017 01:23
  */
 
 #include <iostream>             //  cout, endl;
-#include <fstream>              //  ostream
-#include <thread>               //  sleep_for
 #include <atomic>               //  atomic
 #include <map>                  //  map
 
 #if defined(__APPLE__)
 #include <sys/socket.h>         //  AF_INET, AF_INET6
+
 #elif defined(__linux__)
 #include <cstring>              //  memcmp(), memcpy()
 #include <sys/socket.h>         //  AF_INET, AF_INET6   //! @todo define in tcpip_headers.hpp?
 
 #elif defined(_WIN32)
-//#include <Windows.h>			//	?
-//#include <ws2def.h>				//	AF_INET, AF_INET6
-//#include <WS2tcpip.h>			//	inet_ntop()
 #include <Winsock2.h>			//	in_addr, AF_INET
-//#include <in6addr.h>			//	in6_addr
 #endif
 
 #include "tcpip_headers.hpp"	//	ip4_addr, ip6_addr, 
@@ -79,7 +74,7 @@ bool TEntry::levelCompare(Netflow *n1)
         case TreeLevel::LOCAL_IP:
         {
             if (n->getIpVersion() == 4)
-                return !memcmp(n->getLocalIp(), n1->getLocalIp(), IPv4_ADDRLEN);
+                return static_cast<ip4_addr*>(n->getLocalIp())->addr == static_cast<ip4_addr*>(n1->getLocalIp())->addr;
             else if (n->getIpVersion() == 6)
                 return !memcmp(n->getLocalIp(), n1->getLocalIp(), IPv6_ADDRLEN);
             else
@@ -199,7 +194,7 @@ void TTree::setCommonValue(Netflow *n)
             if (ipVersion == 4)
             {
                 ip4_addr *tmpIpPtr = new ip4_addr;
-                memcpy(tmpIpPtr, n->getLocalIp(), IPv4_ADDRLEN);
+                tmpIpPtr->addr = static_cast<ip4_addr*>(n->getLocalIp())->addr;
                 setIp(tmpIpPtr, ipVersion);
             }
             else if (ipVersion == 6)
@@ -235,7 +230,7 @@ bool TTree::levelCompare(Netflow *n)
             if (n->getIpVersion() != ipVersion)
                 return false;
             if (ipVersion == 4)
-                return !memcmp(cv.ip, n->getLocalIp(), IPv4_ADDRLEN);
+                return static_cast<ip4_addr*>(cv.ip)->addr == static_cast<ip4_addr*>(n->getLocalIp())->addr;
             else if (ipVersion == 6)
                 return !memcmp(cv.ip, n->getLocalIp(), IPv6_ADDRLEN);
             else

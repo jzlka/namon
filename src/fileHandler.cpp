@@ -4,16 +4,15 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 06.03.2017 14:51
- *   - Edited:  20.04.2017 08:18
+ *   - Edited:  21.04.2017 00:55
  */
 
 #include <string>                   //  string
-#include <vector>					//  vector
 
 #if defined(_WIN32)
 #include <Windows.h>				//	GetFileVersionInfo()
 #else
-#include <sys/utsname.h>            //  uname() TODO -lc pri preklade
+#include <sys/utsname.h>            //  uname()
 #endif
 
 #include "debug.hpp"                //  D(), log()
