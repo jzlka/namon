@@ -22,7 +22,7 @@
 
 using namespace std;
 
-extern const char * g_dev;
+extern const char *g_dev;
 extern unsigned int g_notFoundApps;
 extern TOOL::mac_addr g_devMac;
 
@@ -35,9 +35,25 @@ namespace TOOL
 
 int setDevMac()
 {
+        string ifname;
+	if (strncmp(g_dev, "netmap:", 7) == 0)
+	{
+	    const char* tmpPtr = &g_dev[7];
+	    // scan for a separator
+	    for ( ; *tmpPtr && !index("-*^{}/@", *tmpPtr); tmpPtr++)
+	        ;
+
+            ifname = &g_dev[7];
+	    ifname.erase(tmpPtr - &g_dev[7]);
+	}
+	else if (strncmp(g_dev, "pfq:", 4) == 0)
+            ifname = &g_dev[4];
+	else 
+	    ifname = g_dev;
+ 
  	// it's 2B type, so >> will read 2 hexa chars, which is 1 normal Byte
 	uint16_t twoCharsInByte {0};
-	const string macAddrPath = "/sys/class/net/" + string(g_dev) + "/address";
+	const string macAddrPath = "/sys/class/net/" + ifname + "/address";
 	ifstream devMacFile(macAddrPath);
 	if (!devMacFile)
 	    return -1;

@@ -210,7 +210,13 @@ void packetHandler(unsigned char *arg_array, const struct pcap_pkthdr *header, c
 		return;
 	// Parse transport layer header
 	if (parsePorts(n, dir, (void*)(packet + ETHER_HDRLEN + ip_hdrlen)))
+	{
+			if (n.getIpVersion() == 4)
+				delete static_cast<ip4_addr*>(n.getLocalIp());
+			else
+				delete static_cast<ip6_addr*>(n.getLocalIp());
 		return;
+	}
 	// STD::MOVE Netflow into buffer
 	if (cb->push(n))
 	{
@@ -298,10 +304,6 @@ inline int parsePorts(Netflow &n, Directions dir, void *hdr)
 		unsigned tcp_size = tcp_hdr->th_off * 4; // number of 32 bit words in the TCP header
 		if (tcp_size < 20)
 		{
-			if (n.getIpVersion() == 4)
-				delete static_cast<ip4_addr*>(n.getLocalIp());
-			else
-				delete static_cast<ip6_addr*>(n.getLocalIp());
 			log(LogLevel::WARNING, "Incorrect TCP header received.");
 			return EXIT_FAILURE;
 		}
@@ -318,10 +320,6 @@ inline int parsePorts(Netflow &n, Directions dir, void *hdr)
 		unsigned short udp_size = udp_hdr->uh_ulen; // length in bytes of the UDP header and UDP data
 		if (udp_size < 8)
 		{
-			if (n.getIpVersion() == 4)
-				delete static_cast<ip4_addr*>(n.getLocalIp());
-			else
-				delete static_cast<ip6_addr*>(n.getLocalIp());
 			log(LogLevel::WARNING, "Incorrect UDP packet received with size <", udp_size, ">");
 			return EXIT_FAILURE;
 		}
@@ -333,10 +331,6 @@ inline int parsePorts(Netflow &n, Directions dir, void *hdr)
 	}
 	default:
 	{
-		if (n.getIpVersion() == 4)
-			delete static_cast<ip4_addr*>(n.getLocalIp());
-		else
-			delete static_cast<ip6_addr*>(n.getLocalIp());
 		log(LogLevel::WARNING, "Unsupported transport layer protocol (", (int)n.getProto(), ")");
 		return EXIT_FAILURE;
 	}
