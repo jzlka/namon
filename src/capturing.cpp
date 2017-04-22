@@ -211,10 +211,10 @@ void packetHandler(unsigned char *arg_array, const struct pcap_pkthdr *header, c
 	// Parse transport layer header
 	if (parsePorts(n, dir, (void*)(packet + ETHER_HDRLEN + ip_hdrlen)))
 	{
-			if (n.getIpVersion() == 4)
-				delete static_cast<ip4_addr*>(n.getLocalIp());
-			else
-				delete static_cast<ip6_addr*>(n.getLocalIp());
+	//		if (n.getIpVersion() == 4)
+	//			delete static_cast<ip4_addr*>(n.getLocalIp());
+	//		else
+	//			delete static_cast<ip6_addr*>(n.getLocalIp());
 		return;
 	}
 	// STD::MOVE Netflow into buffer
