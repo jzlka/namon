@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 24.04.2017 02:17
- *   - Edited:  24.04.2017 06:03
+ *   - Edited:  24.04.2017 06:40
  */
 
 #include <iostream>         // cout, endl, cerr
@@ -97,28 +97,20 @@ int main(int argc , char *argv[])
         socklen_t len = sizeof(server);
         char buffer[BUFFER];
 
-        int tests = 50000;
-        clock_type::time_point pktStartTime = clock_type::now();
-        for (int i=tests; i; i--)
-            sendto(fd, buffer, packetSize, 0, (struct sockaddr *) &server, len);
-        auto pktEndTime = clock_type::now();
-        clock_type::duration pktSentTime = (pktEndTime - pktStartTime) / tests;
-
-        using std::chrono::nanoseconds;
-        using std::chrono::duration_cast;
-        long long neededNanoSeconds = pps * duration_cast<nanoseconds>(pktSentTime).count();
         long long sleepTime = 0;
-        if (neededNanoSeconds >= NANOSECOND)
-            cerr << "Too high pps, maximum possible value is <" 
-                 << NANOSECOND / duration_cast<nanoseconds>(pktSentTime).count()
-                 << ">" << endl;
+        unsigned int maxPps = 1000000000 / (packetSize * 8);
+        if (pps < maxPps)
+            sleepTime = ((double)(pps * NANOSECOND) / maxPps) / pps;
         else
-            sleepTime = (NANOSECOND - neededNanoSeconds) / pps;
+            cerr << "Too high pps, maximum possible value is <" << maxPps << ">" << endl;
 
         const unsigned int headersSize = 18+20+8;
         const unsigned int dataSize = (packetSize <= headersSize) ? 0 : packetSize - headersSize;
         if (dataSize >= BUFFER)
             throw "Too big packet size";
+
+        using std::chrono::nanoseconds;
+        using std::chrono::duration_cast;
 
         clock_type::time_point start = clock_type::now();
         while(!shouldStop) 
@@ -130,14 +122,12 @@ int main(int argc , char *argv[])
         auto end = clock_type::now();
         clock_type::duration duration = end - start;
 
+
         using std::chrono::milliseconds;
-        long long sentPps = sentPackets / (duration_cast<milliseconds>(duration).count()/1000.);
+        long long sentPps = sentPackets / (duration_cast<milliseconds>(duration).count() / 1000.);
         cout << "Sent packets: " << sentPackets 
-        << " in " << duration_cast<milliseconds>(duration).count() << " miliseconds";
-        if (sentPackets)
-            cout << " ( ~" << sentPps << "pps | " << (sentPps * packetSize) * 8 / 1000000 << "Mb/s )." << endl;
-        else
-            cout << "." << endl;
+             << " in " << duration_cast<milliseconds>(duration).count() << " miliseconds"
+             << " ( ~" << sentPps << "pps | " << (sentPps * packetSize) * 8 / 1000000. << "Mb/s )." << endl;
     }
     catch (const char *msg)
     {
