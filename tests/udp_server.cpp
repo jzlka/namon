@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 24.04.2017 02:17
- *   - Edited:  24.04.2017 04:29
+ *   - Edited:  24.04.2017 05:50
  */
 
 #include <iostream>         // cout, end, cerr
@@ -36,7 +36,7 @@ void printHelp()
 
 void signalHandler(int signum)
 {
-	cerr << "Interrupt signal (" << signum << ") received.";
+	cerr << "Interrupt signal (" << signum << ") received." << endl;
 	shouldStop = signum;
 }
 
@@ -69,26 +69,31 @@ int main(int argc, char *argv[])
             throw "Can't open socket";
 
         if (::bind(fd, (struct sockaddr *)&server, sizeof(server)) == -1) // binding with the port
-            throw "Can't bind to port " + to_string(port);
+            throw ("Can't bind to port " + to_string(port)).c_str();
 
         char buffer[BUFFER];
-        clock_type::time_point start = clock_type::now();
+        struct timeval tv;
+        tv.tv_sec = 2;
+        if (setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv)) < 0)
+            throw "Can't set timeout for socket";
 
+        int packetSize = 0;
+        clock_type::time_point start = clock_type::now();
         while (!shouldStop) 
         {
-            recvfrom(fd, buffer, BUFFER, 0, nullptr, 0);
+            packetSize = recvfrom(fd, buffer, BUFFER, 0, nullptr, 0);
             rcvdPackets++;
         }
-
         auto end = clock_type::now();
         clock_type::duration duration = end - start;
 
         using std::chrono::milliseconds;
         using std::chrono::duration_cast;
+        long long rcvdPps = rcvdPackets / (duration_cast<milliseconds>(duration).count()/1000.);
         cout << "Received packets: " << rcvdPackets 
-             << " in " << duration_cast<milliseconds>(duration).count() << " miliseconds";
+        << " in " << duration_cast<milliseconds>(duration).count() << " miliseconds";
         if (rcvdPackets)
-            cout << " ( ~" << ((double)rcvdPackets/duration_cast<milliseconds>(duration).count())/1000 << "pps )." << endl;
+            cout << " ( ~" << rcvdPps << "pps | " << (rcvdPps * packetSize) * 8 / 1000000 << "Mb/s )." << endl;
         else
             cout << "." << endl;
     }
