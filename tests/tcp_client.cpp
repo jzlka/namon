@@ -1,10 +1,14 @@
 /**
- *  @file       udp_client.cpp
- *  @brief      Simple UDP client
+ *  @file       tcp_client.cpp
+ *  @brief      Brief description
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
- *   - Created: 24.04.2017 02:17
- *   - Edited:  24.04.2017 06:45
+ *   - Created: 24.04.2017 06:44
+ *   - Edited:  24.04.2017 06:49
+ *  @version    1.0.0
+ *  @par        g++: Apple LLVM version 8.0.0 (clang-800.0.42.1)
+ *  @bug
+ *  @todo
  */
 
 #include <iostream>         // cout, endl, cerr
@@ -32,7 +36,7 @@ int shouldStop = 0;         // Variable which is set if program should stop
 
 void printHelp()
 {
-    cout << "Usage: udp_client <server IP address> [port-number] <pps> <packet-size>" << endl;
+    cout << "Usage: tcp_client <server IP address> [port-number] <pps> <packet-size>" << endl;
     cout << "Default port is " << DEFAULT_PORT << endl;
 }
 
@@ -91,10 +95,12 @@ int main(int argc , char *argv[])
         memcpy(&server.sin_addr,servent->h_addr,servent->h_length); 
         server.sin_port = htons(port);        // server port (network byte order)
          
-        if ((fd = socket(AF_INET , SOCK_DGRAM , 0)) == -1)   //create a client socket
+        if ((fd = socket(AF_INET , SOCK_STREAM , 0)) == -1)   //create a client socket
             throw "Can't open socket";
         
-        socklen_t len = sizeof(server);
+        if (connect(fd, (sockaddr *)&server, sizeof(server)) == -1)
+            throw "connect() failed";
+
         char buffer[BUFFER];
 
         long long sleepTime = 0;
@@ -112,10 +118,11 @@ int main(int argc , char *argv[])
         using std::chrono::nanoseconds;
         using std::chrono::duration_cast;
 
+
         clock_type::time_point start = clock_type::now();
         while(!shouldStop) 
         { 
-            sendto(fd, buffer, dataSize, 0, (struct sockaddr *) &server, len);
+            write(fd, buffer, dataSize);
             sentPackets++;
             this_thread::sleep_for(nanoseconds(sleepTime));
         } 
