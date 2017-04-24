@@ -11,15 +11,11 @@
 #include <atomic>               //  atomic
 #include <map>                  //  map
 
-#if defined(__APPLE__)
-#include <sys/socket.h>         //  AF_INET, AF_INET6
-
-#elif defined(__linux__)
+#if defined(__linux__)
 #include <cstring>              //  memcmp(), memcpy()
-#include <sys/socket.h>         //  AF_INET, AF_INET6   //! @todo define in tcpip_headers.hpp?
 
 #elif defined(_WIN32)
-#include <Winsock2.h>			//	in_addr, AF_INET
+//#include <Winsock2.h>			//	in_addr, AF_INET
 #endif
 
 #include "tcpip_headers.hpp"	//	ip4_addr, ip6_addr, 

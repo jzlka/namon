@@ -10,7 +10,7 @@
 #include <cctype>				//  isdigit()
 
 #if defined(__APPLE__) || defined(__linux__)
-#include <sys/socket.h>         // AF_INET, AF_INET6
+#include <cstring>		// memset(), strlen() #linux
 
 #elif defined(_WIN32)
 #include <WinSock2.h>			//	
@@ -50,19 +50,19 @@ int inet_ntop4(const void *src, char *dst, size_t size)
 	for (int i = 0; i < IPv4_ADDRLEN; ++i) 
 	{
 		int n = *srcaddr++;
-		//int non_zerop = 0;
+		int non_zerop = 0;
 
-		if (/*non_zerop || */n / 100 > 0) 
+		if (non_zerop || n / 100 > 0) 
 		{
 			*dst++ = digits[n / 100];
 			n %= 100;
-			//non_zerop = 1;
+			non_zerop = 1;
 		}
-		if (/*non_zerop || */n / 10 > 0) 
+		if (non_zerop || n / 10 > 0) 
 		{
 			*dst++ = digits[n / 10];
 			n %= 10;
-			//non_zerop = 1;
+			non_zerop = 1;
 		}
 		*dst++ = digits[n]; //! @todo n+'0'
 		if (i != 3)
@@ -127,7 +127,7 @@ int inet_ntop6(const void *src, char *dst, size_t size)
     { \
         if (space_left == 0) { \
             errno = ENOSPC; \
-            return (NULL); \
+            return (0); \
         } \
         *dp++ = c; \
         space_left--; \

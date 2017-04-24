@@ -48,6 +48,13 @@ int chToInt(char *str, int &res);
 
 int inet_ntop(const int af, const void *src, char *dst, size_t size);
 
+inline uint16_t ntohs(uint16_t num)
+{
+    return ( (num << 8) | ((num >> 8) & 0x00ff) );
+}
+
+
+
 #include "utils.tpp"
 
 

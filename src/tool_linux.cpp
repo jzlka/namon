@@ -22,6 +22,10 @@
 
 using namespace std;
 
+extern const char *g_dev;
+extern unsigned int g_notFoundApps;
+extern TOOL::mac_addr g_devMac;
+
 
 
 
@@ -29,17 +33,27 @@ namespace TOOL
 {
 
 
-extern const char * g_dev;
-extern unsigned int g_notFoundApps;
-extern mac_addr g_devMac;
-
-
-
 int setDevMac()
 {
+        string ifname;
+	if (strncmp(g_dev, "netmap:", 7) == 0)
+	{
+	    const char* tmpPtr = &g_dev[7];
+	    // scan for a separator
+	    for ( ; *tmpPtr && !index("-*^{}/@", *tmpPtr); tmpPtr++)
+	        ;
+
+            ifname = &g_dev[7];
+	    ifname.erase(tmpPtr - &g_dev[7]);
+	}
+	else if (strncmp(g_dev, "pfq:", 4) == 0)
+            ifname = &g_dev[4];
+	else 
+	    ifname = g_dev;
+ 
  	// it's 2B type, so >> will read 2 hexa chars, which is 1 normal Byte
 	uint16_t twoCharsInByte {0};
-	const string macAddrPath = "/sys/class/net/" + string(g_dev) + "/address";
+	const string macAddrPath = "/sys/class/net/" + ifname + "/address";
 	ifstream devMacFile(macAddrPath);
 	if (!devMacFile)
 	    return -1;
@@ -122,20 +136,20 @@ int getInode(Netflow *n)
         static streamoff pos_localIp, pos_localPort, pos_inode;
         static string dummyStr;
         static unsigned int lineLength, inode;
-        static uint32_t foundPort;
+        static uint32_t foundPort;  // uint32_t because 2 bytes are 4 bytes in hexadecimal notation
         static uint16_t wantedPort;
 
         wantedPort = n->getLocalPort();
         inode = 0;
 #if 1
-        const char IP_SIZE = (ipVer == 4) ? IPv4_ADDRSTRLEN : IPv6_ADDRSTRLEN;
+        const char IP_SIZE = (ipVer == 4) ? IPv4_ADDRLEN : IPv6_ADDRLEN;
 
         getline(socketsFile, dummyStr); // get first line to find out length of the other lines
         lineLength = dummyStr.length() + 1;
         getline(socketsFile, dummyStr, ':'); // get rid of the first column
         pos_localIp = socketsFile.tellg();
         pos_localIp++; // space after first column ("sl")
-        pos_localPort = pos_localIp + IP_SIZE*2 + 1; // local ip plus ':' delimiter
+        pos_localPort = pos_localIp + IP_SIZE*2 + 1; // localIP + ':' delimiter
         // localPort remoteIp:remotePort st tx_queue:rx_queue tr:tm->when retrnsmt
         pos_inode = pos_localPort+3+ 1 +IP_SIZE*2+1+4+ 1+2+1 +8+1+8+ 1 +2+1+8 +1+8+1;
         
@@ -173,7 +187,7 @@ int getInode(Netflow *n)
                         parts[i / CHARS_PER_OCTET] = parts[i/CHARS_PER_OCTET]*16 + c;
                         i++;
                     }
-                    reinterpret_cast<ip4_addr*>(&foundIp)->bytes |= (parts[0] << 24) | (parts[1] << 16) | (parts[2] << 8) | parts[3];
+                    reinterpret_cast<ip4_addr*>(&foundIp)->addr |= (parts[0] << 24) | (parts[1] << 16) | (parts[2] << 8) | parts[3];
                 }
                 else
                 {

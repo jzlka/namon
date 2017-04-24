@@ -179,7 +179,7 @@ int startCapture(const char *oFilename)
 void packetHandler(unsigned char *arg_array, const struct pcap_pkthdr *header, const unsigned char *packet)
 {
 	static Netflow n;
-	static unsigned int ip4_hdrlen;
+	static unsigned int ip_hdrlen;
 	static ether_hdr *eth_hdr;
 	PacketHandlerParams *ptrs = reinterpret_cast<PacketHandlerParams*>(arg_array);
 
@@ -206,11 +206,17 @@ void packetHandler(unsigned char *arg_array, const struct pcap_pkthdr *header, c
 	if (dir == Directions::UNKNOWN)
 		return;
 	// Parse IP header
-	if (parseIp(n, ip4_hdrlen, dir, (void*)(packet + ETHER_HDRLEN), eth_hdr->ether_type))
+	if (parseIp(n, ip_hdrlen, dir, (void*)(packet + ETHER_HDRLEN), eth_hdr->ether_type))
 		return;
 	// Parse transport layer header
-	if (parsePorts(n, dir, (void*)(packet + ETHER_HDRLEN + ip4_hdrlen)))
+	if (parsePorts(n, dir, (void*)(packet + ETHER_HDRLEN + ip_hdrlen)))
+	{
+	//		if (n.getIpVersion() == 4)
+	//			delete static_cast<ip4_addr*>(n.getLocalIp());
+	//		else
+	//			delete static_cast<ip6_addr*>(n.getLocalIp());
 		return;
+	}
 	// STD::MOVE Netflow into buffer
 	if (cb->push(n))
 	{
@@ -251,7 +257,7 @@ inline int parseIp(Netflow &n, unsigned int &ip_size, Directions dir, void * con
 	if (ether_type == PROTO_IPv4)
 	{
 		const ip4_hdr * const hdr = (ip4_hdr*)ip_hdr;
-		ip_size = hdr->ip_len * 4; // the length of the internet header in 32 bit words
+		ip_size = hdr->ihl * 4; // the length of the internet header in 32 bit words
 		if (ip_size < 20)
 		{
 			log(LogLevel::WARNING, "Incorrect IPv4 header received.");
@@ -295,7 +301,7 @@ inline int parsePorts(Netflow &n, Directions dir, void *hdr)
 	case PROTO_TCP:
 	{
 		const struct tcp_hdr *tcp_hdr = (struct tcp_hdr*)hdr;
-		unsigned tcp_size = tcp_hdr->th_offx2 * 4; // number of 32 bit words in the TCP header
+		unsigned tcp_size = tcp_hdr->th_off * 4; // number of 32 bit words in the TCP header
 		if (tcp_size < 20)
 		{
 			log(LogLevel::WARNING, "Incorrect TCP header received.");
@@ -314,7 +320,7 @@ inline int parsePorts(Netflow &n, Directions dir, void *hdr)
 		unsigned short udp_size = udp_hdr->uh_ulen; // length in bytes of the UDP header and UDP data
 		if (udp_size < 8)
 		{
-			log(LogLevel::WARNING, "Incorrect UDP packet received.");
+			log(LogLevel::WARNING, "Incorrect UDP packet received with size <", udp_size, ">");
 			return EXIT_FAILURE;
 		}
 		if (dir == Directions::INBOUND)

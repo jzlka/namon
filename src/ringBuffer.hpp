@@ -17,7 +17,7 @@
 #include <pcap.h>               //  pcap_pkthdr
 
 #include "pcapng_blocks.hpp"    //  EnhancedPacketBlock
-#include "tool.hpp"				//	determineApp()
+#include "tool.hpp"             //  determineApp()
 
 extern std::atomic<int> shouldStop;
 

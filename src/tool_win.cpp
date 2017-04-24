@@ -196,6 +196,111 @@ int getPid(Netflow *n)
 }
 
 
+int connectToWmi()
+{
+	//https://msdn.microsoft.com/en-us/library/aa390421(v=vs.85).aspx
+	HRESULT hr;
+
+	// Step 1: --------------------------------------------------
+	// Initialize COM. ------------------------------------------
+
+	hr = CoInitializeEx(0, COINIT_MULTITHREADED);
+	if (FAILED(hr))
+		throw "Failed to initialize COM library.";
+
+	// Step 2: --------------------------------------------------
+	// Set general COM security levels --------------------------
+
+	hr = CoInitializeSecurity(
+		NULL,
+		-1,                          // COM authentication
+		NULL,                        // Authentication services
+		NULL,                        // Reserved
+		RPC_C_AUTHN_LEVEL_DEFAULT,   // Default authentication 
+		RPC_C_IMP_LEVEL_IMPERSONATE, // Default Impersonation  
+		NULL,                        // Authentication info
+		EOAC_NONE,                   // Additional capabilities 
+		NULL                         // Reserved
+	);
+	if (FAILED(hr))
+	{
+		CoUninitialize();
+		throw "Failed to initialize security.";
+	}
+
+	// Step 3: ---------------------------------------------------
+	// Obtain the initial locator to WMI -------------------------
+
+	IWbemLocator *pLoc = nullptr;
+	// Initialize the IWbemLocator interface throuwgh a cal to CoCreateInstance
+	hr = CoCreateInstance(
+		CLSID_WbemLocator, 
+		0,	
+		CLSCTX_INPROC_SERVER, 
+		IID_IWbemLocator, 
+		(LPVOID *)&pLoc);
+	if (FAILED(hr))
+	{
+		CoUninitialize();
+		throw "Failed to create IWbemLocator object.";
+	}
+
+	// Step 4: -----------------------------------------------------
+	// Connect to WMI through the IWbemLocator::ConnectServer method
+
+	IWbemServices *pSvc;
+	// Connect to the root\cimv2 namespace with
+	// the current user and obtain pointer pSvc
+	// to make IWbemServices calls.
+	hr = pLoc->ConnectServer(
+		BSTR(L"ROOT\\CIMV2"), // Object path of WMI namespace
+		NULL,                    // User name. NULL = current user
+		NULL,                    // User password. NULL = current
+		0,                       // Locale. NULL indicates current
+		NULL,                    // Security flags.
+		0,                       // Authority (for example, Kerberos)
+		0,                       // Context object 
+		&pSvc                    // pointer to IWbemServices proxy
+	);
+	if (FAILED(hr))
+	{
+		pLoc->Release();
+		CoUninitialize();
+		throw "Could not connect to ROOT\\CIMv2 WMI namespace.";
+	}
+
+	// Step 5: --------------------------------------------------
+	// Set security levels on the proxy -------------------------
+
+	hr = CoSetProxyBlanket(
+		pSvc,                        // Indicates the proxy to set
+		RPC_C_AUTHN_WINNT,           // RPC_C_AUTHN_xxx
+		RPC_C_AUTHZ_NONE,            // RPC_C_AUTHZ_xxx
+		NULL,                        // Server principal name 
+		RPC_C_AUTHN_LEVEL_CALL,      // RPC_C_AUTHN_LEVEL_xxx 
+		RPC_C_IMP_LEVEL_IMPERSONATE, // RPC_C_IMP_LEVEL_xxx
+		NULL,                        // client identity
+		EOAC_NONE                    // proxy capabilities 
+	);
+	if (FAILED(hr))
+	{
+		pSvc->Release();
+		pLoc->Release();
+		CoUninitialize();
+		throw "Could not set proxy blanket.";
+	}
+
+}
+
+
+void cleanWmiConnection()
+{
+	pLoc->Release();
+	pSvc->Release();
+	CoUninitialize();
+}
+
+
 int getApp(const int pid, string &appname)
 {
 	// https://msdn.microsoft.com/en-us/library/windows/desktop/ms686701(v=vs.85).aspx
@@ -276,98 +381,7 @@ int getApp(const int pid, string &appname)
 
 	try
 	{
-		//https://msdn.microsoft.com/en-us/library/aa390421(v=vs.85).aspx
 		HRESULT hr;
-
-		// Step 1: --------------------------------------------------
-		// Initialize COM. ------------------------------------------
-
-		hr = CoInitializeEx(0, COINIT_MULTITHREADED);
-		if (FAILED(hr))
-			throw "Failed to initialize COM library.";
-
-		// Step 2: --------------------------------------------------
-		// Set general COM security levels --------------------------
-
-		hr = CoInitializeSecurity(
-			NULL,
-			-1,                          // COM authentication
-			NULL,                        // Authentication services
-			NULL,                        // Reserved
-			RPC_C_AUTHN_LEVEL_DEFAULT,   // Default authentication 
-			RPC_C_IMP_LEVEL_IMPERSONATE, // Default Impersonation  
-			NULL,                        // Authentication info
-			EOAC_NONE,                   // Additional capabilities 
-			NULL                         // Reserved
-		);
-		if (FAILED(hr))
-		{
-			CoUninitialize();
-			throw "Failed to initialize security.";
-		}
-
-		// Step 3: ---------------------------------------------------
-		// Obtain the initial locator to WMI -------------------------
-
-		IWbemLocator *pLoc = nullptr;
-		// Initialize the IWbemLocator interface throuwgh a cal to CoCreateInstance
-		hr = CoCreateInstance(
-			CLSID_WbemLocator, 
-			0,	
-			CLSCTX_INPROC_SERVER, 
-			IID_IWbemLocator, 
-			(LPVOID *)&pLoc);
-		if (FAILED(hr))
-		{
-			CoUninitialize();
-			throw "Failed to create IWbemLocator object.";
-		}
-
-		// Step 4: -----------------------------------------------------
-		// Connect to WMI through the IWbemLocator::ConnectServer method
-
-		IWbemServices *pSvc;
-		// Connect to the root\cimv2 namespace with
-		// the current user and obtain pointer pSvc
-		// to make IWbemServices calls.
-		hr = pLoc->ConnectServer(
-			BSTR(L"ROOT\\CIMV2"), // Object path of WMI namespace
-			NULL,                    // User name. NULL = current user
-			NULL,                    // User password. NULL = current
-			0,                       // Locale. NULL indicates current
-			NULL,                    // Security flags.
-			0,                       // Authority (for example, Kerberos)
-			0,                       // Context object 
-			&pSvc                    // pointer to IWbemServices proxy
-		);
-		if (FAILED(hr))
-		{
-			pLoc->Release();
-			CoUninitialize();
-			throw "Could not connect to ROOT\\CIMv2 WMI namespace.";
-		}
-
-		// Step 5: --------------------------------------------------
-		// Set security levels on the proxy -------------------------
-
-		hr = CoSetProxyBlanket(
-			pSvc,                        // Indicates the proxy to set
-			RPC_C_AUTHN_WINNT,           // RPC_C_AUTHN_xxx
-			RPC_C_AUTHZ_NONE,            // RPC_C_AUTHZ_xxx
-			NULL,                        // Server principal name 
-			RPC_C_AUTHN_LEVEL_CALL,      // RPC_C_AUTHN_LEVEL_xxx 
-			RPC_C_IMP_LEVEL_IMPERSONATE, // RPC_C_IMP_LEVEL_xxx
-			NULL,                        // client identity
-			EOAC_NONE                    // proxy capabilities 
-		);
-		if (FAILED(hr))
-		{
-			pSvc->Release();
-			pLoc->Release();
-			CoUninitialize();
-			throw "Could not set proxy blanket.";
-		}
-
 		// Step 6: --------------------------------------------------
 		// Use the IWbemServices pointer to make requests of WMI ----
 
@@ -417,9 +431,6 @@ int getApp(const int pid, string &appname)
 		pEnumerator->Release();
 		if (pclsObj != NULL)
 			pclsObj->Release();
-		pLoc->Release();
-		pSvc->Release();
-		CoUninitialize();
 		return 0;
 	}
 	catch (const char *msg)

@@ -30,6 +30,8 @@ namespace TOOL
 #define	ETHERMTU			1500		//!< Maximum transmission unit
 #define	ETHER_ADDRLEN		6			//!< Length of Ethernet address
 #define ETHER_HDRLEN		14			//!< Size of Ethernet header
+#define PROTO_IPv4			0x0008		//!< ID of IPv4 protocol (in network order)
+#define PROTO_IPv6		0xDD86		//!< ID of IPv6 protocol (in network order)
 
 #pragma pack(push, 1)
 
@@ -53,10 +55,10 @@ struct	ether_hdr {
 *                                   IPv4                                     *
 *                                                                            *
 *++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
-#define PROTO_IPv4			0x08		//!< ID of IPv4 protocol
 #define	IPv4_MAXPACKET		65535		//!< maximum packet size
 #define IPv4_ADDRSTRLEN		16			//!< Length of IPv4 address string
 #define IPv4_ADDRLEN		4			//!< Length of IPv4 address
+#define AF_INET			2 //! @todo check other platforms
 
 //! IPv4 address
 struct ip4_addr {
@@ -65,20 +67,23 @@ struct ip4_addr {
 
 //! IPv4 header structure
 struct ip4_hdr {
-	uint8_t	ip_vhl;		/* header length, version */
-#define IP_V(ip)	(((ip)->ip_vhl & 0xf0) >> 4)
-#define IP_HL(ip)	((ip)->ip_vhl & 0x0f)
-	uint8_t	ip_tos;		/* type of service */
-	uint16_t	ip_len;		/* total length */
-	uint16_t	ip_id;		/* identification */
-	uint16_t	ip_off;		/* fragment offset field */
-#define	IP_DF 0x4000			/* dont fragment flag */
-#define	IP_MF 0x2000			/* more fragments flag */
-#define	IP_OFFMASK 0x1fff		/* mask for fragmenting bits */
-	uint8_t	ip_ttl;		/* time to live */
-	uint8_t	ip_p;		/* protocol */
-	uint16_t ip_sum;		/* checksum */
-	ip4_addr ip_src, ip_dst;	/* source and dest address */
+#if __BYTE_ORDER == __LITTLE_ENDIAN
+        unsigned int ihl:4;
+        unsigned int version:4;
+#elif __BYTE_ORDER == __BIG_ENDIAN
+        unsigned int version:4;
+        unsigned int ihl:4;
+#else
+# error "Please fix <bits/endian.h>"
+#endif
+	uint8_t   ip_tos;		/* type of service */
+	uint16_t  ip_len;		/* total length */
+	uint16_t  ip_id;		/* identification */
+	uint16_t  ip_off;		/* fragment offset field */
+	uint8_t   ip_ttl;		/* time to live */
+	uint8_t   ip_p;		/* protocol */
+	uint16_t  ip_sum;		/* checksum */
+	ip4_addr  ip_src, ip_dst;	/* source and dest address */
 };
 
 
@@ -89,18 +94,18 @@ struct ip4_hdr {
 *                                   IPv6                                     *
 *                                                                            *
 *++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
-#define PROTO_IPv6		0x86		//!< ID of IPv6 protocol
 #define IPv6_ADDRSTRLEN	46			//!< Length of IPv6 address string
 #define IPv6_ADDRLEN	16			//!< Length of IPv6 address
 #define IPv6_HDRLEN		40			//!< Size of IPv6 header
+#define AF_INET6	10 //! @todo check other platforms
 
 //! IPv6 address
 struct ip6_addr {
 	union {
-		uint8_t   __u6_addr8[16];
-		uint16_t  __u6_addr16[8];
-		uint32_t  __u6_addr32[4];
-	} __u6_addr;					//!< 128-bit IP6 address
+		uint8_t   addr8[16];
+		uint16_t  addr16[8];
+		uint32_t  addr32[4];
+	} addr;					//!< 128-bit IP6 address
 };
 
 //! IPv6 header structure
@@ -157,7 +162,6 @@ struct udp_hdr {
 *                                                                            *
 *++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 #define PROTO_TCP		0x06		//!< ID of TCP protocol
-#define TH_OFF(th)	(((th)->th_off & 0xf0) >> 4)
 
 //! TCP header structure
 struct tcp_hdr {
@@ -165,12 +169,20 @@ struct tcp_hdr {
 	uint16_t	th_dport;			//!< destination port
 	uint32_t	th_seq;				//!< sequence number
 	uint32_t	th_ack;				//!< acknowledgement number
-	uint8_t		th_offx2;			//!< data offset, rsvd
+# if __BYTE_ORDER == __LITTLE_ENDIAN
+        uint8_t	th_x2:4;               /* (unused) */
+        uint8_t	th_off:4;              /* data offset */
+# endif
+# if __BYTE_ORDER == __BIG_ENDIAN
+        uint8_t	th_off:4;              /* data offset */
+        uint8_t	th_x2:4;               /* (unused) */
+# endif
 	uint8_t		th_flags;
 	uint16_t	th_win;				//!< window
 	uint16_t	th_sum;				//!< checksum
 	uint16_t	th_urp;				//!< urgent pointer
 };
+
 #pragma pack(pop)
 
 
