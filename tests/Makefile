@@ -3,7 +3,7 @@
 # @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
 # @date
 #  - Created: 24.04.2017 04:50
-#  - Edited:  24.04.2017 05:18
+#  - Edited:  24.04.2017 07:21
 # @version    1.0.0
 # @par        make: GNU Make 3.81
 # @bug
@@ -28,5 +28,5 @@ LDFLAGS=
 all : $(TARGETS)
 
 clean:
-	-rm $(TARGETS) $(TARGETS).o
+	-rm $(TARGETS)
 	-rm -rf *.dSYM
