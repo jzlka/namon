@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 18.02.2017 22:48
- *   - Edited:  21.04.2017 00:52
+ *   - Edited:  25.04.2017 16:20
  */
 
 #pragma once
@@ -60,6 +60,11 @@ struct PacketHandlerParams
 
 
 
+/*!
+* @brief       Determines packet derection
+* @param[in]   eth_hdr   Ethernet header
+* @return      Returns TOOL::Direction
+*/
 Directions getPacketDirection(TOOL::ether_hdr *eth_hdr);
 /*!
 * @brief       Starts network traffic capture
@@ -89,7 +94,7 @@ inline int parseIp(Netflow &n, unsigned int &ip_size, Directions dir, void * con
 * @param[out]  n   Netflow which will be filled with parsed information
 * @param[in]   dir         Packet direction
 * @param[in]   hdr Header pointer
-* @return      Layer 4 header's validity
+* @return      Layer 4 header validity
 */
 inline int parsePorts(Netflow &n, Directions dir, void *hdr);
 /*!

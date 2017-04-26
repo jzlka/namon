@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 
- *   - Edited:  21.04.2017 01:03
+ *   - Edited:  25.04.2017 16:23
  *  @todo       rename file
  */
 
@@ -36,7 +36,7 @@ int getPid(Netflow *n);
  * @brief       Finds an application name with given PID
  * @param[in]   pid		Process Identification Number
  * @param[out]  appName Found application name and its arguments
- * @return      False if I/O error occured. True otherwise.
+ * @return      False if I/O error occured. True otherwise
  */
 int getApp(const int pid, std::string &appName);
 

@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 18.02.2017 23:32
- *   - Edited:  21.04.2017 01:19
+ *   - Edited:  26.04.2017 02:06
  *  @todo       rename file
  */
 
@@ -13,7 +13,7 @@
 #include <unistd.h>             //  getpid()
 #include <cstring>              //  memset(), strchr()
 
-#include "tcpip_headers.hpp"	//
+#include "tcpip_headers.hpp"    //
 #include "netflow.hpp"          //  Netflow
 #include "cache.hpp"            //  Cache, TEntry
 #include "debug.hpp"            //  log()
@@ -35,37 +35,37 @@ namespace TOOL
 
 int setDevMac()
 {
-        string ifname;
-	if (strncmp(g_dev, "netmap:", 7) == 0)
-	{
-	    const char* tmpPtr = &g_dev[7];
-	    // scan for a separator
-	    for ( ; *tmpPtr && !index("-*^{}/@", *tmpPtr); tmpPtr++)
-	        ;
+    string ifname;
+    if (strncmp(g_dev, "netmap:", 7) == 0)
+    {
+        const char* tmpPtr = &g_dev[7];
+        // scan for a separator
+        for ( ; *tmpPtr && !index("-*^{}/@", *tmpPtr); tmpPtr++)
+            ;
 
-            ifname = &g_dev[7];
-	    ifname.erase(tmpPtr - &g_dev[7]);
-	}
-	else if (strncmp(g_dev, "pfq:", 4) == 0)
-            ifname = &g_dev[4];
-	else 
-	    ifname = g_dev;
+        ifname = &g_dev[7];
+        ifname.erase(tmpPtr - &g_dev[7]);
+    }
+    else if (strncmp(g_dev, "pfq:", 4) == 0)
+        ifname = &g_dev[4];
+    else 
+        ifname = g_dev;
  
- 	// it's 2B type, so >> will read 2 hexa chars, which is 1 normal Byte
-	uint16_t twoCharsInByte {0};
-	const string macAddrPath = "/sys/class/net/" + ifname + "/address";
-	ifstream devMacFile(macAddrPath);
-	if (!devMacFile)
-	    return -1;
-	int i{0};
-	do {
-	    if (i >= ETHER_ADDRLEN)
-	        return -1;
+    // it's 2B type, so >> will read 2 hexa chars, which is 1 normal Byte
+    uint16_t twoCharsInByte {0};
+    const string macAddrPath = "/sys/class/net/" + ifname + "/address";
+    ifstream devMacFile(macAddrPath);
+    if (!devMacFile)
+        return -1;
+    int i{0};
+    do {
+        if (i >= ETHER_ADDRLEN)
+            return -1;
 
-	    devMacFile >> hex >> twoCharsInByte;
-	    g_devMac.bytes[i] = twoCharsInByte;
-	    i++; 
-	} while (devMacFile.get() != '\n');
+        devMacFile >> hex >> twoCharsInByte;
+        g_devMac.bytes[i] = twoCharsInByte;
+        i++; 
+    } while (devMacFile.get() != '\n');
     return 0;
 
     //! @todo reimplement to MAC address + multicast
@@ -119,19 +119,19 @@ int getInode(Netflow *n)
         log(LogLevel::ERR, "IP protocol ", ipVer, " is not supported."); 
         return -1; 
     }
-    //memset(&foundIp, 0, sizeof(foundIp));
+    memset(&foundIp, 0, sizeof(foundIp));
 
     try
     {
-		static string filename;
+        static string filename;
 
-		if (getSocketFile(n, filename))
-			return -1;
+        if (getSocketFile(n, filename))
+            return -1;
 
-		ifstream socketsFile;
-		socketsFile.open(filename);
-		if (!socketsFile)
-			throw ("Can't open file " + filename);
+        ifstream socketsFile;
+        socketsFile.open(filename);
+        if (!socketsFile)
+            throw ("Can't open file " + filename);
 
         static streamoff pos_localIp, pos_localPort, pos_inode;
         static string dummyStr;
@@ -161,15 +161,15 @@ int getInode(Netflow *n)
             //D(wantedPort << " vs. " << foundPort);
             if (foundPort == wantedPort)
             {
-                char c{0}, i{0};
-                vector<uint8_t> parts(IP_SIZE,0);
-                const unsigned char CHARS_PER_OCTET = (ipVer == 4) ? 2 : 1; //! @todo implement ipv6
-
+                char c{0};
                 // compare localIp
                 socketsFile.seekg(pos_localIp);
-
                 if (ipVer == 4)
                 {
+                    char i{0};
+                    uint8_t parts[IPv4_ADDRLEN];
+                    const unsigned char CHARS_PER_OCTET = 2;
+
                     while (socketsFile.get(c), c != ':' && c != 0) //! @todo why 0?
                     {
                         if (c >= '0' && c <= '9')
@@ -181,9 +181,9 @@ int getInode(Netflow *n)
                             log(LogLevel::ERR, "An Unexpected hexadecimal character in IP address in procfs: ", c);
                             break;
                         }
+                        // 01 00 00 7F      :c  == 127.0.0.1     (IP address char)
                         // 01 23 45 67      :i                   (position)
                         // 0  1  2  3       :i / CHARS_PER_OCTET (corresponding octet)
-                        // 01 00 00 7F      :c  == 127.0.0.1     (IP address char)
                         parts[i / CHARS_PER_OCTET] = parts[i/CHARS_PER_OCTET]*16 + c;
                         i++;
                     }
@@ -191,14 +191,18 @@ int getInode(Netflow *n)
                 }
                 else
                 {
-                    throw "IPv6 is not supported yet."; //! @todo implement
+                    static uint8_t indexes[8] = {4,3,2,1,8,7,6,5};
+                    static ip6_addr* foundIp6;
+                    foundIp6 = reinterpret_cast<ip6_addr*>(&foundIp);
+                    for (int i=0; i < 8; i++)
+                        socketsFile >> hex >> foundIp6->addr.addr16[indexes[i]];
                 }
 
-                // if it is our IP address
                 // static variables are automatically initialized to zero unless there is an initializer
-                // in6_addr is bigger so we can use it to compare for both ip versions
-                //static char zeroBlock [sizeof(in6_addr)];
-                if (!memcmp(n->getLocalIp(), &foundIp, ipSize)/* || !memcmp(&foundIp, zeroBlock, ipSize)*/)
+                // ip6_addr is bigger so we can use it to compare for both ip versions
+                // if it is our IP address or broadcast
+                static char zeroBlock [sizeof(ip6_addr)];
+                if (!memcmp(n->getLocalIp(), &foundIp, ipSize) || !memcmp(&foundIp, zeroBlock, ipSize))
                 {
 
                     socketsFile.seekg(pos_inode);
@@ -209,8 +213,8 @@ int getInode(Netflow *n)
                     {
                         //! @todo getc stucked
                         //! @warning can stuck (when file is closed? I don't know yet)
-                        // it gets the same char all the time (':' when it occured after signal 2 call)
-                        // so column is never 3
+                        // it got the same char all the time (':' when it occured after signal 2 call)
+                        // so column is never equal 3
                         socketsFile.get(c);
                         if (c != ' ')
                         {
@@ -240,7 +244,7 @@ int getInode(Netflow *n)
         socketsFile.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
         ///
         //
-        /
+        //
         string nextLine(istream&, string&& = string());
 
         // calling once, or when allocation cost doesn't matter
@@ -252,8 +256,7 @@ int getInode(Netflow *n)
             line = nextLine(strm, std::move(line));
         ///
         //
-        /
-https://channel9.msdn.com/Events/GoingNative/2013/Writing-Quick-Code-in-Cpp-Quickly
+        //https://channel9.msdn.com/Events/GoingNative/2013/Writing-Quick-Code-in-Cpp-Quickly
         typedef std::istreambuf_iterator<char> iter;
 
         std::ifstream input_file("textfile.txt");
@@ -267,7 +270,7 @@ https://channel9.msdn.com/Events/GoingNative/2013/Writing-Quick-Code-in-Cpp-Quic
     }
     catch(char const *msg)
     {
-        cerr << "ERROR: " << msg << endl;
+        log(LogLevel::ERR, msg);
         return -1;
     }
 }

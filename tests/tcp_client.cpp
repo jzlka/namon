@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 24.04.2017 06:44
- *   - Edited:  24.04.2017 06:49
+ *   - Edited:  25.04.2017 23:23
  *  @version    1.0.0
  *  @par        g++: Apple LLVM version 8.0.0 (clang-800.0.42.1)
  *  @bug
@@ -20,7 +20,8 @@
 #include <thread>           // this_thread::sleep_for()
 
 #if defined(__linux__)
-#include <signal.h>             //  signal(), SIGINT, SIGTERM, SIGABRT, SIGSEGV
+#include <cstring>          // memset(), memcpy()
+#include <signal.h>         //  signal(), SIGINT, SIGTERM, SIGABRT, SIGSEGV
 #elif defined(_WIN32)
 #endif
 

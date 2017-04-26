@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 26.02.2017 23:52
- *   - Edited:  21.04.2017 01:23
+ *   - Edited:  25.04.2017 16:36
  */
 
 #include <iostream>             //  cout, endl;
@@ -185,7 +185,7 @@ void TTree::setCommonValue(Netflow *n)
             break;
         }
         case TreeLevel::LOCAL_IP:
-        {   //! @warning    If it is called two times on the same level, it will cause a memory leak
+        {   // WARNING:    If it is called two times on the same level, it will cause a memory leak
             unsigned char ipVersion = n->getIpVersion();
             if (ipVersion == 4)
             {
@@ -245,7 +245,7 @@ void TTree::saveResults()
         if (record->isEntry())
         {
             TEntry *entryPtr = static_cast<TEntry *>(record);
-            if (/*!entryPtr->valid() && */entryPtr->getAppName() != "")
+            if (entryPtr->getAppName() != "")
             {
                 Netflow *res = new Netflow;
                 *res = *entryPtr->getNetflowPtr();

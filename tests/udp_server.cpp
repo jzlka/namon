@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 24.04.2017 02:17
- *   - Edited:  24.04.2017 05:50
+ *   - Edited:  25.04.2017 23:23
  */
 
 #include <iostream>         // cout, end, cerr
@@ -74,6 +74,7 @@ int main(int argc, char *argv[])
         char buffer[BUFFER];
         struct timeval tv;
         tv.tv_sec = 2;
+        tv.tv_usec = 0;
         if (setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv)) < 0)
             throw "Can't set timeout for socket";
 

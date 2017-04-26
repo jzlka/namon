@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 24.04.2017 02:17
- *   - Edited:  24.04.2017 06:45
+ *   - Edited:  25.04.2017 23:24
  */
 
 #include <iostream>         // cout, endl, cerr
@@ -16,7 +16,8 @@
 #include <thread>           // this_thread::sleep_for()
 
 #if defined(__linux__)
-#include <signal.h>             //  signal(), SIGINT, SIGTERM, SIGABRT, SIGSEGV
+#include <cstring>          // memset(), memcpy()
+#include <signal.h>         // signal(), SIGINT, SIGTERM, SIGABRT, SIGSEGV
 #elif defined(_WIN32)
 #endif
 

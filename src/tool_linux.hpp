@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 18.02.2017 22:55
- *   - Edited:  21.04.2017 01:03
+ *   - Edited:  25.04.2017 16:22
  *  @todo       rename file
  */
 
@@ -44,7 +44,7 @@ int getInode(Netflow *n);
  * @brief       Finds an application with opened socket inode in parameter
  * @param[in]   inode   Socket inode number
  * @param[out]  appName Found application and its arguments
- * @return      False if I/O error occured. True otherwise.
+ * @return      False if I/O error occured. True otherwise
  */
 int getApp(const int inode, std::string &appName);
 

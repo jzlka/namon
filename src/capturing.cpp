@@ -4,15 +4,31 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 18.02.2017 22:45
- *   - Edited:  21.04.2017 01:27
- *   @todo      IPv6 implementation
+ *   - Edited:  26.04.2017 02:03
+ *   @todo      IPv6 implementation tests
  *   @todo      Comment which functions move classes
+ *   @todo      EnhancedPacketBlock disable pragma 1 -> speed up working with ringBuffer
+ *   @todo      document in BP that npcap must be installed
+ *   @bug       cal_init leak
+ *   @bug       cache contains records where inode == 0 && appName != ""
+ *   @todo      copy grammar and example output to a cloud
+ *   @todo      what about raw sockets in procfs
+ *   @todo      setuid
  *   @todo      What to do when the cache contains invalid record and getInode returns inode == 0
  *              Save it to cache or the packet belongs to the old record?
  *   @todo      Broadcast and multicast packets (239.255.255.250, 0.0.0.0, 224.0.0.7, 1.13.0.0, 192.168.1.255)
- *   @bug       Getting packets with local port set to 0 in determineApp()
- *   @bug       Sometimes deadlock after ^C
+ *   @bug       Getting packets with local port set to 0 in determineApp() (and also zero IP)
+ *   @bug       Sometimes deadlock after ^C (when there is too many log messages)
  *   @todo      getting incorrect udp packet err
+ *   @bug       2 sockets (UDP, :68, eth0(INADDR_ANY), eth1(INADDR_ANY)), 2 application instances (dhclient), 
+ *              2 inodes, 2 interfaces, 2 procfs entries
+ *
+ *              sl  local_address rem_address   st  ...   uid  timeout inode ref pointer drops
+ *              458: 00000000:0044 00000000:0000 07 ...    0        0  13021 2   f6cbe300 0 (eth0)
+ *              458: 00000000:0044 00000000:0000 07 ...    0        0  14400 2   f3fe6e40 0 (eth1)
+ *              
+ *              ->cache stores only first inode for both instances
+ *              ->mozme to vyuzit ako utok? originalna aplikacia komunikuje na rozhrani, porte a my otvorime addr_any na tom istom porte a budeme to tiez prijimat?
  */
 
 #include <map>                  //  map

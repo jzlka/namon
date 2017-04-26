@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 06.03.2017 13:33
- *   - Edited:  10.04.2017 16:07
+ *   - Edited:  26.04.2017 01:39
  */
 
 #pragma once
@@ -70,8 +70,7 @@ inline int computePaddingLen(int num, int multiple)
 }
 
 
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 
 /*!
  * @class   SectionHeaderBlock
@@ -272,23 +271,23 @@ public:
      */
     ~EnhancedPacketBlock()    { free(packetData); }
     /*!
-     * @brief       Set method for #EnhancedPacketBlock::timestampHi 
-     *               and #EnhancedPacketBlock::timestampLo
+     * @brief       Set method for #TOOL::EnhancedPacketBlock::timestampHi 
+     *               and #TOOL::EnhancedPacketBlock::timestampLo
      * @param[in]   timestamp   Packet timestamp
      */
     void setTimestamp(uint64_t timestamp) { timestampLo = timestamp & 0xffffffff; timestampHi = timestamp >> 32; }
     /*!
-     * @brief       Set method for #EnhancedPacketBlock::capturedPacketLength
+     * @brief       Set method for #TOOL::EnhancedPacketBlock::capturedPacketLength
      * @param[in]   len Captured length
      */
     void setCapturedPacketLength(uint32_t len) { capturedPacketLength = len; }
     /*!
-     * @brief       Set method for #EnhancedPacketBlock::originalPacketLength
+     * @brief       Set method for #TOOL::EnhancedPacketBlock::originalPacketLength
      * @param[in]   len Length of the packet as it was on the wire
      */
     void setOriginalPacketLength(uint32_t len) { originalPacketLength = len; }
     /*!
-     * @brief       Set method for #EnhancedPacketBlock::packetData
+     * @brief       Set method for #TOOL::EnhancedPacketBlock::packetData
      * @details     Copies a memory pointed by ptr into the preallocated space.
      *              Copy is faster than memmove
      * @todo        Catch error

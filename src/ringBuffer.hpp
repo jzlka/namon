@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 22.03.2017 17:04
- *   - Edited:  21.04.2017 01:00
+ *   - Edited:  25.04.2017 16:18
  */
 
 #pragma once
@@ -47,7 +47,7 @@ class RingBuffer
 	//! @brief  Number of dropped elements
 	unsigned int droppedElem = 0;
 
-	//! @brief  Mutex used to lock #RingBuffer::m_condVar
+	//! @brief  Mutex used to lock #TOOL::RingBuffer::m_condVar
 	std::mutex m_condVar;
 	//! @brief  Condition variable used to notify thread when a new packet is stored in the buffer
 	std::condition_variable cv_condVar;
@@ -66,7 +66,7 @@ public:
      */
 	bool full() const { return size == buffer.size(); }
 	/*!
-     * @brief   Get method for #RingBuffer::droppedElem
+     * @brief   Get method for #TOOL::RingBuffer::droppedElem
      * @return  Number of dropped elements
      */
 	unsigned int getDroppedElem() { return droppedElem; }
@@ -85,7 +85,7 @@ public:
      */
 	int push(const pcap_pkthdr *header, const u_char *packet);
 	/*!
-     * @brief   Moves #RingBuffer::first to the next element
+     * @brief   Moves #TOOL::RingBuffer::first to the next element
      */
 	void pop();
 	/*!
@@ -93,8 +93,8 @@ public:
      */
 	T & top() { return buffer[last - 1]; }
 	/*!
-     * @brief   Function notify all threads to check #RingBuffer::m_condVar
-     * @details Because #RingBuffer::m_condVar is private member of this class this method
+     * @brief   Function notify all threads to check #TOOL::RingBuffer::m_condVar
+     * @details Because #TOOL::RingBuffer::m_condVar is private member of this class this method
      *           is used to notify threads from main.
      */
 	void notifyCondVar() { cv_condVar.notify_all(); }

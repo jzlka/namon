@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 26.02.2017 23:13
- *   - Edited:  21.04.2017 00:56
+ *   - Edited:  25.04.2017 16:10
  */
 
 #pragma once
@@ -47,26 +47,26 @@ public:
      */
     Netflow()                               {}
     /*!
-     * @brief   Destructor cleans memory pointed by #Netflow::localIp
+     * @brief   Destructor cleans memory pointed by #TOOL::Netflow::localIp
      */
     ~Netflow();
     /*! 
-     * @brief   Get method for #Netflow::ipVersion
+     * @brief   Get method for #TOOL::Netflow::ipVersion
      * @return  IP header version
      */
     uint8_t getIpVersion()                  { return ipVersion; }
     /*! 
-     * @brief       Set method for #Netflow::ipVersion
+     * @brief       Set method for #TOOL::Netflow::ipVersion
      * @param[in]   ipV       IP header version
      */
     void setIpVersion(uint8_t ipV)          { ipVersion = ipV; }
     /*! 
-     * @brief   Get method for #Netflow::localIp
+     * @brief   Get method for #TOOL::Netflow::localIp
      * @return  Pointer to local IP structure
      */
     void * getLocalIp()                     { return localIp; }
     /*! 
-     * @brief       Set method for #Netflow::localIp
+     * @brief       Set method for #TOOL::Netflow::localIp
      * @pre         newIp must point to a valid in*_addr structure
      * @post        Memory pointed by newIp must exist as long as Netflow object exists.
      *              Then it will be freed in destructor.
@@ -74,42 +74,42 @@ public:
      */
     void setLocalIp(void *newIp)            { localIp = newIp; }
     /*! 
-     * @brief   Get method for #Netflow::localPort
+     * @brief   Get method for #TOOL::Netflow::localPort
      * @return  Local port
      */
     uint16_t getLocalPort()                 { return localPort; }
     /*! 
-     * @brief       Set method for #Netflow::localPort
+     * @brief       Set method for #TOOL::Netflow::localPort
      * @param[in]   newPort   Local port
      */
     void setLocalPort(uint16_t newPort)     { localPort = newPort; }
     /*! 
-     * @brief   Get method for #Netflow::proto
+     * @brief   Get method for #TOOL::Netflow::proto
      * @return  Layer 4 protocol
      */
     uint8_t getProto()                      { return proto; }
     /*! 
-     * @brief       Set method for #Netflow::proto
+     * @brief       Set method for #TOOL::Netflow::proto
      * @param[in]   newProto  Layer 4 protocol
      */
     void setProto(uint8_t newProto)         { proto = newProto; }
     /*! 
-     * @brief   Get method for #Netflow::startTime
+     * @brief   Get method for #TOOL::Netflow::startTime
      * @return  Time of the first packet which belongs to this netflow
      */
     uint64_t getStartTime()                 { return startTime; }
     /*! 
-     * @brief       Set method for #Netflow::startTime
+     * @brief       Set method for #TOOL::Netflow::startTime
      * @param[in]   newTime   Time of the first packet which belongs to this netflow
      */
     void setStartTime(uint64_t newTime)     { startTime = newTime; }
     /*! 
-     * @brief   Get method for #Netflow::endTime
+     * @brief   Get method for #TOOL::Netflow::endTime
      * @return  Time of the last packet which belongs to this netflow
      */
     uint64_t getEndTime()                   { return endTime; }
     /*! 
-     * @brief       Set method for #Netflow::endTime
+     * @brief       Set method for #TOOL::Netflow::endTime
      * @param[in]   newTime   Time of the last packet which belongs to this netflow
      */
     void setEndTime(uint64_t newTime)       { endTime = newTime; }

@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 02.03.2017 04:32
- *   - Edited:  21.04.2017 00:46
+ *   - Edited:  25.04.2017 16:33
  */
 
 #pragma once
@@ -49,7 +49,7 @@ enum class TreeLevel {
 };
 
 /*!
- * @brief Overloaded prefix increment operator for #TreeLevel enum
+ * @brief Overloaded prefix increment operator for #TOOL::TreeLevel enum
  */
 inline TreeLevel& operator++( TreeLevel &l ) 
 {
@@ -61,7 +61,7 @@ inline TreeLevel& operator++( TreeLevel &l )
 }
 
 /*!
- * @brief Overloaded postfix increment operator for #TreeLevel enum
+ * @brief Overloaded postfix increment operator for #TOOL::TreeLevel enum
  */
 inline TreeLevel operator++( TreeLevel &t, int ) 
 {
@@ -71,7 +71,7 @@ inline TreeLevel operator++( TreeLevel &t, int )
 }
 
 /*!
- * @brief Overloaded prefix increment operator for #TreeLevel enum
+ * @brief Overloaded prefix increment operator for #TOOL::TreeLevel enum
  */
 inline TreeLevel operator+( TreeLevel &l, int a ) 
 {
@@ -118,7 +118,7 @@ public:
      */
     bool isTree()                   { return nt == NodeType::TREE; }
     /*!
-     * @brief       Set method for #TEntryOrTTree::level
+     * @brief       Set method for #TOOL::TEntryOrTTree::level
      * @param[in]   l    Level in the tree
      */
     void setLevel(TreeLevel l)      { level = l; }
@@ -127,12 +127,12 @@ public:
      */
     void incLevel()                 { level++; }
     /*!
-     * @brief   Get method for #TEntryOrTTree::level
+     * @brief   Get method for #TOOL::TEntryOrTTree::level
      * @return  Level in the tree
      */
     TreeLevel getLevel()            { return level; }
     /*!
-     * @brief       Compares values important at a specific #TreeLevel
+     * @brief       Compares values important at a specific #TOOL::TreeLevel
      * @param[in]   n    Pointer to a Netflow class with netflow information
      * @return      Returns true if *this and n parameter have same value on their level. False otherwise
      */
@@ -153,8 +153,8 @@ class TEntry : public TEntryOrTTree
 {
     //! @brief  Time of last update
     clock_type::time_point lastUpdate = clock_type::now();
-    string appName ="";             //!< Application name which #TEntry::n belongs to
-    int inodeOrPid =0;                   //!< Inode number of #TEntry::appName 's socket
+    string appName ="";             //!< Application name which #TOOL::TEntry::n belongs to
+    int inodeOrPid =0;                   //!< Inode number of #TOOL::TEntry::appName 's socket
     Netflow *n = nullptr;           //!< Pointer to a netflow record
 public:
     /*!
@@ -163,16 +163,16 @@ public:
     TEntry()                                { nt = NodeType::ENTRY; }
     /*!
      * @brief       Constructor that sets level to parameter l and 
-     *              #TEntryOrTTree::nt to #NodeType::ENTRY
+     *              #TOOL::TEntryOrTTree::nt to #NodeType::ENTRY
      * @param[in]   l   Level in the tree
      */
     TEntry(TreeLevel l)                     { level = l; nt = NodeType::ENTRY; }
     /*!
-     * @brief   Default destructor that deletes #TEntry::n
+     * @brief   Default destructor that deletes #TOOL::TEntry::n
      */
     ~TEntry()                               { delete n; }
     /*!
-     * @brief   Updates #TEntry::lastUpdate time with actual time
+     * @brief   Updates #TOOL::TEntry::lastUpdate time with actual time
      */
     void updateTime()                       { lastUpdate = clock_type::now(); }
     /*!
@@ -181,27 +181,27 @@ public:
      */
     bool valid()     { return duration_cast<seconds>(clock_type::now()-lastUpdate) < seconds(VALID_TIME); }
     /*!
-     * @brief       Set method for #TEntry::appName
+     * @brief       Set method for #TOOL::TEntry::appName
      * @param[in]   name    New application name
      */
     void setAppName(const string &name)     { appName = name; }
     /*!
-     * @brief   Get method for #TEntry::appName
+     * @brief   Get method for #TOOL::TEntry::appName
      * @return  Application name
      */
     string const & getAppName()             { return appName; }
     /*!
-     * @brief       Set method for #TEntry::inodeOrPid
+     * @brief       Set method for #TOOL::TEntry::inodeOrPid
      * @param[in]   i   New inode (Linux) or PID (Win) number
      */
     void setInodeOrPid(int i)                    { inodeOrPid = i; }
     /*!
-     * @brief   Get method for #TEntry::inodeOrPid
+     * @brief   Get method for #TOOL::TEntry::inodeOrPid
      * @return  Inode number (Linux) or PID (Win)
      */
     int getInodeOrPid()                          { return inodeOrPid; }
     /*!
-     * @brief       Set method for #TEntry::n
+     * @brief       Set method for #TOOL::TEntry::n
      * @pre         newNetflow must be a valid Netflow pointer
      * @post        Memory pointed by newNetflow must exist as long as TEntry object exists.
      *              Then it will be freed in a destructor.
@@ -209,12 +209,12 @@ public:
      */
     void setNetflowPtr(Netflow *newNetflow) { n = newNetflow; }
     /*!
-     * @brief   Get method for #TEntry::n
+     * @brief   Get method for #TOOL::TEntry::n
      * @return  Pointer to a Netflow class
      */
     Netflow * getNetflowPtr()               { return n; }
     /*!
-     * @brief       Compares values important at a specific #TreeLevel
+     * @brief       Compares values important at a specific #TOOL::TreeLevel
      * @param[in]   n1  Pointer to a Netflow class with netflow information
      * @return      True if *this and n have same level values
      */
@@ -225,7 +225,7 @@ public:
     void print();
     /*!
      * @brief   Overloaded copy assignment operator
-     * @details If #TEntry::n is NULL, it allocates new memory for new Netflow.
+     * @details If #TOOL::TEntry::n is NULL, it allocates new memory for new Netflow.
      */
     TEntry& operator=(const TEntry& other)
     {
@@ -242,7 +242,7 @@ public:
     }
     /*!
      * @brief   Overloaded move assignment operator
-     * @details It dealocates old #TEntry::n and sets pointer to new Netflow
+     * @details It dealocates old #TOOL::TEntry::n and sets pointer to new Netflow
      */
     TEntry& operator=(TEntry&& other)
     {
@@ -271,18 +271,18 @@ public:
  */
 class TTree : public TEntryOrTTree
 {
-    unsigned char ipVersion;        //!< Version of IP header stored in #TTree::cv in case of LOCAL_IP #TreeLevel
-    CommonValue cv;                 //!< Union which contains a value important at node's #TreeLevel
+    unsigned char ipVersion;        //!< Version of IP header stored in #TOOL::TTree::cv in case of LOCAL_IP #TOOL::TreeLevel
+    CommonValue cv;                 //!< Union which contains a value important at node's #TOOL::TreeLevel
     std::vector<TEntryOrTTree*> v;  //!< Vector of pointers to subtrees
 public:
     /*!
      * @brief       Constructor that sets level to parameter l and 
-     *              #TEntryOrTTree::nt to #NodeType::TREE
+     *              #TOOL::TEntryOrTTree::nt to #NodeType::TREE
      * @param[in]   l   Level in the tree
      */
     TTree(TreeLevel l)                      { level = l; nt = NodeType::TREE; }
     /*!
-     * @brief   Default d'tor that cycles through #TTree::v vector and frees used memory. 
+     * @brief   Default d'tor that cycles through #TOOL::TTree::v vector and frees used memory. 
      *          Then clears the vector #TTree:v itself.
      */
     ~TTree();
@@ -302,12 +302,12 @@ public:
      */
     void insert(TEntry *entry);
     /*!
-     * @brief       Set method for #TTree::cv
+     * @brief       Set method for #TOOL::TTree::cv
      * @param[in]   p   Local port which is common in this subtree
      */
     void setPort(unsigned short p)              { cv.port = p; }
     /*!
-     * @brief       Set method for #TTree::cv
+     * @brief       Set method for #TOOL::TTree::cv
      * @pre         Ip must be a valid in*_addr pointer
      * @post        Memory pointed by Ip must exist as long as TTree object exists.
      *              Then it will be freed in a destructor.
@@ -316,19 +316,19 @@ public:
      */
     void setIp(void *Ip, unsigned char ipV)     { ipVersion = ipV; cv.ip = Ip; }
     /*!
-     * @brief       Set method for #TTree::cv
+     * @brief       Set method for #TOOL::TTree::cv
      * @param[in]   p   Layer 4 protocol which is common in this subtree
      */
     void setProto(unsigned char p)              { cv.proto = p; }
     /*!
-     * @brief       Set method for #TTree::cv union
+     * @brief       Set method for #TOOL::TTree::cv union
      * @warning     If the method is called two times in one instance for the same level, memory leak will occur
      * @pre         'n' is a valid pointer
      * @param[in]   n   Pointer to Netflow class which contains netflow information
      */
     void setCommonValue(Netflow *n);
     /*!
-     * @brief       Compares values important at a specific #TreeLevel
+     * @brief       Compares values important at a specific #TOOL::TreeLevel
      * @param[in]   n   Pointer to a Netflow class with netflow information
      * @return      Comparison result
      */
@@ -365,7 +365,7 @@ public:
      */
     ~Cache();
     /*!
-     * @brief       Set method for #Cache::map
+     * @brief       Set method for #TOOL::Cache::map
      * @param[in]   newMap  Pointer to a new actualized map
      */
     void setCache(std::unordered_map<unsigned short,TEntryOrTTree*> *newMap) { map = newMap; }
@@ -387,8 +387,8 @@ public:
     void insert(TEntry *e);
     /*!
      * @brief   Finds expired entries and saves them in #g_finalResults
-     * @warning Cache will contain zero initialized (moved) entries after this call
-     *          It is supposed tu be called at the end of program runtime
+     * @warning Cache will contain zero initialized (moved) entries after this call.
+     *          It is supposed to be called at the end of the program runtime.
      */
     void saveResults();
     /*!

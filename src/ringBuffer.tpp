@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 22.03.2017 17:04
- *   - Edited:  11.04.2017 00:12
+ *   - Edited:  26.04.2017 01:41
  */
 
 
@@ -75,9 +75,9 @@ void RingBuffer<EnhancedPacketBlock>::write(ofstream &file)
             pop();
         }
         file.flush();
-    if (file.bad()) // e.g. out of space
-    {
-        log(LogLevel::ERR, "Output error.");
+        if (file.bad()) // e.g. out of space
+        {
+            log(LogLevel::ERR, "Output error.");
             throw "Output file error"; //! @todo catch it
         }
     }
