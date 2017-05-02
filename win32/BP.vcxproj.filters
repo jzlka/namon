@@ -99,5 +99,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\src\tool_win.tpp" />
+    <None Include="..\src\tool_linux.cpp">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

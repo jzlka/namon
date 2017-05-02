@@ -14,7 +14,7 @@
 #include <cstring>              //  memcmp()
 
 #elif defined(_WIN32)
-#include <winsock2.h>			//	?
+//#include <winsock2.h>			//	?
 //#include <ws2def.h>			//	AF_INET, AF_INET6
 #endif
 

@@ -22,7 +22,7 @@ namespace TOOL
  * @brief       Creates the output file and writes SectionHeaderBlock and InterfaceDescriptionBlock to the file
  * @param[in]   oFile   The output file
  */
-void initOFile(std::ofstream & oFile);
+int initOFile(std::ofstream & oFile);
 
 
 }	// namespace TOOL

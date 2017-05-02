@@ -13,7 +13,7 @@
 #include <cstring>		// memset(), strlen() #linux
 
 #elif defined(_WIN32)
-#include <WinSock2.h>			//	
+//#include <WinSock2.h>			//	
 #endif
 
 #include "tcpip_headers.hpp"	//	IPv4_ADDRSTRLEN

@@ -67,12 +67,17 @@ struct ip4_addr {
 
 //! IPv4 header structure
 struct ip4_hdr {
-#if __BYTE_ORDER == __LITTLE_ENDIAN
-        unsigned int ihl:4;
-        unsigned int version:4;
-#elif __BYTE_ORDER == __BIG_ENDIAN
-        unsigned int version:4;
-        unsigned int ihl:4;
+#if (defined(__BYTE_ORDER) && __BYTE_ORDER == __LITTLE_ENDIAN) || defined(__LITTLE_ENDIAN__) || \
+    defined(__ARMEL__) || defined(__THUMBEL__) || defined(__AARCH64EL__) || \
+    defined(_MIPSEL) || defined(__MIPSEL) || defined(__MIPSEL__) || \
+	defined(M_IX86) || defined(_M_X64) || defined(_M_IA64) || defined(_M_ARM)
+	uint8_t ihl:4;
+    uint8_t version:4;
+#elif (defined(__BYTE_ORDER) && __BYTE_ORDER == __BIG_ENDIAN) || defined(__BIG_ENDIAN__) || \
+    defined(__ARMEB__) || defined(__THUMBEB__) || defined(__AARCH64EB__) || \
+    defined(_MIBSEB) || defined(__MIBSEB) || defined(__MIBSEB__) || defined(_M_PPC)
+    uint8_t version:4;
+    uint8_t ihl:4;
 #else
 # error "Please fix <bits/endian.h>"
 #endif
@@ -169,14 +174,21 @@ struct tcp_hdr {
 	uint16_t	th_dport;			//!< destination port
 	uint32_t	th_seq;				//!< sequence number
 	uint32_t	th_ack;				//!< acknowledgement number
-# if __BYTE_ORDER == __LITTLE_ENDIAN
-        uint8_t	th_x2:4;               /* (unused) */
-        uint8_t	th_off:4;              /* data offset */
-# endif
-# if __BYTE_ORDER == __BIG_ENDIAN
-        uint8_t	th_off:4;              /* data offset */
-        uint8_t	th_x2:4;               /* (unused) */
-# endif
+#if (defined(__BYTE_ORDER) && __BYTE_ORDER == __BIG_ENDIAN) || defined(__BIG_ENDIAN__) || \
+    defined(__ARMEB__) || defined(__THUMBEB__) || defined(__AARCH64EB__) || \
+    defined(_MIBSEB) || defined(__MIBSEB) || defined(__MIBSEB__) || defined(_M_PPC)
+        uint8_t	th_x2:4;            //!< (unused)
+        uint8_t	th_off:4;           //!< data offset
+#endif
+#if (defined(__BYTE_ORDER) && __BYTE_ORDER == __LITTLE_ENDIAN) || defined(__LITTLE_ENDIAN__) || \
+    defined(__ARMEL__) || defined(__THUMBEL__) || defined(__AARCH64EL__) || \
+    defined(_MIPSEL) || defined(__MIPSEL) || defined(__MIPSEL__) || \
+	defined(M_IX86) || defined(_M_X64) || defined(_M_IA64) || defined(_M_ARM)
+       // uint8_t	th_off:4;           //!< data offset
+       // uint8_t	th_x2:4;            //!< (unused)
+		uint8_t	th_x2 : 4;            //!< (unused)
+		uint8_t	th_off : 4;           //!< data offset
+#endif
 	uint8_t		th_flags;
 	uint16_t	th_win;				//!< window
 	uint16_t	th_sum;				//!< checksum

@@ -10,16 +10,17 @@
 
 
 #define _WIN32_DCOM
-#include <winsock2.h>
-#include <WS2tcpip.h>		//	PMIB_*6*_OWNER_PID
-#include <Iphlpapi.h>		//	GetAdaptersAddresses(), GetExtended*Table()
-#include <Winternl.h>		//	NtQueryInformationProcess(), PEB
+//#include <winsock2.h>
+#include <WS2tcpip.h>			//	PMIB_*6*_OWNER_PID
+#include <Iphlpapi.h>			//	GetAdaptersAddresses(), GetExtended*Table()
+#include <Winternl.h>			//	NtQueryInformationProcess(), PEB
 #include <wbemidl.h>
-#include <comdef.h>			//	bstr_t
+#include <comdef.h>				//	bstr_t
 
-#include "netflow.hpp"      //  Netflow
-#include "cache.hpp"        //  Cache
-#include "debug.hpp"		//	log()
+#include "netflow.hpp"			//  Netflow
+#include "tcpip_headers.hpp"	//	mac_addr
+#include "cache.hpp"			//  Cache
+#include "debug.hpp"			//	log()
 #include "tool_win.hpp"
 
 
@@ -29,10 +30,24 @@
 
 //https://msdn.microsoft.com/en-us/library/ms686944(v=vs.85).aspx
 typedef int(__cdecl *MYPROC)(HANDLE, PROCESSINFOCLASS, PVOID, ULONG, PULONG);
+#define WORKING_BUFFER_SIZE 15000
+#define MAX_TRIES 3
+#define MALLOC(x) HeapAlloc(GetProcessHeap(), 0, (x))
+#define FREE(x) HeapFree(GetProcessHeap(), 0, (x))
+
+extern const char *g_dev;
+extern TOOL::mac_addr g_devMac;
+
+
 
 
 namespace TOOL
 {
+
+
+IWbemLocator *pLoc = nullptr;
+IWbemServices *pSvc = nullptr;
+
 
 
 int setDevMac()
@@ -40,48 +55,75 @@ int setDevMac()
 	//https://msdn.microsoft.com/en-us/library/aa365915%28VS.85%29.aspx
 	PIP_ADAPTER_ADDRESSES pAddresses = nullptr;
 	DWORD retVal = 0;
-	ULONG outBufLen = 0;
+	ULONG outBufLen = WORKING_BUFFER_SIZE;
+	ULONG Iterations = 0;
 	ULONG family = AF_UNSPEC; // both IPv4 and IPv6
 
-	pAddresses = (IP_ADAPTER_ADDRESSES *)malloc(sizeof(outBufLen));
-	if (!pAddresses)
-	{
-		log(LogLevel::ERR, "Can't allocate memory for IP_ADAPTER_ADDRESSES struct");
-		return -1;
-	}
-	
-	retVal = GetAdaptersAddresses(family, GAA_FLAG_INCLUDE_ALL_INTERFACES, nullptr, pAddresses, &outBufLen);
-	if (retVal == ERROR_BUFFER_OVERFLOW)
-	{
-		free(pAddresses);
-		log(LogLevel::ERR, "Error allocating memory needed to call GetAdaptersAddresses()");
-		return -1;
-	}
+	do {
+		pAddresses = (IP_ADAPTER_ADDRESSES *)malloc(outBufLen);
+		if (!pAddresses)
+		{
+			log(LogLevel::ERR, "Can't allocate memory for IP_ADAPTER_ADDRESSES struct");
+			return -1;
+		}
+
+		retVal = GetAdaptersAddresses(family, GAA_FLAG_INCLUDE_ALL_INTERFACES, nullptr, pAddresses, &outBufLen);
+		if (retVal == ERROR_BUFFER_OVERFLOW) {
+			free(pAddresses);
+			pAddresses = NULL;
+		}
+		else {
+			break;
+		}
+
+		Iterations++;
+	} while (Iterations < MAX_TRIES);
 
 	if (retVal != NO_ERROR)
 	{
-		free(pAddresses);
 		log(LogLevel::ERR, "Call to GetAdaptersAddresses failed with error: ", retVal);
+		free(pAddresses);
 		return -1;
 	}
 
+	int ret = 0;
+
 	for (PIP_ADAPTER_ADDRESSES pos = pAddresses; pos; pos = pos->Next)
 	{
-		std::cout << "Description: " << pos->Description << " Name: " << pos->AdapterName << std::endl;
+#if 1
+		if (strcmp(pos->AdapterName, strchr(g_dev, '{')))
+			continue;
 		if (pos->PhysicalAddressLength != 0)
 		{
 			for (int i = 0; i < (int)pos->PhysicalAddressLength; i++)
-				std::cout << ":" << (int)pos->PhysicalAddress[i];
-			return -1;
+				g_devMac.bytes[i] = pos->PhysicalAddress[i];
+			ret = 0;
 		}
 		else
+		{
 			std::cout << "No ethernet address!";
-
+			ret = -1;
+		}
+		break;
+#else
+		std::cout << pos->AdapterName << "\t";
+		if (pos->PhysicalAddressLength != 0)
+		{
+			for (int i = 0; i < (int)pos->PhysicalAddressLength; i++)
+				std::cout << ":" << std::hex << (int)pos->PhysicalAddress[i] << std::dec;
+			ret = 0;
+		}
+		else
+		{
+			std::cout << "No ethernet address!";
+			ret = -1;
+		}
 		std::cout << std::endl;
+#endif
 	}
 
 	free(pAddresses);
-	return -1;
+	return ret;
 }
 
 
@@ -97,7 +139,7 @@ int getPid(Netflow *n)
 			PMIB_TCPTABLE_OWNER_PID table = (PMIB_TCPTABLE_OWNER_PID) new char[tableSize];
 			if (GetExtendedTcpTable(table, &tableSize, FALSE, AF_INET, TCP_TABLE_OWNER_PID_ALL, 0) != NO_ERROR)
 			{
-				log(LogLevel::ERR, "Unable to get TCP table");
+				log(LogLevel::ERR, "Unable to get IPv4 TCP table");
 				delete table;
 				return -1;
 			}
@@ -120,7 +162,7 @@ int getPid(Netflow *n)
 			PMIB_UDPTABLE_OWNER_PID table = (PMIB_UDPTABLE_OWNER_PID) new char[tableSize];
 			if (GetExtendedUdpTable(table, &tableSize, FALSE, AF_INET, UDP_TABLE_OWNER_PID, 0) != NO_ERROR)
 			{
-				log(LogLevel::ERR, "Unable to get UDP table");
+				log(LogLevel::ERR, "Unable to get IPv4 UDP table");
 				delete table;
 				return -1;
 			}
@@ -137,7 +179,7 @@ int getPid(Netflow *n)
 			delete table;
 			return 0;
 		}
-		log(LogLevel::WARNING, "Unsupported transport layer protocol in getPid(). (", n->getProto(), ")");
+		log(LogLevel::WARNING, "Unsupported IPv4 transport layer protocol in getPid(). (", n->getProto(), ")");
 		return -1;
 	}
 	else if (n->getIpVersion() == 6)
@@ -148,7 +190,7 @@ int getPid(Netflow *n)
 			PMIB_TCP6TABLE_OWNER_PID table = (PMIB_TCP6TABLE_OWNER_PID) new char[tableSize];
 			if (GetExtendedTcpTable(table, &tableSize, FALSE, AF_INET6, TCP_TABLE_OWNER_PID_ALL, 0) != NO_ERROR)
 			{
-				log(LogLevel::ERR, "Unable to get TCP table");
+				log(LogLevel::ERR, "Unable to get IPv6 TCP table");
 				delete table;
 				return -1;
 			}
@@ -167,11 +209,12 @@ int getPid(Netflow *n)
 		}
 		else if (n->getProto() == PROTO_UDP)
 		{
-			GetExtendedUdpTable(nullptr, &tableSize, FALSE, AF_INET6, UDP_TABLE_OWNER_PID, 0);
+			HRESULT hr = GetExtendedUdpTable(nullptr, &tableSize, FALSE, AF_INET6, UDP_TABLE_OWNER_PID, 0);
 			PMIB_UDP6TABLE_OWNER_PID table = (PMIB_UDP6TABLE_OWNER_PID) new char[tableSize];
-			if (GetExtendedUdpTable(table, &tableSize, FALSE, AF_INET6, UDP_TABLE_OWNER_PID, 0) != NO_ERROR)
+			hr = GetExtendedUdpTable(table, &tableSize, FALSE, AF_INET6, UDP_TABLE_OWNER_PID, 0);
+			if (hr != NO_ERROR)
 			{
-				log(LogLevel::ERR, "Unable to get UDP table");
+				log(LogLevel::ERR, "Unable to get IPv6 UDP table");
 				delete table;
 				return -1;
 			}
@@ -188,7 +231,7 @@ int getPid(Netflow *n)
 			delete table;
 			return 0;
 		}
-		log(LogLevel::WARNING, "Unsupported transport layer protocol in getPid(). (", n->getProto(), ")");
+		log(LogLevel::WARNING, "Unsupported IPv6 transport layer protocol in getPid(). (", n->getProto(), ")");
 		return -1;
 	}
 	log(LogLevel::WARNING, "Unsupported IP version in getPid(). (", n->getIpVersion(), ")");
@@ -198,98 +241,104 @@ int getPid(Netflow *n)
 
 int connectToWmi()
 {
-	//https://msdn.microsoft.com/en-us/library/aa390421(v=vs.85).aspx
-	HRESULT hr;
-
-	// Step 1: --------------------------------------------------
-	// Initialize COM. ------------------------------------------
-
-	hr = CoInitializeEx(0, COINIT_MULTITHREADED);
-	if (FAILED(hr))
-		throw "Failed to initialize COM library.";
-
-	// Step 2: --------------------------------------------------
-	// Set general COM security levels --------------------------
-
-	hr = CoInitializeSecurity(
-		NULL,
-		-1,                          // COM authentication
-		NULL,                        // Authentication services
-		NULL,                        // Reserved
-		RPC_C_AUTHN_LEVEL_DEFAULT,   // Default authentication 
-		RPC_C_IMP_LEVEL_IMPERSONATE, // Default Impersonation  
-		NULL,                        // Authentication info
-		EOAC_NONE,                   // Additional capabilities 
-		NULL                         // Reserved
-	);
-	if (FAILED(hr))
+	try
 	{
-		CoUninitialize();
-		throw "Failed to initialize security.";
+		//https://msdn.microsoft.com/en-us/library/aa390421(v=vs.85).aspx
+		HRESULT hr;
+
+		// Step 1: --------------------------------------------------
+		// Initialize COM. ------------------------------------------
+
+		hr = CoInitializeEx(0, COINIT_MULTITHREADED);
+		if (FAILED(hr))
+			throw "Failed to initialize COM library.";
+
+		// Step 2: --------------------------------------------------
+		// Set general COM security levels --------------------------
+
+		hr = CoInitializeSecurity(
+			NULL,
+			-1,                          // COM authentication
+			NULL,                        // Authentication services
+			NULL,                        // Reserved
+			RPC_C_AUTHN_LEVEL_DEFAULT,   // Default authentication 
+			RPC_C_IMP_LEVEL_IMPERSONATE, // Default Impersonation  
+			NULL,                        // Authentication info
+			EOAC_NONE,                   // Additional capabilities 
+			NULL                         // Reserved
+		);
+		if (FAILED(hr))
+		{
+			CoUninitialize();
+			throw "Failed to initialize security.";
+		}
+
+		// Step 3: ---------------------------------------------------
+		// Obtain the initial locator to WMI -------------------------
+
+		// Initialize the IWbemLocator interface throuwgh a cal to CoCreateInstance
+		hr = CoCreateInstance(
+			CLSID_WbemLocator, 
+			0,	
+			CLSCTX_INPROC_SERVER, 
+			IID_IWbemLocator, 
+			(LPVOID *)&pLoc);
+		if (FAILED(hr))
+		{
+			CoUninitialize();
+			throw "Failed to create IWbemLocator object.";
+		}
+
+		// Step 4: -----------------------------------------------------
+		// Connect to WMI through the IWbemLocator::ConnectServer method
+
+		// Connect to the root\cimv2 namespace with
+		// the current user and obtain pointer pSvc
+		// to make IWbemServices calls.
+		hr = pLoc->ConnectServer(
+			BSTR(L"ROOT\\CIMV2"), // Object path of WMI namespace
+			NULL,                    // User name. NULL = current user
+			NULL,                    // User password. NULL = current
+			0,                       // Locale. NULL indicates current
+			NULL,                    // Security flags.
+			0,                       // Authority (for example, Kerberos)
+			0,                       // Context object 
+			&pSvc                    // pointer to IWbemServices proxy
+		);
+		if (FAILED(hr))
+		{
+			pLoc->Release();
+			CoUninitialize();
+			throw "Could not connect to ROOT\\CIMv2 WMI namespace.";
+		}
+
+		// Step 5: --------------------------------------------------
+		// Set security levels on the proxy -------------------------
+
+		hr = CoSetProxyBlanket(
+			pSvc,                        // Indicates the proxy to set
+			RPC_C_AUTHN_WINNT,           // RPC_C_AUTHN_xxx
+			RPC_C_AUTHZ_NONE,            // RPC_C_AUTHZ_xxx
+			NULL,                        // Server principal name 
+			RPC_C_AUTHN_LEVEL_CALL,      // RPC_C_AUTHN_LEVEL_xxx 
+			RPC_C_IMP_LEVEL_IMPERSONATE, // RPC_C_IMP_LEVEL_xxx
+			NULL,                        // client identity
+			EOAC_NONE                    // proxy capabilities 
+		);
+		if (FAILED(hr))
+		{
+			pSvc->Release();
+			pLoc->Release();
+			CoUninitialize();
+			throw "Could not set proxy blanket.";
+		}
+		return 0;
 	}
-
-	// Step 3: ---------------------------------------------------
-	// Obtain the initial locator to WMI -------------------------
-
-	IWbemLocator *pLoc = nullptr;
-	// Initialize the IWbemLocator interface throuwgh a cal to CoCreateInstance
-	hr = CoCreateInstance(
-		CLSID_WbemLocator, 
-		0,	
-		CLSCTX_INPROC_SERVER, 
-		IID_IWbemLocator, 
-		(LPVOID *)&pLoc);
-	if (FAILED(hr))
+	catch (const char *msg)
 	{
-		CoUninitialize();
-		throw "Failed to create IWbemLocator object.";
+		std::cerr << "ERROR: " << msg << std::endl;
+		return EXIT_FAILURE;
 	}
-
-	// Step 4: -----------------------------------------------------
-	// Connect to WMI through the IWbemLocator::ConnectServer method
-
-	IWbemServices *pSvc;
-	// Connect to the root\cimv2 namespace with
-	// the current user and obtain pointer pSvc
-	// to make IWbemServices calls.
-	hr = pLoc->ConnectServer(
-		BSTR(L"ROOT\\CIMV2"), // Object path of WMI namespace
-		NULL,                    // User name. NULL = current user
-		NULL,                    // User password. NULL = current
-		0,                       // Locale. NULL indicates current
-		NULL,                    // Security flags.
-		0,                       // Authority (for example, Kerberos)
-		0,                       // Context object 
-		&pSvc                    // pointer to IWbemServices proxy
-	);
-	if (FAILED(hr))
-	{
-		pLoc->Release();
-		CoUninitialize();
-		throw "Could not connect to ROOT\\CIMv2 WMI namespace.";
-	}
-
-	// Step 5: --------------------------------------------------
-	// Set security levels on the proxy -------------------------
-
-	hr = CoSetProxyBlanket(
-		pSvc,                        // Indicates the proxy to set
-		RPC_C_AUTHN_WINNT,           // RPC_C_AUTHN_xxx
-		RPC_C_AUTHZ_NONE,            // RPC_C_AUTHZ_xxx
-		NULL,                        // Server principal name 
-		RPC_C_AUTHN_LEVEL_CALL,      // RPC_C_AUTHN_LEVEL_xxx 
-		RPC_C_IMP_LEVEL_IMPERSONATE, // RPC_C_IMP_LEVEL_xxx
-		NULL,                        // client identity
-		EOAC_NONE                    // proxy capabilities 
-	);
-	if (FAILED(hr))
-	{
-		pSvc->Release();
-		pLoc->Release();
-		CoUninitialize();
-		throw "Could not set proxy blanket.";
-	}
-
 }
 
 
@@ -379,65 +428,60 @@ int getApp(const int pid, string &appname)
 	//! that holds the command line
 	//https://blogs.msdn.microsoft.com/oldnewthing/20091125-00/?p=15923/
 
-	try
+	HRESULT hr;
+	// Step 6: --------------------------------------------------
+	// Use the IWbemServices pointer to make requests of WMI ----
+
+	IEnumWbemClassObject *pEnumerator = NULL;
+	bstr_t query(("SELECT CommandLine FROM Win32_Process WHERE ProcessId='" + std::to_string(pid) + "'").c_str());
+	hr = pSvc->ExecQuery(L"WQL", query, WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY, NULL, &pEnumerator);
+	if (FAILED(hr))
 	{
-		HRESULT hr;
-		// Step 6: --------------------------------------------------
-		// Use the IWbemServices pointer to make requests of WMI ----
-
-		IEnumWbemClassObject *pEnumerator = NULL;
-		bstr_t query(("SELECT CommandLine FROM Win32_Process WHERE ProcessId='" + std::to_string(pid) + "'").c_str());
-		hr = pSvc->ExecQuery(L"WQL", query, WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY, NULL, &pEnumerator);
-		if (FAILED(hr))
-		{
-			pSvc->Release();
-			pLoc->Release();
-			CoUninitialize();
-			throw "ExecQuery failed.";
-		}
-
-		// Step 7: -------------------------------------------------
-		// Get the data from the query in step 6 -------------------
-
-		IWbemClassObject *pclsObj = nullptr;
-		ULONG uReturn = 0;
-
-		while (pEnumerator)
-		{
-			HRESULT hr = pEnumerator->Next(WBEM_INFINITE, 1, &pclsObj, &uReturn);
-			if (0 == uReturn || FAILED(hr))
-				break;
-
-			VARIANT vtProp;
-
-			hr = pclsObj->Get(L"CommandLine", 0, &vtProp, 0, 0);// String
-			if (!FAILED(hr))
-			{
-				if ((vtProp.vt == VT_NULL) || (vtProp.vt == VT_EMPTY))
-					std::cout << "CommandLine : " << ((vtProp.vt == VT_NULL) ? "NULL" : "EMPTY") << std::endl;
-				else
-					if ((vtProp.vt & VT_ARRAY))
-						std::cout << "CommandLine : " << "Array types not supported (yet)" << std::endl;
-					else
-						std::cout << "CommandLine : " << vtProp.bstrVal << std::endl;
-			}
-			VariantClear(&vtProp);
-
-			pclsObj->Release();
-			pclsObj = NULL;
-		}
-
-		// Cleanup
-		pEnumerator->Release();
-		if (pclsObj != NULL)
-			pclsObj->Release();
-		return 0;
-	}
-	catch (const char *msg)
-	{
-		std::cerr << "ERROR: " << msg << std::endl;
+		pSvc->Release();
+		pLoc->Release();
+		CoUninitialize();
+		std::cerr << "ExecQuery failed." << std::endl;
 		return EXIT_FAILURE;
 	}
+
+	// Step 7: -------------------------------------------------
+	// Get the data from the query in step 6 -------------------
+
+	IWbemClassObject *pclsObj = nullptr;
+	ULONG uReturn = 0;
+
+	while (pEnumerator)
+	{
+		HRESULT hr = pEnumerator->Next(WBEM_INFINITE, 1, &pclsObj, &uReturn);
+		if (0 == uReturn || FAILED(hr))
+			break;
+
+		VARIANT vtProp;
+
+		hr = pclsObj->Get(L"CommandLine", 0, &vtProp, 0, 0);// String
+		if (!FAILED(hr))
+		{
+			if ((vtProp.vt == VT_NULL) || (vtProp.vt == VT_EMPTY))
+				std::cout << "CommandLine : " << ((vtProp.vt == VT_NULL) ? "NULL" : "EMPTY") << std::endl;
+			else
+			{
+				if ((vtProp.vt & VT_ARRAY))
+					std::cout << "CommandLine : " << "Array types not supported (yet)" << std::endl;
+				else
+					std::cout << "CommandLine : " << vtProp.bstrVal << std::endl;
+			}
+		}
+		VariantClear(&vtProp);
+
+		pclsObj->Release();
+		pclsObj = NULL;
+	}
+
+	// Cleanup
+	pEnumerator->Release();
+	if (pclsObj != NULL)
+		pclsObj->Release();
+	return 0;
 #endif
 }
 

@@ -62,12 +62,11 @@
 #if defined(_WIN32)
 #pragma comment(lib, "Packet.lib")
 #pragma comment(lib, "wpcap.lib")
-#pragma comment(lib, "Ws2_32.lib")	//	ntohs()
+//#pragma comment(lib, "Ws2_32.lib")	//	ntohs()
 #endif
 
 
 using namespace TOOL;
-
 
 
 const unsigned int      FILE_RING_BUFFER_SIZE	= 2000;   //!< Size of the ring buffer
@@ -104,19 +103,46 @@ int startCapture(const char *oFilename)
 	try
 	{
 		// if the interface wasn't specified by user open the first active one
-		if (g_dev == nullptr && (g_dev = pcap_lookupdev(errbuf)) == nullptr)
-			throw pcap_ex("Can't open input device.", errbuf);
-	
+		//if (g_dev == nullptr && (g_dev = pcap_lookupdev(errbuf)) == nullptr)
+		//	throw pcap_ex("Can't open input device.", errbuf);
+
+		pcap_if_t *alldevs, *d;
+		pcap_t *fp;
+		u_int inum, i = 0;
+
+		/* The user didn't provide a packet source: Retrieve the device list */
+		if (g_dev == nullptr)
+		{
+			if (pcap_findalldevs(&alldevs, errbuf) == -1)
+				throw pcap_ex("Can't open input device.", errbuf);
+
+			/* Print the list */
+			for (d = alldevs; d; d = d->next)
+			{
+				cout << ++i << ": " << d->name << "\t";
+				cout << (d->description ? d->description : "(No description available)") << endl;
+			}
+
+			if (i == 0)
+				throw "No interfaces found! Make sure npcap is installed.";
+
+			cout << "Enter the interface number (1-" << i << "): ";
+			cin >> inum;
+
+			if (inum < 1 || inum > i)
+				throw "Interface number out of range.";
+
+			/* Jump to the selected adapter */
+			for (d = alldevs, i = 0; i < inum-1; d = d->next, i++)
+				;
+			g_dev = d->name;
+		}
+
 		// get interface MAC address
 		if (setDevMac())
 			throw "Can't get interface MAC address.";
 
-		if ((g_pcapHandle = pcap_open_live(g_dev, BUFSIZ, false, 1000, errbuf)) == NULL)
-			throw pcap_ex("pcap_open_live() failed.", errbuf);
-		if (pcap_setnonblock(g_pcapHandle, 1, errbuf) == -1)
-			throw pcap_ex("pcap_setnonblock() failed.", errbuf);
-		log(LogLevel::INFO, "Capturing device '", g_dev, "' was opened.");
-
+		
 		// Open the output file
 		oFile.open(oFilename, ios::binary);
 		if (!oFile)
@@ -124,7 +150,8 @@ int startCapture(const char *oFilename)
 		log(LogLevel::INFO, "Output file '", oFilename, "' was opened.");
 
 		// Write Section Header Block and Interface Description Block to the output file
-		initOFile(oFile);
+		if (initOFile(oFile))
+			throw "Output file initialization error.";
 
 		// Create ring buffer and run writing to file in a new thread
 		RingBuffer<EnhancedPacketBlock> fileBuffer(FILE_RING_BUFFER_SIZE);
@@ -135,6 +162,12 @@ int startCapture(const char *oFilename)
 
 		PacketHandlerParams ptrs{ &fileBuffer, &cacheBuffer };
 
+
+		if ((g_pcapHandle = pcap_open_live(g_dev, BUFSIZ, false, 1000, errbuf)) == NULL)
+			throw pcap_ex("pcap_open_live() failed.", errbuf);
+		if (pcap_setnonblock(g_pcapHandle, 1, errbuf) == -1)
+			throw pcap_ex("pcap_setnonblock() failed.", errbuf);
+		log(LogLevel::INFO, "Capturing device '", g_dev, "' was opened.");
 		log(LogLevel::INFO, "Capturing...");
 		//        while (!shouldStop)
 		//            pcap_dispatch(handle, -1, packetHandler, reinterpret_cast<u_char*>(&ptrs));
@@ -324,9 +357,9 @@ inline int parsePorts(Netflow &n, Directions dir, void *hdr)
 			return EXIT_FAILURE;
 		}
 		if (dir == Directions::INBOUND)
-			n.setLocalPort(ntohs(tcp_hdr->th_dport));
+			n.setLocalPort(TOOL::ntohs(tcp_hdr->th_dport));
 		else
-			n.setLocalPort(ntohs(tcp_hdr->th_sport));
+			n.setLocalPort(TOOL::ntohs(tcp_hdr->th_sport));
 		break;
 	}
 	case PROTO_UDP:
@@ -340,9 +373,9 @@ inline int parsePorts(Netflow &n, Directions dir, void *hdr)
 			return EXIT_FAILURE;
 		}
 		if (dir == Directions::INBOUND)
-			n.setLocalPort(ntohs(udp_hdr->uh_dport));
+			n.setLocalPort(TOOL::ntohs(udp_hdr->uh_dport));
 		else
-			n.setLocalPort(ntohs(udp_hdr->uh_sport));
+			n.setLocalPort(TOOL::ntohs(udp_hdr->uh_sport));
 		break;
 	}
 	default:
@@ -358,6 +391,6 @@ inline int parsePorts(Netflow &n, Directions dir, void *hdr)
 void signalHandler(int signum)
 {
 	log(LogLevel::WARNING, "Interrupt signal (", signum, ") received.");
-	pcap_breakloop(g_pcapHandle);
+	if(g_pcapHandle)  pcap_breakloop(g_pcapHandle);
 	shouldStop.store(signum);
 }

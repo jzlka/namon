@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -166,7 +166,10 @@
     <ClInclude Include="..\src\tool_linux.hpp" />
     <ClInclude Include="..\src\tool_win.hpp" />
     <ClInclude Include="..\src\utils.hpp" />
-    <ClInclude Include="..\src\ringBuffer.tpp" />
+    <ClInclude Include="..\src\ringBuffer.tpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <FileType>Document</FileType>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\src\tool_win.tpp" />
