@@ -136,7 +136,7 @@ int getInode(Netflow *n)
         static streamoff pos_localIp, pos_localPort, pos_inode;
         static string dummyStr;
         static unsigned int lineLength, inode;
-        static uint32_t foundPort;  // uint32_t because 2 bytes are 4 bytes in hexadecimal notation
+        static uint16_t foundPort;
         static uint16_t wantedPort;
 
         wantedPort = n->getLocalPort();
@@ -191,11 +191,28 @@ int getInode(Netflow *n)
                 }
                 else
                 {
-                    static uint8_t indexes[8] = {4,3,2,1,8,7,6,5};
+                    static uint8_t indexes[16] = {3,2,1,0,7,6,5,4,11,10,9,8,15,14,13,12};
                     static ip6_addr* foundIp6;
+                    static uint8_t halfByte;
+                    static uint8_t byte;
                     foundIp6 = reinterpret_cast<ip6_addr*>(&foundIp);
-                    for (int i=0; i < 8; i++)
-                        socketsFile >> hex >> foundIp6->addr.addr16[indexes[i]];
+                    for (int i=0; i < 16; i++)
+			{
+                        socketsFile >> halfByte;
+                        if (halfByte >= 'A')
+                            byte = (halfByte - 'A' + 10) * 16;
+                        else
+             		    byte = (halfByte - '0') * 16;
+                        
+                        socketsFile >> halfByte;
+                        if (halfByte >= 'A')
+                            byte += (halfByte - 'A' + 10);
+                        else
+             		    byte += (halfByte - '0');
+
+			foundIp6->addr.addr8[indexes[i]] = byte;
+			}
+			
                 }
 
                 // static variables are automatically initialized to zero unless there is an initializer

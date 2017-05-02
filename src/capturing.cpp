@@ -10,6 +10,7 @@
  *   @todo      EnhancedPacketBlock disable pragma 1 -> speed up working with ringBuffer
  *   @todo      document in BP that npcap must be installed
  *   @bug       cal_init leak
+ *   @bug       ipv6 proc/net files does not have always same format, reinplement writing until '/n'
  *   @bug       cache contains records where inode == 0 && appName != ""
  *   @todo      copy grammar and example output to a cloud
  *   @todo      what about raw sockets in procfs
@@ -107,7 +108,6 @@ int startCapture(const char *oFilename)
 		//	throw pcap_ex("Can't open input device.", errbuf);
 
 		pcap_if_t *alldevs, *d;
-		pcap_t *fp;
 		u_int inum, i = 0;
 
 		/* The user didn't provide a packet source: Retrieve the device list */
