@@ -4,13 +4,14 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 18.02.2017 22:45
- *   - Edited:  26.04.2017 02:03
+ *   - Edited:  09.05.2017 04:01
  *   @todo      IPv6 implementation tests
  *   @todo      Comment which functions move classes
  *   @todo      EnhancedPacketBlock disable pragma 1 -> speed up working with ringBuffer
  *   @todo      document in BP that npcap must be installed
  *   @bug       cal_init leak
- *   @bug       ipv6 proc/net files does not have always same format, reinplement writing until '/n'
+ *   @bug       start and endtimes are not valid in custom block
+ *   @bug       ipv6 proc/net files does not have always same format, reimplement to read until '/n'
  *   @bug       cache contains records where inode == 0 && appName != ""
  *   @todo      copy grammar and example output to a cloud
  *   @todo      what about raw sockets in procfs
@@ -30,6 +31,8 @@
  *              
  *              ->cache stores only first inode for both instances
  *              ->mozme to vyuzit ako utok? originalna aplikacia komunikuje na rozhrani, porte a my otvorime addr_any na tom istom porte a budeme to tiez prijimat?
+ *   @todo      Add end of levels entry to the TreeLevel
+ *   @todo      Pridat kazdemu vlaknu svoju cond variable a nech zamkne mutex ked kontroluje shouldStop
  */
 
 #include <map>                  //  map

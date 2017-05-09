@@ -4,7 +4,7 @@
  * @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  * @date
  *  - Created: 12.04.2017 23:21
- *  - Edited:  21.04.2017 01:19
+ *  - Edited:  09.05.2017 03:00
  * @todo       rename namespace
 */
 
@@ -19,6 +19,7 @@ namespace TOOL
 
 
 // https://www.iana.org/assignments/ieee-802-numbers/ieee-802-numbers.xhtml
+// https://www.iana.org/assignments/protocol-numbers/protocol-numbers.xhtml
 // https://wiki.wireshark.org/Ethernet
 
 /*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*
