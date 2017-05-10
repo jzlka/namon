@@ -4,14 +4,8 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 24.04.2017 06:49
- *   - Edited:  24.04.2017 07:19
- *  @version    1.0.0
- *  @par        g++: Apple LLVM version 8.0.0 (clang-800.0.42.1)
- *  @bug
- *  @todo
+ *   - Edited:  10.05.2017 12:53
  */
-
-
 
 #include <iostream>         // cout, end, cerr
 #include <chrono>           // duration, duration_cast, milliseconds
@@ -25,11 +19,15 @@
 #endif
 
 
+
+
+
 #define     BUFFER	        1600    // length of the receiving buffer
 #define     DEFAULT_PORT    58900   // default UDP port
 
+
 using namespace std;
-using clock_type = chrono::high_resolution_clock;
+#define     clock_type      chrono::high_resolution_clock
 
 int shouldStop = 0;         // Variable which is set if program should stop
 
@@ -97,13 +95,13 @@ int main(int argc, char *argv[])
 
             close (sock);
         }
-        auto end = clock_type::now();
+        clock_type::time_point end = clock_type::now();
         clock_type::duration duration = end - start;
 
 
         using std::chrono::milliseconds;
         using std::chrono::duration_cast;
-        long long rcvdPps = rcvdPackets / (duration_cast<milliseconds>(duration).count()/1000.);
+        long rcvdPps = rcvdPackets / (duration_cast<milliseconds>(duration).count()/1000.);
         cout << "Received packets: " << rcvdPackets 
         << " in " << duration_cast<milliseconds>(duration).count() << " miliseconds";
         if (rcvdPackets)

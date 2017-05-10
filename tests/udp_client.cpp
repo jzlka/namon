@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 24.04.2017 02:17
- *   - Edited:  25.04.2017 23:24
+ *   - Edited:  10.05.2017 15:06
  */
 
 #include <iostream>         // cout, endl, cerr
@@ -27,7 +27,7 @@
 #define     NANOSECOND      1000000000
 
 using namespace std;
-using clock_type = chrono::high_resolution_clock;
+#define     clock_type      chrono::high_resolution_clock
 
 int shouldStop = 0;         // Variable which is set if program should stop
 
@@ -40,12 +40,12 @@ void printHelp()
 
 void signalHandler(int signum)
 {
-	cerr << "Interrupt signal (" << signum << ") received." << endl;
+	//cerr << "Interrupt signal (" << signum << ") received." << endl;
 	shouldStop = signum;
 }
 
 
-int main(int argc , char *argv[])
+int main(int argc, char *argv[])
 {
     int fd;                           // an incoming socket descriptor
     unsigned short port = DEFAULT_PORT;
@@ -63,6 +63,11 @@ int main(int argc , char *argv[])
 #endif
         if (argc > 5)
             throw "Wrong arguments";
+        else if (argc == 2 && strcmp("-h", argv[1]) == 0)
+        {
+            printHelp();
+            return 0;
+        }
         else if (argc == 5)
         {
             port = atoi(argv[2]);
@@ -98,7 +103,7 @@ int main(int argc , char *argv[])
         socklen_t len = sizeof(server);
         char buffer[BUFFER];
 
-        long long sleepTime = 0;
+        long sleepTime = 0;
         unsigned int maxPps = 1000000000 / (packetSize * 8);
         if (pps < maxPps)
             sleepTime = ((double)(pps * NANOSECOND) / maxPps) / pps;
@@ -120,15 +125,15 @@ int main(int argc , char *argv[])
             sentPackets++;
             this_thread::sleep_for(nanoseconds(sleepTime));
         } 
-        auto end = clock_type::now();
+        clock_type::time_point end = clock_type::now();
         clock_type::duration duration = end - start;
 
 
         using std::chrono::milliseconds;
-        long long sentPps = sentPackets / (duration_cast<milliseconds>(duration).count() / 1000.);
-        cout << "Sent packets: " << sentPackets 
-             << " in " << duration_cast<milliseconds>(duration).count() << " miliseconds"
-             << " ( ~" << sentPps << "pps | " << (sentPps * packetSize) * 8 / 1000000. << "Mb/s )." << endl;
+        long sentPps = sentPackets / (duration_cast<milliseconds>(duration).count() / 1000.);
+        cout << "Packet size   Sent packets   Time [ms]   ~pps   ~Mb/s" << endl;
+        cout << packetSize << sentPackets << duration_cast<milliseconds>(duration).count() 
+             << sentPps << (sentPps * packetSize) * 8 / 1000000. << endl;
     }
     catch (const char *msg)
     {

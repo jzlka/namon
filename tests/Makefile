@@ -3,7 +3,7 @@
 # @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
 # @date
 #  - Created: 24.04.2017 04:50
-#  - Edited:  24.04.2017 07:21
+#  - Edited:  10.05.2017 15:11
 # @version    1.0.0
 # @par        make: GNU Make 3.81
 # @bug
@@ -15,7 +15,7 @@ SRC+=$(wildcard tcp_*.cpp)
 TARGETS=$(patsubst %.cpp, %, $(SRC))
 
 CXX=g++
-CXXFLAGS=-std=c++14 -pedantic -Wall -Wextra -g -O2
+CXXFLAGS=-pedantic -Wall -Wextra -g -O0
 LDFLAGS=
 .PHONY: clean
 

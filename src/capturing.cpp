@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 18.02.2017 22:45
- *   - Edited:  09.05.2017 04:01
+ *   - Edited:  09.05.2017 21:05
  *   @todo      IPv6 implementation tests
  *   @todo      Comment which functions move classes
  *   @todo      EnhancedPacketBlock disable pragma 1 -> speed up working with ringBuffer
@@ -33,6 +33,9 @@
  *              ->mozme to vyuzit ako utok? originalna aplikacia komunikuje na rozhrani, porte a my otvorime addr_any na tom istom porte a budeme to tiez prijimat?
  *   @todo      Add end of levels entry to the TreeLevel
  *   @todo      Pridat kazdemu vlaknu svoju cond variable a nech zamkne mutex ked kontroluje shouldStop
+ *   @todo      upravit determineApp() aby vracal ukazatel s naplnenym TEntry
+ *   @bug       Asi nepracuje na wlan rozhraniach
+ *   @todo      poznatok z excelu, ulozime so zlym crc a jadro ich zahodi
  */
 
 #include <map>                  //  map
@@ -155,6 +158,10 @@ int startCapture(const char *oFilename)
 		// Write Section Header Block and Interface Description Block to the output file
 		if (initOFile(oFile))
 			throw "Output file initialization error.";
+#if defined(_WIN32)
+        if (connectToWmi())
+            throw "Connection to WMI failed";
+#endif
 
 		// Create ring buffer and run writing to file in a new thread
 		RingBuffer<EnhancedPacketBlock> fileBuffer(FILE_RING_BUFFER_SIZE);
@@ -188,6 +195,9 @@ int startCapture(const char *oFilename)
 		t2.join();
 		t1.join();
 
+#if defined(_WIN32)
+        cleanWmiConnection();
+#endif
 		cache.saveResults();
 		CustomBlock cBlock;
 		cBlock.write(oFile);

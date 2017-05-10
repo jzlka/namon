@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 18.02.2017 23:32
- *   - Edited:  26.04.2017 02:06
+ *   - Edited:  10.05.2017 18:25
  *  @todo       rename file
  */
 
@@ -197,22 +197,21 @@ int getInode(Netflow *n)
                     static uint8_t byte;
                     foundIp6 = reinterpret_cast<ip6_addr*>(&foundIp);
                     for (int i=0; i < 16; i++)
-			{
+                    {
                         socketsFile >> halfByte;
                         if (halfByte >= 'A')
                             byte = (halfByte - 'A' + 10) * 16;
                         else
-             		    byte = (halfByte - '0') * 16;
+                            byte = (halfByte - '0') * 16;
                         
                         socketsFile >> halfByte;
                         if (halfByte >= 'A')
                             byte += (halfByte - 'A' + 10);
                         else
-             		    byte += (halfByte - '0');
+                            byte += (halfByte - '0');
 
-			foundIp6->addr.addr8[indexes[i]] = byte;
-			}
-			
+                        foundIp6->addr.addr8[indexes[i]] = byte;
+                    }
                 }
 
                 // static variables are automatically initialized to zero unless there is an initializer

@@ -90,7 +90,6 @@ int setDevMac()
 
 	for (PIP_ADAPTER_ADDRESSES pos = pAddresses; pos; pos = pos->Next)
 	{
-#if 1
 		if (strcmp(pos->AdapterName, strchr(g_dev, '{')))
 			continue;
 		if (pos->PhysicalAddressLength != 0)
@@ -105,21 +104,6 @@ int setDevMac()
 			ret = -1;
 		}
 		break;
-#else
-		std::cout << pos->AdapterName << "\t";
-		if (pos->PhysicalAddressLength != 0)
-		{
-			for (int i = 0; i < (int)pos->PhysicalAddressLength; i++)
-				std::cout << ":" << std::hex << (int)pos->PhysicalAddress[i] << std::dec;
-			ret = 0;
-		}
-		else
-		{
-			std::cout << "No ethernet address!";
-			ret = -1;
-		}
-		std::cout << std::endl;
-#endif
 	}
 
 	free(pAddresses);
@@ -433,7 +417,7 @@ int getApp(const int pid, string &appname)
 	// Use the IWbemServices pointer to make requests of WMI ----
 
 	IEnumWbemClassObject *pEnumerator = NULL;
-	bstr_t query(("SELECT CommandLine FROM Win32_Process WHERE ProcessId='" + std::to_string(pid) + "'").c_str());
+	bstr_t query(concatenate("SELECT CommandLine FROM Win32_Process WHERE ProcessId = '",pid,"'"));
 	hr = pSvc->ExecQuery(L"WQL", query, WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY, NULL, &pEnumerator);
 	if (FAILED(hr))
 	{

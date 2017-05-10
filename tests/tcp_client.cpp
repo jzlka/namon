@@ -4,11 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 24.04.2017 06:44
- *   - Edited:  25.04.2017 23:23
- *  @version    1.0.0
- *  @par        g++: Apple LLVM version 8.0.0 (clang-800.0.42.1)
- *  @bug
- *  @todo
+ *   - Edited:  10.05.2017 12:53
  */
 
 #include <iostream>         // cout, endl, cerr
@@ -31,7 +27,7 @@
 #define     NANOSECOND      1000000000
 
 using namespace std;
-using clock_type = chrono::high_resolution_clock;
+#define     clock_type      chrono::high_resolution_clock
 
 int shouldStop = 0;         // Variable which is set if program should stop
 
@@ -49,7 +45,7 @@ void signalHandler(int signum)
 }
 
 
-int main(int argc , char *argv[])
+int main(int argc, char *argv[])
 {
     int fd;                           // an incoming socket descriptor
     unsigned short port = DEFAULT_PORT;
@@ -104,7 +100,7 @@ int main(int argc , char *argv[])
 
         char buffer[BUFFER];
 
-        long long sleepTime = 0;
+        long sleepTime = 0;
         unsigned int maxPps = 1000000000 / (packetSize * 8);
         if (pps < maxPps)
             sleepTime = ((double)(pps * NANOSECOND) / maxPps) / pps;
@@ -127,12 +123,12 @@ int main(int argc , char *argv[])
             sentPackets++;
             this_thread::sleep_for(nanoseconds(sleepTime));
         } 
-        auto end = clock_type::now();
+        clock_type::time_point end = clock_type::now();
         clock_type::duration duration = end - start;
 
 
         using std::chrono::milliseconds;
-        long long sentPps = sentPackets / (duration_cast<milliseconds>(duration).count() / 1000.);
+        long sentPps = sentPackets / (duration_cast<milliseconds>(duration).count() / 1000.);
         cout << "Sent packets: " << sentPackets 
              << " in " << duration_cast<milliseconds>(duration).count() << " miliseconds"
              << " ( ~" << sentPps << "pps | " << (sentPps * packetSize) * 8 / 1000000. << "Mb/s )." << endl;
