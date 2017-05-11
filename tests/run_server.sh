@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #   @file       run_server.sh
 #   @brief      Brief description
 #   @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
@@ -17,7 +17,7 @@ fi
 
 ports=( $( seq 50000 `expr $1 + 50000`) )
 for i in $(seq 0 $1); do
-    ./udp_server ${ports[$i]} >> "server$i.dat" &
+    ./udp_server ${ports[$i]} &
     serverPIDs+=($!)
 done
 

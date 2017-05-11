@@ -38,7 +38,7 @@ namespace TOOL
 {
 
 
-const int VALID_TIME = 10;      //!< Time of validity of TEntry record in cache in seconds
+const int VALID_TIME = 3;      //!< Time of validity of TEntry record in cache in seconds
 
 
 

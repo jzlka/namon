@@ -134,8 +134,8 @@ int main(int argc, char *argv[])
         using std::chrono::milliseconds;
         long sentPps = sentPackets / (duration_cast<milliseconds>(duration).count() / 1000.);
         cout << "Packet size   Sent packets   Time [ms]   ~pps   ~Mb/s" << endl;
-        cout << packetSize << sentPackets << duration_cast<milliseconds>(duration).count() 
-             << sentPps << (sentPps * packetSize) * 8 / 1000000. << endl;
+        cout << packetSize << " " << sentPackets << " " << duration_cast<milliseconds>(duration).count() << " "
+             << sentPps << " " << (sentPps * packetSize) * 8 / 1000000. << endl;
     }
     catch (const char *msg)
     {

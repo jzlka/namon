@@ -174,7 +174,7 @@ int startCapture(const char *oFilename)
 		thread t1([&fileBuffer]() { fileBuffer.write(oFile); });
 		Cache cache;
 		RingBuffer<Netflow> cacheBuffer(CACHE_RING_BUFFER_SIZE);
-		thread t2([&cacheBuffer, &cache]() { cacheBuffer.run(&cache); });
+		/*X*/thread t2([&cacheBuffer, &cache]() { cacheBuffer.run(&cache); });
 
 		PacketHandlerParams ptrs{ &fileBuffer, &cacheBuffer };
 		
@@ -192,16 +192,16 @@ int startCapture(const char *oFilename)
 		log(LogLevel::INFO, "Waiting for threads to finish.");
 		this_thread::sleep_for(chrono::seconds(1)); // because of possible deadlock, get some time to return from RingBuffer::receivedPacket() to condVar.wait()
 		fileBuffer.notifyCondVar(); // notify thread, it should end
-		cacheBuffer.notifyCondVar(); // notify thread, it should end
-		t2.join();
+		/*X*/cacheBuffer.notifyCondVar(); // notify thread, it should end
+		/*X*/t2.join();
 		t1.join();
 
 #if defined(_WIN32)
         cleanWmiConnection();
 #endif
-		cache.saveResults();
-		CustomBlock cBlock;
-		cBlock.write(oFile); //! @todo do not use CustomBlock class
+		/*X*/cache.saveResults();
+		/*X*/CustomBlock cBlock;
+		/*X*/cBlock.write(oFile); //! @todo do not use CustomBlock class
 
 		/******* SUMMARY *******/
 		cout << fileBuffer.getDroppedElem() << "' packets dropped by fileBuffer." << endl;
@@ -291,11 +291,11 @@ void packetHandler(unsigned char *arg_array, const struct pcap_pkthdr *header, c
 		return;
 	}
 	// STD::MOVE Netflow into buffer
-	if (cb->push(n))
-	{
-		log(LogLevel::ERR, "Packet dropped because cache is too slow.");
-		return;
-	}
+	/*X*/if (cb->push(n))
+	/*X*/{
+	/*X*/	log(LogLevel::ERR, "Packet dropped because cache is too slow.");
+	/*X*/	return;
+	/*X*/}
 }
 
 

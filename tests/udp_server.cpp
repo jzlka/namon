@@ -108,8 +108,8 @@ int main(int argc, char *argv[])
         using std::chrono::duration_cast;
         long rcvdPps = rcvdPackets / (duration_cast<milliseconds>(duration).count()/1000.);
         cout << "Packet size   Rcvd packets   Time [ms]   ~pps   ~Mb/s" << endl;
-        cout << packetSize << rcvdPackets << duration_cast<milliseconds>(duration).count() 
-             << rcvdPps << (rcvdPackets ? ((rcvdPps * packetSize) * 8 / 1000000.) : 0) << endl;
+        cout << packetSize << " " << rcvdPackets << " " << duration_cast<milliseconds>(duration).count() << " " 
+             << rcvdPps << " " << (rcvdPackets ? ((rcvdPps * packetSize) * 8 / 1000000.) : 0) << endl;
 #ifdef _WIN32
 		if (cin.fail())
 		{
