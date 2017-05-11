@@ -47,12 +47,12 @@ TESTS=$(patsubst %.cpp, %, $(wildcard $(TESTSDIR)/*.cpp))
 
 ######################    #######################
 $(OBJDIR)/%.o: $(SRCDIR)/%.cpp
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) -c $< -o $@ $(LDFLAGS)
 
 all: directories $(BIN)
 
 $(BIN): $(OBJ) 
-	$(CXX) -o $(BINDIR)/$@ $^ $(LDFLAGS)
+	$(CXX) $(CXXFLAGS) -o $(BINDIR)/$@ $^ $(LDFLAGS)
 
 directories:
 	@mkdir -p $(BINDIR) $(OBJDIR)
@@ -74,8 +74,8 @@ libs:
 	@mkdir -p libs
 	@cd scripts && ./install_libs.sh
 	
-pf_ring: CXXFLAGS += -I./libs/PF_RING/libpcap -I./libs/PF_RING/lib
-pf_ring: LDFLAGS += -lpfring -L./libs/PF_RING/libpcap -L./libs/PF_RING/lib
+pf_ring: CXXFLAGS += -I./libs/PF_RING/libpcap -I./libs/PF_RING/userland/lib
+pf_ring: LDFLAGS += -lpfring -L./libs/PF_RING/libpcap -L./libs/PF_RING/userland/lib
 pf_ring: debug
 
 netmap: CXXFLAGS += -I./libs/netmap/libpcap -I./libs/netmap/lib
