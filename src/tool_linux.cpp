@@ -117,7 +117,7 @@ int getInode(Netflow *n)
     else
     { 
         log(LogLevel::ERR, "IP protocol ", ipVer, " is not supported."); 
-        return -1; 
+        return -2; 
     }
     memset(&foundIp, 0, sizeof(foundIp));
 
@@ -126,7 +126,7 @@ int getInode(Netflow *n)
         static string filename;
 
         if (getSocketFile(n, filename))
-            return -1;
+            return -2;
 
         ifstream socketsFile;
         socketsFile.open(filename);
@@ -140,7 +140,7 @@ int getInode(Netflow *n)
         static uint16_t wantedPort;
 
         wantedPort = n->getLocalPort();
-        inode = 0;
+        inode = -1;
 #if 1
         const char IP_SIZE = (ipVer == 4) ? IPv4_ADDRLEN : IPv6_ADDRLEN;
 
@@ -287,7 +287,7 @@ int getInode(Netflow *n)
     catch(char const *msg)
     {
         log(LogLevel::ERR, msg);
-        return -1;
+        return -2;
     }
 }
 

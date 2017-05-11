@@ -48,7 +48,7 @@ namespace TOOL
 int determineApp(Netflow *n, TEntry &e, const char mode)
 {
 	int id = getId(n);
-	if (id == -1)
+	if (id == -2)
 		return -1;
 
 	// if we are updating existing cache record
@@ -71,7 +71,7 @@ int determineApp(Netflow *n, TEntry &e, const char mode)
 	g_allSockets++;
 	// update new pid in cache
 	e.setInodeOrPid(id);
-	if (id == 0)
+	if (id == -1)
 	{
 		log(LogLevel::WARNING, "Inode not found for port ", n->getLocalPort());
 		g_notFoundSockets++;

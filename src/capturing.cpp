@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 18.02.2017 22:45
- *   - Edited:  09.05.2017 21:05
+ *   - Edited:  11.05.2017 03:28
  *   @todo      IPv6 implementation tests
  *   @todo      Comment which functions move classes
  *   @todo      EnhancedPacketBlock disable pragma 1 -> speed up working with ringBuffer
@@ -52,7 +52,7 @@
 
 #elif defined(_WIN32)
 //#include <Windows.h>			//	SetConsoleCtrlHandler()
-//#include <signal.h>			//	signal()
+#include <signal.h>			//	signal()
 #include "tool_win.hpp"			//	setDevMac()
 #endif
 
@@ -98,7 +98,7 @@ unsigned int g_notFoundApps		= 0;					//!< Number of unsuccessful searches for a
 int startCapture(const char *oFilename)
 {
 
-#ifdef _WIN32
+#if 0 //def _WIN32
 	SetConsoleCtrlHandler((PHANDLER_ROUTINE)signalHandler, TRUE);
 #else
 	signal(SIGINT, signalHandler);      signal(SIGTERM, signalHandler);
@@ -130,7 +130,7 @@ int startCapture(const char *oFilename)
 			}
 
 			if (i == 0)
-				throw "No interfaces found! Make sure npcap is installed.";
+				throw "No interfaces found! Make sure npcap/libpcap is installed.";
 
 			cout << "Enter the interface number (1-" << i << "): ";
 			cin >> inum;
@@ -163,6 +163,12 @@ int startCapture(const char *oFilename)
             throw "Connection to WMI failed";
 #endif
 
+		if ((g_pcapHandle = pcap_open_live(g_dev, BUFSIZ, false, 1000, errbuf)) == NULL)
+			throw pcap_ex("pcap_open_live() failed.", errbuf);
+		if (pcap_setnonblock(g_pcapHandle, 1, errbuf) == -1)
+			throw pcap_ex("pcap_setnonblock() failed.", errbuf);
+		log(LogLevel::INFO, "Capturing device '", g_dev, "' was opened.");
+
 		// Create ring buffer and run writing to file in a new thread
 		RingBuffer<EnhancedPacketBlock> fileBuffer(FILE_RING_BUFFER_SIZE);
 		thread t1([&fileBuffer]() { fileBuffer.write(oFile); });
@@ -171,21 +177,16 @@ int startCapture(const char *oFilename)
 		thread t2([&cacheBuffer, &cache]() { cacheBuffer.run(&cache); });
 
 		PacketHandlerParams ptrs{ &fileBuffer, &cacheBuffer };
-
-
-		if ((g_pcapHandle = pcap_open_live(g_dev, BUFSIZ, false, 1000, errbuf)) == NULL)
-			throw pcap_ex("pcap_open_live() failed.", errbuf);
-		if (pcap_setnonblock(g_pcapHandle, 1, errbuf) == -1)
-			throw pcap_ex("pcap_setnonblock() failed.", errbuf);
-		log(LogLevel::INFO, "Capturing device '", g_dev, "' was opened.");
-		log(LogLevel::INFO, "Capturing...");
+		
+        log(LogLevel::INFO, "Capturing...");
 		//        while (!shouldStop)
 		//            pcap_dispatch(handle, -1, packetHandler, reinterpret_cast<u_char*>(&ptrs));
 		if (pcap_loop(g_pcapHandle, -1, packetHandler, reinterpret_cast<u_char*>(&ptrs)) == -1)
-			throw "pcap_loop() failed";
+			throw "pcap_loop() failed"; //! @todo what to do with threads
 
 		struct pcap_stat stats;
 		pcap_stats(g_pcapHandle, &stats);
+
 		pcap_close(g_pcapHandle);
 
 		log(LogLevel::INFO, "Waiting for threads to finish.");
@@ -200,7 +201,7 @@ int startCapture(const char *oFilename)
 #endif
 		cache.saveResults();
 		CustomBlock cBlock;
-		cBlock.write(oFile);
+		cBlock.write(oFile); //! @todo do not use CustomBlock class
 
 		/******* SUMMARY *******/
 		cout << fileBuffer.getDroppedElem() << "' packets dropped by fileBuffer." << endl;
@@ -220,6 +221,16 @@ int startCapture(const char *oFilename)
 		}
 		cout << "Cache records: " << endl;
 		cache.print();
+#ifdef _WIN32
+		if (cin.fail())
+        {
+			cin.clear();
+			cin.ignore(INT_MAX, '\n'); //INT_MAX is used instead of numeric_limits<streamsize>::max because of max() define in minwindef.h
+		}
+		cout << "Enter any symbol to exit...";
+		int x;
+		cin >> x;
+#endif
 	}
 	catch (pcap_ex &e)
 	{
@@ -360,42 +371,42 @@ inline int parsePorts(Netflow &n, Directions dir, void *hdr)
 {
 	switch (n.getProto())
 	{
-	case PROTO_TCP:
-	{
-		const struct tcp_hdr *tcp_hdr = (struct tcp_hdr*)hdr;
-		unsigned tcp_size = tcp_hdr->th_off * 4; // number of 32 bit words in the TCP header
-		if (tcp_size < 20)
-		{
-			log(LogLevel::WARNING, "Incorrect TCP header received.");
-			return EXIT_FAILURE;
-		}
-		if (dir == Directions::INBOUND)
-			n.setLocalPort(TOOL::ntohs(tcp_hdr->th_dport));
-		else
-			n.setLocalPort(TOOL::ntohs(tcp_hdr->th_sport));
-		break;
-	}
-	case PROTO_UDP:
-	case PROTO_UDPLITE: // structure of first 4 bytes is the same (srcPort and dstPort)
-	{
-		const struct udp_hdr *udp_hdr = (struct udp_hdr*)hdr;
-		unsigned short udp_size = udp_hdr->uh_ulen; // length in bytes of the UDP header and UDP data
-		if (udp_size < 8)
-		{
-			log(LogLevel::WARNING, "Incorrect UDP packet received with size <", udp_size, ">");
-			return EXIT_FAILURE;
-		}
-		if (dir == Directions::INBOUND)
-			n.setLocalPort(TOOL::ntohs(udp_hdr->uh_dport));
-		else
-			n.setLocalPort(TOOL::ntohs(udp_hdr->uh_sport));
-		break;
-	}
-	default:
-	{
-		log(LogLevel::WARNING, "Unsupported transport layer protocol (", (int)n.getProto(), ")");
-		return EXIT_FAILURE;
-	}
+        case PROTO_TCP:
+        {
+            const struct tcp_hdr *tcp_hdr = (struct tcp_hdr*)hdr;
+            unsigned tcp_size = tcp_hdr->th_off * 4; // number of 32 bit words in the TCP header
+            if (tcp_size < 20)
+            {
+                log(LogLevel::WARNING, "Incorrect TCP header received.");
+                return EXIT_FAILURE;
+            }
+            if (dir == Directions::INBOUND)
+                n.setLocalPort(TOOL::ntohs(tcp_hdr->th_dport));
+            else
+                n.setLocalPort(TOOL::ntohs(tcp_hdr->th_sport));
+            break;
+        }
+        case PROTO_UDP:
+        case PROTO_UDPLITE: // structure of first 4 bytes is the same (srcPort and dstPort)
+        {
+            const struct udp_hdr *udp_hdr = (struct udp_hdr*)hdr;
+            unsigned short udp_size = udp_hdr->uh_ulen; // length in bytes of the UDP header and UDP data
+            if (udp_size < 8)
+            {
+                log(LogLevel::WARNING, "Incorrect UDP packet received with size <", udp_size, ">");
+                return EXIT_FAILURE;
+            }
+            if (dir == Directions::INBOUND)
+                n.setLocalPort(TOOL::ntohs(udp_hdr->uh_dport));
+            else
+                n.setLocalPort(TOOL::ntohs(udp_hdr->uh_sport));
+            break;
+        }
+        default:
+        {
+            log(LogLevel::WARNING, "Unsupported transport layer protocol (", (int)n.getProto(), ")");
+            return EXIT_FAILURE;
+        }
 	}
 	return EXIT_SUCCESS;
 }

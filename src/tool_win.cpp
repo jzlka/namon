@@ -21,6 +21,7 @@
 #include "tcpip_headers.hpp"	//	mac_addr
 #include "cache.hpp"			//  Cache
 #include "debug.hpp"			//	log()
+#include "utils.hpp"			//	concatenate()
 #include "tool_win.hpp"
 
 
@@ -110,11 +111,13 @@ int setDevMac()
 	return ret;
 }
 
-
 int getPid(Netflow *n)
 {
 	DWORD tableSize = 0;
+	uint16_t wantedPort = ntohs(n->getLocalPort());
+	static int pid = 0;
 
+	//! @todo convert to template function
 	if (n->getIpVersion() == 4)
 	{
 		if (n->getProto() == PROTO_TCP)
@@ -125,20 +128,23 @@ int getPid(Netflow *n)
 			{
 				log(LogLevel::ERR, "Unable to get IPv4 TCP table");
 				delete table;
-				return -1;
+				return -2;
 			}
 			for (int i = 0; i < table->dwNumEntries; i++)
 			{
 				const MIB_TCPROW_OWNER_PID &row = table->table[i];
-				if (row.dwLocalPort == n->getLocalPort()
+				//D(row.dwLocalPort << " vs." << wantedPort);
+				if (row.dwLocalPort == wantedPort
 					&& row.dwLocalAddr == (*(in_addr*)n->getLocalIp()).S_un.S_addr)
 				{
+					pid = row.dwOwningPid;
 					delete table;
-					return row.dwOwningPid;
+					return pid;
 				}
 			}
 			delete table;
-			return 0;
+			log(LogLevel::ERR, "Inode not wound for port <", wantedPort, ">");
+			return -1;
 		}
 		else if (n->getProto() == PROTO_UDP)
 		{
@@ -148,20 +154,23 @@ int getPid(Netflow *n)
 			{
 				log(LogLevel::ERR, "Unable to get IPv4 UDP table");
 				delete table;
-				return -1;
+				return -2;
 			}
 			for (int i = 0; i < table->dwNumEntries; i++)
 			{
 				const MIB_UDPROW_OWNER_PID &row = table->table[i];
-				if (row.dwLocalPort == n->getLocalPort()
+				//D(row.dwLocalPort << " vs." << wantedPort);
+				if (row.dwLocalPort == wantedPort
 					&& row.dwLocalAddr == (*(in_addr*)n->getLocalIp()).S_un.S_addr)
 				{
+					pid = row.dwOwningPid;
 					delete table;
-					return row.dwOwningPid;
+					return pid;
 				}
 			}
 			delete table;
-			return 0;
+			log(LogLevel::ERR, "Inode not wound for port <", wantedPort, ">");
+			return -1;
 		}
 		log(LogLevel::WARNING, "Unsupported IPv4 transport layer protocol in getPid(). (", n->getProto(), ")");
 		return -1;
@@ -176,20 +185,23 @@ int getPid(Netflow *n)
 			{
 				log(LogLevel::ERR, "Unable to get IPv6 TCP table");
 				delete table;
-				return -1;
+				return -2;
 			}
 			for (int i = 0; i < table->dwNumEntries; i++)
 			{
 				const MIB_TCP6ROW_OWNER_PID &row = table->table[i];
-				if (row.dwLocalPort == n->getLocalPort()
+				//D(row.dwLocalPort << " vs." << wantedPort);
+				if (row.dwLocalPort == wantedPort
 					&& !memcmp(row.ucLocalAddr, n->getLocalIp(), IPv6_ADDRLEN))
 				{
+					pid = row.dwOwningPid;
 					delete table;
-					return row.dwOwningPid;
+					return pid;
 				}
 			}
 			delete table;
-			return 0;
+			log(LogLevel::ERR, "Inode not wound for port <", wantedPort, ">");
+			return -1;
 		}
 		else if (n->getProto() == PROTO_UDP)
 		{
@@ -200,26 +212,29 @@ int getPid(Netflow *n)
 			{
 				log(LogLevel::ERR, "Unable to get IPv6 UDP table");
 				delete table;
-				return -1;
+				return -2;
 			}
 			for (int i = 0; i < table->dwNumEntries; i++)
 			{
 				const MIB_UDP6ROW_OWNER_PID &row = table->table[i];
-				if (row.dwLocalPort == n->getLocalPort()
+				//D(row.dwLocalPort << " vs." << wantedPort);
+				if (row.dwLocalPort == wantedPort
 					&& !memcmp(row.ucLocalAddr, n->getLocalIp(), IPv6_ADDRLEN))
 				{
+					pid = row.dwOwningPid;
 					delete table;
-					return row.dwOwningPid;
+					return pid;
 				}
 			}
 			delete table;
-			return 0;
+			log(LogLevel::ERR, "Inode not wound for port <", wantedPort, ">");
+			return -1;
 		}
 		log(LogLevel::WARNING, "Unsupported IPv6 transport layer protocol in getPid(). (", n->getProto(), ")");
-		return -1;
+		return -2;
 	}
 	log(LogLevel::WARNING, "Unsupported IP version in getPid(). (", n->getIpVersion(), ")");
-	return -1;
+	return -2;
 }
 
 
@@ -417,7 +432,7 @@ int getApp(const int pid, string &appname)
 	// Use the IWbemServices pointer to make requests of WMI ----
 
 	IEnumWbemClassObject *pEnumerator = NULL;
-	bstr_t query(concatenate("SELECT CommandLine FROM Win32_Process WHERE ProcessId = '",pid,"'"));
+	bstr_t query(string("SELECT CommandLine FROM Win32_Process WHERE ProcessId = '" + std::to_string(pid) + "'").c_str());
 	hr = pSvc->ExecQuery(L"WQL", query, WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY, NULL, &pEnumerator);
 	if (FAILED(hr))
 	{
@@ -446,13 +461,13 @@ int getApp(const int pid, string &appname)
 		if (!FAILED(hr))
 		{
 			if ((vtProp.vt == VT_NULL) || (vtProp.vt == VT_EMPTY))
-				std::cout << "CommandLine : " << ((vtProp.vt == VT_NULL) ? "NULL" : "EMPTY") << std::endl;
+				log(LogLevel::ERR, "Application not found for pid <", pid, ">");//std::cout << "CommandLine : " << ((vtProp.vt == VT_NULL) ? "NULL" : "EMPTY") << std::endl;
 			else
 			{
 				if ((vtProp.vt & VT_ARRAY))
-					std::cout << "CommandLine : " << "Array types not supported (yet)" << std::endl;
+					log(LogLevel::ERR, "Array types are not supported (yet)");
 				else
-					std::cout << "CommandLine : " << vtProp.bstrVal << std::endl;
+					appname = ConvertBSTRToMBS(vtProp.bstrVal);
 			}
 		}
 		VariantClear(&vtProp);

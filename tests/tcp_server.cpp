@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 24.04.2017 06:49
- *   - Edited:  11.05.2017 03:01
+ *   - Edited:  11.05.2017 03:16
  */
 
 #include <iostream>         // cout, end, cerr
@@ -13,7 +13,7 @@
 #include <signal.h>             //  signal(), SIGINT, SIGTERM, SIGABRT, SIGSEGV
 
 
-#if defined(__linux__)
+#if defined(__linux__) || defined(__APPLE__)
 #include <arpa/inet.h>      // sockaddr_in, htonl()
 #include <unistd.h>         // close()
 #include <netdb.h>          // gethostbyname   

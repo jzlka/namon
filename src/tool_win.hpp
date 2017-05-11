@@ -40,6 +40,9 @@ int getPid(Netflow *n);
  */
 int getApp(const int pid, std::string &appName);
 
+void cleanWmiConnection();
+int connectToWmi();
+
 
 //#include "tool_win.tpp"
 

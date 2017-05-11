@@ -1,13 +1,12 @@
 /**
  *  @file       utils.tpp
  *  @brief      Small useful templated functions
- *  @details    http://stackoverflow.com/questions/18892281/most-optimized-way-of-concatenation-in-strings
+ *  @details    Credits: http://stackoverflow.com/questions/18892281/most-optimized-way-of-concatenation-in-strings
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 09.04.2017 01:58
  *   - Edited:  09.04.2017 02:30
  */
-
 
 template<typename>
 struct string_size_impl;

@@ -13,11 +13,12 @@
 #include <cstring>		// memset(), strlen() #linux
 
 #elif defined(_WIN32)
-//#include <WinSock2.h>			//	
+#include <WTypes.h>
 #endif
 
 #include "tcpip_headers.hpp"	//	IPv4_ADDRSTRLEN
 #include "debug.hpp"			//	log()
+#include "utils.hpp"
 
 
 
@@ -196,3 +197,39 @@ int inet_ntop(const int af, const void *src, char *dst, size_t size)
 
 
 }	// namespace TOOL
+
+
+#ifdef _WIN32
+// Source: https://stackoverflow.com/questions/6284524/bstr-to-stdstring-stdwstring-and-vice-versa
+std::string ConvertBSTRToMBS(BSTR bstr)
+{
+	int wslen = ::SysStringLen(bstr);
+	return ConvertWCSToMBS((wchar_t*)bstr, wslen);
+}
+
+std::string ConvertWCSToMBS(const wchar_t* pstr, long wslen)
+{
+	int len = ::WideCharToMultiByte(CP_ACP, 0, pstr, wslen, NULL, 0, NULL, NULL);
+
+	std::string dblstr(len, '\0');
+	len = ::WideCharToMultiByte(CP_ACP, 0 /* no flags */,
+		pstr, wslen /* not necessary NULL-terminated */,
+		&dblstr[0], len,
+		NULL, NULL /* no default char */);
+
+	return dblstr;
+}
+
+BSTR ConvertMBSToBSTR(const std::string& str)
+{
+	int wslen = ::MultiByteToWideChar(CP_ACP, 0 /* no flags */,
+		str.data(), str.length(),
+		NULL, 0);
+
+	BSTR wsdata = ::SysAllocStringLen(NULL, wslen);
+	::MultiByteToWideChar(CP_ACP, 0 /* no flags */,
+		str.data(), str.length(),
+		wsdata, wslen);
+	return wsdata;
+}
+#endif
