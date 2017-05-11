@@ -56,6 +56,7 @@ int main(int argc, char *argv[])
     unsigned short port = DEFAULT_PORT;
     unsigned long sentPackets = 0;
     unsigned int pps = 0;
+    unsigned int XXX = 0;
     unsigned short packetSize = 0;
     
     try
@@ -63,12 +64,19 @@ int main(int argc, char *argv[])
         signal(SIGINT, signalHandler);      signal(SIGTERM, signalHandler);
         signal(SIGABRT, signalHandler);     signal(SIGSEGV, signalHandler);
 
-        if (argc > 5)
+        if (argc > 6)
             throw "Wrong arguments";
         else if (argc == 2 && strcmp("-h", argv[1]) == 0)
         {
             printHelp();
             return 0;
+        }
+        else if (argc == 6)
+        {
+            port = atoi(argv[2]);
+            pps = atoi(argv[3]);
+            packetSize = atoi(argv[4]);
+            XXX = atoi(argv[5]);
         }
         else if (argc == 5)
         {
@@ -83,6 +91,7 @@ int main(int argc, char *argv[])
         }
         else
             throw "Wrong arguments";
+
 
         if (pps == 0)
             throw "Invalid pps argument";
@@ -105,28 +114,39 @@ int main(int argc, char *argv[])
         socklen_t len = sizeof(server);
         char buffer[BUFFER];
 
-        long sleepTime = 0;
+		//long packetsToSend = 1000;
+        const unsigned int headersSize = 18+20+8;
+        const unsigned int dataSize = (packetSize <= headersSize) ? 0 : packetSize - headersSize;
+        using std::chrono::nanoseconds;
+        using std::chrono::duration_cast;
+
+        //clock_type::time_point s = clock_type::now();
+        //for(int i=packetsToSend; i; i--) 
+        //    sendto(fd, buffer, dataSize, 0, (struct sockaddr *) &server, len);
+        //clock_type::time_point e = clock_type::now();
+        //clock_type::duration d = e - s;
+	//	double sendTime = duration_cast<nanoseconds>(d).count() / packetsToSend;
+        //long sleepTime = 0;
         unsigned int maxPps = 1000000000 / (packetSize * 8);
+        //unsigned int maxPps = NANOSECOND / sendTime;
+            // sleepTime = ((double)(pps * NANOSECOND) / maxPps) / pps;
         if (pps < maxPps)
-            sleepTime = ((double)(pps * NANOSECOND) / maxPps) / pps;
+            ;//sleepTime = (NANOSECOND - (sendTime*pps)) / pps;
         else
             cerr << "Too high pps, maximum possible value is <" << maxPps << ">" << endl;
 
-        const unsigned int headersSize = 18+20+8;
-        const unsigned int dataSize = (packetSize <= headersSize) ? 0 : packetSize - headersSize;
         if (dataSize >= BUFFER)
             throw "Too big packet size";
-
-        using std::chrono::nanoseconds;
-        using std::chrono::duration_cast;
 
         clock_type::time_point start = clock_type::now();
         while(!shouldStop) 
         { 
             sendto(fd, buffer, dataSize, 0, (struct sockaddr *) &server, len);
             sentPackets++;
-            this_thread::sleep_for(nanoseconds(sleepTime));
-        } 
+            //this_thread::sleep_for(nanoseconds(sleepTime));
+        	for (unsigned int i=0; i < XXX; i++)
+			;
+	} 
         clock_type::time_point end = clock_type::now();
         clock_type::duration duration = end - start;
 
