@@ -16,6 +16,7 @@
 #if defined(__linux__) || defined(__APPLE__)
 #include <arpa/inet.h>      // sockaddr_in, htonl()
 #include <unistd.h>         // close()
+#include <cstring>		// strcmp()
 #elif defined(_WIN32)
 #include <WinSock2.h>
 #pragma comment(lib, "Ws2_32.lib")
