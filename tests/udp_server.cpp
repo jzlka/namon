@@ -4,21 +4,22 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 24.04.2017 02:17
- *   - Edited:  10.05.2017 15:06
+ *   - Edited:  11.05.2017 03:00
  */
 
-#include <iostream>         // cout, end, cerr
-#include <chrono>           // duration, duration_cast, milliseconds
-//#include <sys/socket.h>
-#include <arpa/inet.h>      // sockaddr_in, htonl()
-#include <unistd.h>         // close()
+#include <iostream>         //  cout, end, cerr
+#include <chrono>           //  duration, duration_cast, milliseconds
+#include <string>			//  to_string
+#include <signal.h>         //  signal(), SIGINT, SIGTERM, SIGABRT, SIGSEGV
+
 
 #if defined(__linux__)
-#include <signal.h>             //  signal(), SIGINT, SIGTERM, SIGABRT, SIGSEGV
+#include <arpa/inet.h>      // sockaddr_in, htonl()
+#include <unistd.h>         // close()
 #elif defined(_WIN32)
+#include <WinSock2.h>
+#pragma comment(lib, "Ws2_32.lib")
 #endif
-
-
 
 
 
@@ -29,7 +30,9 @@
 using namespace std;
 #define     clock_type      chrono::high_resolution_clock
 
+
 int shouldStop = 0;         // Variable which is set if program should stop
+
 
 void printHelp()
 {
@@ -53,12 +56,9 @@ int main(int argc, char *argv[])
     
     try
     {
-#ifdef _WIN32
-        SetConsoleCtrlHandler((PHANDLER_ROUTINE)signalHandler, TRUE);
-#else
         signal(SIGINT, signalHandler);      signal(SIGTERM, signalHandler);
         signal(SIGABRT, signalHandler);     signal(SIGSEGV, signalHandler);
-#endif
+
         if (argc > 2)
             throw "Wrong arguments";
         else if (argc == 2 && strcmp("-h", argv[1]) == 0)
@@ -81,10 +81,15 @@ int main(int argc, char *argv[])
             throw ("Can't bind to port " + to_string(port)).c_str();
 
         char buffer[BUFFER];
+#if defined(__linux__)
         struct timeval tv;
         tv.tv_sec = 2;
         tv.tv_usec = 0;
         if (setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv)) < 0)
+#elif defined(_WIN32)
+		DWORD timeout = 2000;
+		if (setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, (char*)&timeout, sizeof(timeout)) < 0)
+#endif
             throw "Can't set timeout for socket";
 
         long packetSize = 0;
@@ -104,6 +109,16 @@ int main(int argc, char *argv[])
         cout << "Packet size   Rcvd packets   Time [ms]   ~pps   ~Mb/s" << endl;
         cout << packetSize << rcvdPackets << duration_cast<milliseconds>(duration).count() 
              << rcvdPps << (rcvdPackets ? ((rcvdPps * packetSize) * 8 / 1000000.) : 0) << endl;
+#ifdef _WIN32
+		if (cin.fail())
+		{
+			cin.clear();
+			cin.ignore(INT_MAX, '\n'); //INT_MAX is used instead of numeric_limits<streamsize>::max because of max() define in minwindef.h
+		}
+		cout << "Enter any symbol to exit...";
+		int x;
+		cin >> x;
+#endif
     }
     catch (const char *msg)
     {
@@ -112,6 +127,10 @@ int main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
   
+#if defined(__linux__)
     close(fd);
+#elif defined(_WIN32)
+	closesocket(fd);
+#endif
     return EXIT_SUCCESS;
 }

@@ -1,25 +1,25 @@
 /**
  *  @file       tcp_server.cpp
- *  @brief      Brief description
+ *  @brief      Simple TCP server
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 24.04.2017 06:49
- *   - Edited:  10.05.2017 12:53
+ *   - Edited:  11.05.2017 03:01
  */
 
 #include <iostream>         // cout, end, cerr
 #include <chrono>           // duration, duration_cast, milliseconds
-//#include <sys/socket.h>
-#include <arpa/inet.h>      // sockaddr_in, htonl()
-#include <unistd.h>         // close()
+#include <string>           // to_string
+#include <signal.h>             //  signal(), SIGINT, SIGTERM, SIGABRT, SIGSEGV
+
 
 #if defined(__linux__)
-#include <signal.h>             //  signal(), SIGINT, SIGTERM, SIGABRT, SIGSEGV
+#include <arpa/inet.h>      // sockaddr_in, htonl()
+#include <unistd.h>         // close()
+#include <netdb.h>          // gethostbyname   
 #elif defined(_WIN32)
+#include <WinSock2.h>
 #endif
-
-
-
 
 
 #define     BUFFER	        1600    // length of the receiving buffer
@@ -29,7 +29,9 @@
 using namespace std;
 #define     clock_type      chrono::high_resolution_clock
 
+
 int shouldStop = 0;         // Variable which is set if program should stop
+
 
 void printHelp()
 {
@@ -53,12 +55,9 @@ int main(int argc, char *argv[])
     
     try
     {
-#ifdef _WIN32
-        SetConsoleCtrlHandler((PHANDLER_ROUTINE)signalHandler, TRUE);
-#else
         signal(SIGINT, signalHandler);      signal(SIGTERM, signalHandler);
         signal(SIGABRT, signalHandler);     signal(SIGSEGV, signalHandler);
-#endif
+
         if (argc > 2)               // read the first parameter: a port number
             throw "Wrong arguments";
         else if (argc == 2)
@@ -116,6 +115,10 @@ int main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
   
-    close(fd);
+#if defined(__linux__)
+	close(fd);
+#elif defined(_WIN32)
+	closesocket(fd);
+#endif
     return EXIT_SUCCESS;
 }
