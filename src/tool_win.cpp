@@ -116,6 +116,10 @@ int getPid(Netflow *n)
 	DWORD tableSize = 0;
 	uint16_t wantedPort = ntohs(n->getLocalPort());
 	static int pid = 0;
+	// static variables are automatically initialized to zero unless there is an initializer
+	// ip6_addr is bigger so we can use it to compare for both ip versions
+	// if it is our IP address or broadcast
+	static char zeroBlock[sizeof(ip6_addr)];
 
 	//! @todo convert to template function
 	if (n->getIpVersion() == 4)
@@ -135,7 +139,7 @@ int getPid(Netflow *n)
 				const MIB_TCPROW_OWNER_PID &row = table->table[i];
 				//D(row.dwLocalPort << " vs." << wantedPort);
 				if (row.dwLocalPort == wantedPort
-					&& row.dwLocalAddr == (*(in_addr*)n->getLocalIp()).S_un.S_addr)
+					&& (row.dwLocalAddr == (*(in_addr*)n->getLocalIp()).S_un.S_addr || row.dwLocalAddr == 0))
 				{
 					pid = row.dwOwningPid;
 					delete table;
@@ -143,7 +147,7 @@ int getPid(Netflow *n)
 				}
 			}
 			delete table;
-			log(LogLevel::ERR, "Inode not wound for port <", wantedPort, ">");
+			log(LogLevel::WARNING, "PID not found for port <", n->getLocalPort(), "> (IPv4)");
 			return -1;
 		}
 		else if (n->getProto() == PROTO_UDP)
@@ -161,7 +165,7 @@ int getPid(Netflow *n)
 				const MIB_UDPROW_OWNER_PID &row = table->table[i];
 				//D(row.dwLocalPort << " vs." << wantedPort);
 				if (row.dwLocalPort == wantedPort
-					&& row.dwLocalAddr == (*(in_addr*)n->getLocalIp()).S_un.S_addr)
+					&& (row.dwLocalAddr == (*(in_addr*)n->getLocalIp()).S_un.S_addr || row.dwLocalAddr == 0))
 				{
 					pid = row.dwOwningPid;
 					delete table;
@@ -169,7 +173,7 @@ int getPid(Netflow *n)
 				}
 			}
 			delete table;
-			log(LogLevel::ERR, "Inode not wound for port <", wantedPort, ">");
+			log(LogLevel::WARNING, "PID not found for port <", n->getLocalPort(), "> (IPv4)");
 			return -1;
 		}
 		log(LogLevel::WARNING, "Unsupported IPv4 transport layer protocol in getPid(). (", n->getProto(), ")");
@@ -192,7 +196,7 @@ int getPid(Netflow *n)
 				const MIB_TCP6ROW_OWNER_PID &row = table->table[i];
 				//D(row.dwLocalPort << " vs." << wantedPort);
 				if (row.dwLocalPort == wantedPort
-					&& !memcmp(row.ucLocalAddr, n->getLocalIp(), IPv6_ADDRLEN))
+					&& (!memcmp(row.ucLocalAddr, n->getLocalIp(), IPv6_ADDRLEN) || !memcmp(row.ucLocalAddr, zeroBlock, IPv6_ADDRLEN)))
 				{
 					pid = row.dwOwningPid;
 					delete table;
@@ -200,7 +204,7 @@ int getPid(Netflow *n)
 				}
 			}
 			delete table;
-			log(LogLevel::ERR, "Inode not wound for port <", wantedPort, ">");
+			log(LogLevel::ERR, "PID not found for port <", n->getLocalPort(), "> (IPv6)");
 			return -1;
 		}
 		else if (n->getProto() == PROTO_UDP)
@@ -219,7 +223,7 @@ int getPid(Netflow *n)
 				const MIB_UDP6ROW_OWNER_PID &row = table->table[i];
 				//D(row.dwLocalPort << " vs." << wantedPort);
 				if (row.dwLocalPort == wantedPort
-					&& !memcmp(row.ucLocalAddr, n->getLocalIp(), IPv6_ADDRLEN))
+					&& (!memcmp(row.ucLocalAddr, n->getLocalIp(), IPv6_ADDRLEN) || !memcmp(row.ucLocalAddr, zeroBlock, IPv6_ADDRLEN)))
 				{
 					pid = row.dwOwningPid;
 					delete table;
@@ -227,7 +231,7 @@ int getPid(Netflow *n)
 				}
 			}
 			delete table;
-			log(LogLevel::ERR, "Inode not wound for port <", wantedPort, ">");
+			log(LogLevel::ERR, "PID not found for port <", n->getLocalPort(), "> (IPv6)");
 			return -1;
 		}
 		log(LogLevel::WARNING, "Unsupported IPv6 transport layer protocol in getPid(). (", n->getProto(), ")");

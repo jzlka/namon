@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 18.02.2017 22:45
- *   - Edited:  11.05.2017 03:28
+ *   - Edited:  12.05.2017 15:03
  *   @todo      IPv6 implementation tests
  *   @todo      Comment which functions move classes
  *   @todo      EnhancedPacketBlock disable pragma 1 -> speed up working with ringBuffer
@@ -165,8 +165,8 @@ int startCapture(const char *oFilename)
 
 		if ((g_pcapHandle = pcap_open_live(g_dev, BUFSIZ, false, 1000, errbuf)) == NULL)
 			throw pcap_ex("pcap_open_live() failed.", errbuf);
-		if (pcap_setnonblock(g_pcapHandle, 1, errbuf) == -1)
-			throw pcap_ex("pcap_setnonblock() failed.", errbuf);
+		//Aif (pcap_setnonblock(g_pcapHandle, 1, errbuf) == -1)
+		//A	throw pcap_ex("pcap_setnonblock() failed.", errbuf);
 		log(LogLevel::INFO, "Capturing device '", g_dev, "' was opened.");
 
 		// Create ring buffer and run writing to file in a new thread
@@ -179,8 +179,8 @@ int startCapture(const char *oFilename)
 		PacketHandlerParams ptrs{ &fileBuffer, &cacheBuffer };
 		
         log(LogLevel::INFO, "Capturing...");
-		//        while (!shouldStop)
-		//            pcap_dispatch(handle, -1, packetHandler, reinterpret_cast<u_char*>(&ptrs));
+		//Awhile (!shouldStop)
+		//A    pcap_dispatch(handle, -1, packetHandler, reinterpret_cast<u_char*>(&ptrs));
 		if (pcap_loop(g_pcapHandle, -1, packetHandler, reinterpret_cast<u_char*>(&ptrs)) == -1)
 			throw "pcap_loop() failed"; //! @todo what to do with threads
 

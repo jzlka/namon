@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 20.03.2017 16:34
- *   - Edited:  20.04.2017 08:32
+ *   - Edited:  12.05.2017 11:29
  *  @todo       rename file
  */
 
@@ -72,10 +72,7 @@ int determineApp(Netflow *n, TEntry &e, const char mode)
 	// update new pid in cache
 	e.setInodeOrPid(id);
 	if (id == -1)
-	{
-		log(LogLevel::WARNING, "Inode not found for port ", n->getLocalPort());
 		g_notFoundSockets++;
-	}
 	else
 	{
 		string appName;
