@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 24.04.2017 02:17
- *   - Edited:  11.05.2017 03:16
+ *   - Edited:  12.05.2017 09:26
  */
 
 #include <iostream>         //  cout, end, cerr
@@ -16,7 +16,7 @@
 #if defined(__linux__) || defined(__APPLE__)
 #include <arpa/inet.h>      // sockaddr_in, htonl()
 #include <unistd.h>         // close()
-#include <cstring>		// strcmp()
+#include <cstring>		    // strcmp()
 #elif defined(_WIN32)
 #include <WinSock2.h>
 #pragma comment(lib, "Ws2_32.lib")
@@ -69,12 +69,24 @@ int main(int argc, char *argv[])
         }
         else if (argc == 2)
             port = atoi(argv[1]);
+		else
+		{
+			std::cout << "Enter port to listen on: ";
+			std::cin >> port;
+		}
         
         struct sockaddr_in server;        // server's address structure
         server.sin_family = AF_INET;                     // set IPv4 addressing
-        server.sin_addr.s_addr = htonl(INADDR_ANY);      // the server listens to any interface
+        server.sin_addr.s_addr = INADDR_ANY;      // the server listens to any interface
         server.sin_port = htons(port);          // the server listens on this port
         
+#ifdef _WIN32
+		WSADATA wsa;
+		//Initialise winsock
+		if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0)
+			throw ("Failed to initialise winsock.");
+#endif
+
         if ((fd = socket(AF_INET, SOCK_DGRAM, 0)) == -1) // create the server UDP socket
             throw "Can't open socket";
 
@@ -94,10 +106,14 @@ int main(int argc, char *argv[])
             throw "Can't set timeout for socket";
 
         long packetSize = 0;
+		int ret;
         clock_type::time_point start = clock_type::now();
         while (!shouldStop) 
         {
-            packetSize += recvfrom(fd, buffer, BUFFER, 0, nullptr, 0);
+            ret = recvfrom(fd, buffer, BUFFER, 0, nullptr, 0);
+			if (ret == -1)
+				;// throw ("recvfrom() error, errno: " + to_string(errno)).c_str();
+			packetSize += ret;
             rcvdPackets++;
         }
         clock_type::time_point end = clock_type::now();
@@ -110,20 +126,11 @@ int main(int argc, char *argv[])
         cout << "Packet size   Rcvd packets   Time [ms]   ~pps   ~Mb/s" << endl;
         cout << packetSize << " " << rcvdPackets << " " << duration_cast<milliseconds>(duration).count() << " "
              << rcvdPps << " " << (rcvdPackets ? ((rcvdPps * packetSize) * 8 / 1000000.) : 0) << endl;
-#ifdef _WIN32
-		if (cin.fail())
-		{
-			cin.clear();
-			cin.ignore(INT_MAX, '\n'); //INT_MAX is used instead of numeric_limits<streamsize>::max because of max() define in minwindef.h
-		}
-		cout << "Enter any symbol to exit...";
-		int x;
-		cin >> x;
-#endif
     }
-    catch (const char *msg)
+    catch (const string &msg)
     {
-        cerr << "ERROR: " << msg << endl;
+		std::cerr << "ERROR: " << msg << endl;
+		perror("Errno: ");
         printHelp();
         return EXIT_FAILURE;
     }
@@ -132,6 +139,7 @@ int main(int argc, char *argv[])
     close(fd);
 #elif defined(_WIN32)
 	closesocket(fd);
+	WSACleanup();
 #endif
     return EXIT_SUCCESS;
 }
