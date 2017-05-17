@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 20.03.2017 16:34
- *   - Edited:  12.05.2017 11:29
+ *   - Edited:  17.05.2017 19:45
  *  @todo       rename file
  */
 
@@ -49,7 +49,10 @@ int determineApp(Netflow *n, TEntry &e, const char mode)
 {
 	int id = getId(n);
 	if (id == -2)
+    {
+        log(LogLevel::WARNING, "Inode not found for port <",n->getLocalPort(),">");
 		return -1;
+    }
 
 	// if we are updating existing cache record
 	if (mode == UPDATE)

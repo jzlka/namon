@@ -4,24 +4,19 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 18.02.2017 22:45
- *   - Edited:  12.05.2017 15:03
+ *   - Edited:  18.05.2017 00:40
  *   @todo      IPv6 implementation tests
- *   @todo      Comment which functions move classes
- *   @todo      EnhancedPacketBlock disable pragma 1 -> speed up working with ringBuffer
- *   @todo      document in BP that npcap must be installed
- *   @bug       cal_init leak
- *   @bug       start and endtimes are not valid in custom block
- *   @bug       ipv6 proc/net files does not have always same format, reimplement to read until '/n'
- *   @bug       cache contains records where inode == 0 && appName != ""
- *   @todo      copy grammar and example output to a cloud
- *   @todo      what about raw sockets in procfs
- *   @todo      setuid
+ *   @todo      EnhancedPacketBlock disable pragma 1 -> speed up working with ringBuffer?
+ *   @todo      raw sockets in procfs
  *   @todo      What to do when the cache contains invalid record and getInode returns inode == 0
  *              Save it to cache or the packet belongs to the old record?
- *   @todo      Broadcast and multicast packets (239.255.255.250, 0.0.0.0, 224.0.0.7, 1.13.0.0, 192.168.1.255)
+ *   @todo      Broadcast and multicast packets (239.255.255.250, 0.0.0.0, 224.0.0.7, 1.13.0.0, 192.168.1.255) -> use address 0.0.0.0 instead?
+ *   @todo      getting incorrect udp packet err
+ *   @bug       cal_init leak
+ *   @bug       ipv6 proc/net files does not have always same format, reimplement
+ *   @bug       cache contains records where inode == 0 && appName != ""
  *   @bug       Getting packets with local port set to 0 in determineApp() (and also zero IP)
  *   @bug       Sometimes deadlock after ^C (when there is too many log messages)
- *   @todo      getting incorrect udp packet err
  *   @bug       2 sockets (UDP, :68, eth0(INADDR_ANY), eth1(INADDR_ANY)), 2 application instances (dhclient), 
  *              2 inodes, 2 interfaces, 2 procfs entries
  *
@@ -35,7 +30,10 @@
  *   @todo      Pridat kazdemu vlaknu svoju cond variable a nech zamkne mutex ked kontroluje shouldStop
  *   @todo      upravit determineApp() aby vracal ukazatel s naplnenym TEntry
  *   @bug       Asi nepracuje na wlan rozhraniach
- *   @todo      poznatok z excelu, ulozime so zlym crc a jadro ich zahodi
+ *   @bug       Windows appname is enclosed in quotes and argument delimiter is space - convert it
+ *   @bug       cant capture using npcap on windows 7, firstly wireshark must be run
+ *   @bug       catch exception in case of full disk
+ *   @bug       add check ending '\0' in appname
  */
 
 #include <map>                  //  map
@@ -83,7 +81,7 @@ const mac_addr			g_macMcast6				{ { 0x33,0x33 } };						//!< IPv6 multicast MAC 
 const mac_addr			g_macBcast				{ { 0xff,0xff,0xff,0xff,0xff,0xff } };  //!< Broadcast MAC address
 
 map<string, vector<Netflow *>> g_finalResults;			//!< Applications and their netflows
-pcap_t *g_pcapHandle			= nullptr;
+pcap_t *g_pcapHandle			= nullptr;              //!< Pcap handle
 const char * g_dev				= nullptr;              //!< Capturing device name
 mac_addr g_devMac				{ {0} };				//!< Capturing device MAC address
 ofstream oFile;											//!< Output file stream
@@ -207,8 +205,9 @@ int startCapture(const char *oFilename)
 		cout << fileBuffer.getDroppedElem() << "' packets dropped by fileBuffer." << endl;
 		cout << cacheBuffer.getDroppedElem() << "' packets dropped by cacheBuffer." << endl;
 		cout << stats.ps_drop << "' packets dropped by the driver." << endl;
-		cout << "Total " << rcvdPackets << " packets received.\n" << endl;
 
+#ifdef DEBUG_BUILD
+		cout << "Total " << rcvdPackets << " packets received.\n" << endl;
 		cout << "Total " << g_finalResults.size() << " records with exactly the same 3-tuple" << endl;
 		cout << "Inode not found for " << g_notFoundSockets << " ports from " << g_allSockets << "." << endl;
 		cout << "Application not found for " << g_notFoundApps << " inodes." << endl;
@@ -221,6 +220,7 @@ int startCapture(const char *oFilename)
 		}
 		cout << "Cache records: " << endl;
 		cache.print();
+#endif
 #ifdef _WIN32
 		if (cin.fail())
         {

@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 26.09.2016 23:59
- *   - Edited:  11.04.2017 00:16
+ *   - Edited:  18.05.2017 00:13
  */
 
 #pragma once
@@ -81,8 +81,8 @@ void log(LogLevel ll, Ts&&... args)
 }
 
 /*!
- * @brief       Sets #generalLogLevel;
- * @param[in]   ll  #LogLevel
+ * @brief       Sets #TOOL::generalLogLevel;
+ * @param[in]   ll  #TOOL::LogLevel
  */
 void setLogLevel(char *ll);
 

@@ -3,7 +3,7 @@
 # @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
 # @date
 #  - Created: 08.02.2017
-#  - Edited:  20.04.2017 08:06
+#  - Edited:  18.05.2017 00:37
 # @version    1.0.0
 # @par        make: GNU Make 3.81
 
@@ -43,7 +43,7 @@ TESTS=$(patsubst %.cpp, %, $(wildcard $(TESTSDIR)/*.cpp))
 #	chmod +r /dev/bpf*
 
 
-.PHONY: test, clean, pack, doxygen, debug, unit-tests, directories
+.PHONY: test, clean, pack, doxygen, debug, unit-tests, directories, pf_ring, libs, netmap
 
 ######################    #######################
 $(OBJDIR)/%.o: $(SRCDIR)/%.cpp
@@ -97,11 +97,11 @@ test: all
 
 # -------------------------------------
 pack: clean
-	tar czf xzuzel00.tar.gz src/ tests/ Makefile README.md doxygen.conf
+	tar czf xzuzel00.tar.gz src/ tests/ win32/ doc/ Makefile README.md doxygen.conf
 #	zip -r
 
 doxygen:
-	doxygen doxygen.conf
+	doxygen doc/doxygen.conf
 
 clean: 
 	rm -f  $(BINDIR)/$(BIN) xzuzel00.tar.gz .fuse_hidden*
@@ -109,5 +109,6 @@ clean:
 clean-tests:
 	rm -f $(TESTS)
 	rm -rf $(TESTSDIR)/*.dSYM
-clean-all: clean clean-tests
-	rm -rf doc/
+clean-doc:
+	rm -rf doc/latex doc/html
+clean-all: clean clean-tests clean-doc

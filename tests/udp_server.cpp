@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 24.04.2017 02:17
- *   - Edited:  12.05.2017 09:26
+ *   - Edited:  12.05.2017 15:28
  */
 
 #include <iostream>         //  cout, end, cerr
@@ -112,13 +112,13 @@ int main(int argc, char *argv[])
         {
             ret = recvfrom(fd, buffer, BUFFER, 0, nullptr, 0);
 			if (ret == -1)
-				;// throw ("recvfrom() error, errno: " + to_string(errno)).c_str();
+				continue;// throw ("recvfrom() error, errno: " + to_string(errno)).c_str();
 			packetSize += ret;
             rcvdPackets++;
         }
         clock_type::time_point end = clock_type::now();
         clock_type::duration duration = end - start;
-        packetSize = packetSize / rcvdPackets;
+        packetSize = packetSize / (rcvdPackets ? rcvdPackets : 1);
 
         using std::chrono::milliseconds;
         using std::chrono::duration_cast;

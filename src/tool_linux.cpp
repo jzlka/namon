@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 18.02.2017 23:32
- *   - Edited:  10.05.2017 18:25
+ *   - Edited:  17.05.2017 19:44
  *  @todo       rename file
  */
 
@@ -251,7 +251,7 @@ int getInode(Netflow *n)
                     break;
                 }
             }
-            //! @todo for sure line have same length?
+            //! @todo for sure lines have same length?
             pos_localIp += lineLength; // all lines are the same length
             pos_localPort += lineLength;
             pos_inode += lineLength;

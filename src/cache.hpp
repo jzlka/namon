@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 02.03.2017 04:32
- *   - Edited:  25.04.2017 16:33
+ *   - Edited:  18.05.2017 00:22
  */
 
 #pragma once
@@ -177,7 +177,7 @@ public:
     void updateTime()                       { lastUpdate = clock_type::now(); }
     /*!
      * @brief   Returns if this TEntry is still valid
-     * @return  False if the entry is older or equal to #VALID_TIME, true otherwise.
+     * @return  False if the entry is older or equal to #TOOL::VALID_TIME, true otherwise.
      */
     bool valid()     { return duration_cast<seconds>(clock_type::now()-lastUpdate) < seconds(VALID_TIME); }
     /*!

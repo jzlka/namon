@@ -1,12 +1,12 @@
 /**
-*  @file       tool_win.cpp
-*  @brief      Determining the applications and their sockets on Windows
-*  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
-*  @date
-*   - Created: 13.04.2017 00:11
-*   - Edited:  20.04.2017 02:31
-*  @todo       rename this file
-*/
+ *  @file       tool_win.cpp
+ *  @brief      Determining the applications and their sockets on Windows
+ *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
+ *  @date
+ *   - Created: 13.04.2017 00:11
+ *   - Edited:  17.05.2017 19:47
+ *  @todo       rename this file
+ */
 
 
 #define _WIN32_DCOM
@@ -147,7 +147,7 @@ int getPid(Netflow *n)
 				}
 			}
 			delete table;
-			log(LogLevel::WARNING, "PID not found for port <", n->getLocalPort(), "> (IPv4)");
+			///log(LogLevel::WARNING, "PID not found for port <", n->getLocalPort(), "> (IPv4)");
 			return -1;
 		}
 		else if (n->getProto() == PROTO_UDP)
@@ -173,7 +173,7 @@ int getPid(Netflow *n)
 				}
 			}
 			delete table;
-			log(LogLevel::WARNING, "PID not found for port <", n->getLocalPort(), "> (IPv4)");
+			//log(LogLevel::WARNING, "PID not found for port <", n->getLocalPort(), "> (IPv4)");
 			return -1;
 		}
 		log(LogLevel::WARNING, "Unsupported IPv4 transport layer protocol in getPid(). (", n->getProto(), ")");
@@ -204,7 +204,7 @@ int getPid(Netflow *n)
 				}
 			}
 			delete table;
-			log(LogLevel::ERR, "PID not found for port <", n->getLocalPort(), "> (IPv6)");
+			//log(LogLevel::ERR, "PID not found for port <", n->getLocalPort(), "> (IPv6)");
 			return -1;
 		}
 		else if (n->getProto() == PROTO_UDP)
@@ -231,7 +231,7 @@ int getPid(Netflow *n)
 				}
 			}
 			delete table;
-			log(LogLevel::ERR, "PID not found for port <", n->getLocalPort(), "> (IPv6)");
+			//log(LogLevel::ERR, "PID not found for port <", n->getLocalPort(), "> (IPv6)");
 			return -1;
 		}
 		log(LogLevel::WARNING, "Unsupported IPv6 transport layer protocol in getPid(). (", n->getProto(), ")");

@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 06.03.2017 13:33
- *   - Edited:  26.04.2017 01:39
+ *   - Edited:  18.05.2017 00:21
  */
 
 #pragma once
@@ -105,7 +105,7 @@ class SectionHeaderBlock {
 public:
     /*!
      * @brief       Class constructor
-     * @details     Sets length of the #SectionHeaderBlock::options::shb_os option 
+     * @details     Sets length of the #TOOL::SectionHeaderBlock::options::shb_os option 
      *               and the block length
      * @param[in]   os  Platform and version of the OS we are capturing on
      */
@@ -362,6 +362,9 @@ public:
         for (auto app : g_finalResults)
         {
             uint8_t size = app.first.length();
+            // check terminating '\0', (sometimes it in procfs)
+            if (app.first[size] != '\0')
+                size++;
             file.write(reinterpret_cast<char*>(&size), sizeof(size));
             writtenBytes += sizeof(size);
 

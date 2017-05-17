@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 18.02.2017 22:48
- *   - Edited:  25.04.2017 16:20
+ *   - Edited:  18.05.2017 00:12
  */
 
 #pragma once
@@ -92,7 +92,7 @@ inline int parseIp(Netflow &n, unsigned int &ip_size, Directions dir, void * con
 /*!
 * @brief       Parses layer 4 header
 * @param[out]  n   Netflow which will be filled with parsed information
-* @param[in]   dir         Packet direction
+* @param[in]   dir Packet direction
 * @param[in]   hdr Header pointer
 * @return      Layer 4 header validity
 */

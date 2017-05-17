@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 26.02.2017 23:52
- *   - Edited:  25.04.2017 16:36
+ *   - Edited:  17.05.2017 19:16
  */
 
 #include <iostream>             //  cout, endl;
@@ -69,6 +69,8 @@ bool TEntry::levelCompare(Netflow *n1)
         }
         case TreeLevel::LOCAL_IP:
         {
+            if (n->getIpVersion() != n1->getIpVersion())
+                return false;
             if (n->getIpVersion() == 4)
                 return static_cast<ip4_addr*>(n->getLocalIp())->addr == static_cast<ip4_addr*>(n1->getLocalIp())->addr;
             else if (n->getIpVersion() == 6)

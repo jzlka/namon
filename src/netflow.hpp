@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 26.02.2017 23:13
- *   - Edited:  25.04.2017 16:10
+ *   - Edited:  18.05.2017 00:21
  */
 
 #pragma once
@@ -34,7 +34,7 @@ class Netflow
     uint8_t ipVersion       =0;         //!< IP header version
     /*!
      * @brief   Pointer to a structure containing local IP address
-     * @details Type of the pointer is determined using #Netflow::ipVersion
+     * @details Type of the pointer is determined using #TOOL::Netflow::ipVersion
      */
     void *localIp           = nullptr;
     uint16_t localPort      =0;         //!< Local port

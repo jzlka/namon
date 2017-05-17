@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 22.03.2017 17:04
- *   - Edited:  25.04.2017 16:18
+ *   - Edited:  18.05.2017 00:21
  */
 
 #pragma once
@@ -80,7 +80,7 @@ public:
 	/*!
      * @brief       Saves new packet into the buffer as EnhancedPacketBlock
      * @param[in]   header  libpcap header
-     * @paran[in]   packet  pointer to packet data
+     * @param[in]   packet  pointer to packet data
      * @return      False if packet was dropped. True otherwise.
      */
 	int push(const pcap_pkthdr *header, const u_char *packet);

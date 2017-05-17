@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 20.03.2017 16:56
- *   - Edited:  25.04.2017 16:21
+ *   - Edited:  18.05.2017 00:18
  *  @todo       rename file
  */
 
@@ -32,9 +32,9 @@ namespace TOOL
   * @param[in]   n       Netflow information
   * @param[out]  e       Set application and socket inode number with netflow structure
   * @param[in]   mode    Update of expired record or inserting new record
-  * @return      True if there wasn't any input/output error.
-  *              Zerro is also returned if application wasn't found - in this case #TOOL::TEntry::appName
-  *              is set to empty string. If inode wasn't found either, #TOOL::TEntry::inode is set to zero.
+  * @return      Value bigger than zero if there wasn't any error.
+  *              -1 is returned if application or inode wasn't found - in this case #TOOL::TEntry::appName
+  *              is set to empty string. If there were any Input/Output error, -2 is returned.
   */
 int determineApp(Netflow *n, TEntry &e, const char mode);
 

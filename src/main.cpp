@@ -6,7 +6,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 18.02.2017 08:03
- *   - Edited:  20.04.2017 08:31
+ *   - Edited:  18.05.2017 00:15
  *  @version:    1.0.0
  *  @todo       change tool name
  */
@@ -30,7 +30,7 @@ extern "C" {
 extern const char * g_dev;
 
 
-extern "C" const char * program_name = nullptr;
+extern "C" const char * program_name = nullptr;     //<! Name of the program used in the pcap-ng file
 
 //! @brief  Struct with long options
 static const struct option longopts[] = 
