@@ -1,0 +1,16 @@
+before_install:
+    - sudo apt-get update -qq
+    - sudo apt-get install -qq libpcap-dev
+
+branches:
+  only:
+    - master
+    - dev*
+
+language: cpp
+
+compiler:
+    - g++
+    - clang++
+
+script: make

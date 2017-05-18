@@ -9,14 +9,14 @@ Multiplatform C++ tool which captures network traffic into pcap-ng file and exte
 - Uses **PCAPNG** so Wireshark can read the capture file as usual
 
 The application was tested on the following platforms:
-**Debian 8 Jessie**, **lubuntu 17.04**, **Ubuntu 16.04**, **Ubuntu 17.04**, **Kali 
 - Windows:
     - Windows 10, x64 (Npcap)
     - Windows 7, x64 (WinPcap)
 - Linux:
     - Ubuntu (15.04 LTS, 16.04 LTS)
     - lubuntu (17.04)
-    - Kali 2016.1
+    - Debian (Jessie)
+    - Kali 2016.1, 2016.2
 
 Other operating systems will be implemented in the future.
 Detailed class documentation can be found at https://thekuko.github.io/BP-doc/
