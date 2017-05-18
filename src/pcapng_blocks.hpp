@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 06.03.2017 13:33
- *   - Edited:  18.05.2017 00:21
+ *   - Edited:  18.05.2017 09:29
  */
 
 #pragma once
@@ -359,16 +359,28 @@ public:
         file.write(reinterpret_cast<char*>(&PrivateEnterpriseNumber), sizeof(PrivateEnterpriseNumber));
         
         unsigned int writtenBytes = 0;
+        uint8_t skipByte = 0;
         for (auto app : g_finalResults)
         {
             uint8_t size = app.first.length();
             // check terminating '\0', (sometimes it in procfs)
-            if (app.first[size] != '\0')
+#ifdef _WIN32 // windows appname is in quotes
+            if (app.first[0] == '"')
+            {
+                app.first[size-1] = '\0';
+                skipByte = 1;
+                size--; // we skip first byte
+            }
+            else
+                skipByte = 0;
+#else // linux sometimes does not have terminating \0 in /proc/pid/fd/cmdline
+            if (app.first[size-1] != '\0')
                 size++;
+#endif
             file.write(reinterpret_cast<char*>(&size), sizeof(size));
             writtenBytes += sizeof(size);
 
-            file.write(app.first.c_str(), size);
+            file.write(&app.first.c_str()[skipByte], size);
             writtenBytes += size;
 
             //! @todo app.second->sort()
