@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 15.03.2017 23:27
- *   - Edited:  21.04.2017 01:16
+ *   - Edited:  18.05.2017 14:24
  */
 
 #include <iostream>				//  cout, endl
@@ -40,7 +40,7 @@ Netflow::~Netflow()
 
 bool Netflow::operator==(const Netflow& other) const
 {
-    if(localPort == other.localPort && proto == other.proto)
+    if(localPort == other.localPort && proto == other.proto && ipVersion == other.ipVersion)
     {
         if (ipVersion == 4)
             return !memcmp(localIp, other.localIp, IPv4_ADDRLEN);
