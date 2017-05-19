@@ -4,7 +4,7 @@
  * @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  * @date
  *  - Created: 12.04.2017 23:21
- *  - Edited:  09.05.2017 03:00
+ *  - Edited:  19.05.2017 01:45
  * @todo       rename namespace
 */
 
@@ -187,6 +187,7 @@ struct tcp_hdr {
 	defined(M_IX86) || defined(_M_X64) || defined(_M_IA64) || defined(_M_ARM)
        // uint8_t	th_off:4;           //!< data offset
        // uint8_t	th_x2:4;            //!< (unused)
+       //! @todo repair
 		uint8_t	th_x2 : 4;            //!< (unused)
 		uint8_t	th_off : 4;           //!< data offset
 #endif
