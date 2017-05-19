@@ -8,6 +8,7 @@ addons:
   apt:
       packages:
       - libpcap-dev
+      - make
 
 branches:
   only:
