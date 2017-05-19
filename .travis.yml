@@ -1,0 +1,17 @@
+language: cpp
+
+compiler:
+    - g++
+    - clang++
+
+addons:
+  apt:
+      packages:
+      - libpcap-dev
+
+branches:
+  only:
+    - master
+    - dev*
+
+script: make

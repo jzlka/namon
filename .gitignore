@@ -1,0 +1,9 @@
+.DS_Store
+*.o
+*.tar.*
+.vscode
+*.pcap*
+*.BAK
+*.dSYM
+*.swp
+*.vs
