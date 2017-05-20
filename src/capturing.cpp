@@ -4,7 +4,8 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 18.02.2017 22:45
- *   - Edited:  18.05.2017 00:40
+ *   - Edited:  20.05.2017 21:09
+ *   @todo      determine platform in scripts
  *   @todo      IPv6 implementation tests
  *   @todo      EnhancedPacketBlock disable pragma 1 -> speed up working with ringBuffer?
  *   @todo      raw sockets in procfs
@@ -12,6 +13,7 @@
  *              Save it to cache or the packet belongs to the old record?
  *   @todo      Broadcast and multicast packets (239.255.255.250, 0.0.0.0, 224.0.0.7, 1.13.0.0, 192.168.1.255) -> use address 0.0.0.0 instead?
  *   @todo      getting incorrect udp packet err
+ *   @todo      os_version_info from Wireshark
  *   @bug       cal_init leak
  *   @bug       ipv6 proc/net files does not have always same format, reimplement
  *   @bug       cache contains records where inode == 0 && appName != ""

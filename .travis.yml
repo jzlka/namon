@@ -1,4 +1,5 @@
 language: generic
+sudo: true
 
 os: osx
 
@@ -33,3 +34,6 @@ branches:
     - dev*
 
 script: make
+
+#todo test bin/tool --help
+#https://gist.github.com/nabijaczleweli/e53219d037c4ccb34f3c
