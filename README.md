@@ -57,4 +57,3 @@ On Windows, **npcap-sdk** must be located in libs/ folder
     * **-h**/--help           Print help message.
 
 ## TODO
-* README.md

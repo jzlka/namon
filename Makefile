@@ -3,7 +3,7 @@
 # @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
 # @date
 #  - Created: 08.02.2017
-#  - Edited:  20.05.2017 21:03
+#  - Edited:  20.05.2017 21:50
 # @version    1.0.0
 # @par        make: GNU Make 3.81
 
@@ -75,7 +75,7 @@ libs:
 	@cd scripts && ./install_libs.sh
 	
 pf_ring: CXXFLAGS += -I./libs/PF_RING/libpcap -I./libs/PF_RING/userland/lib
-pf_ring: LDFLAGS += -lpfring -L./libs/PF_RING/libpcap -L./libs/PF_RING/userland/lib
+pf_ring: LDFLAGS += -L./libs/PF_RING/libpcap -L./libs/PF_RING/userland/lib #-lpfring 
 pf_ring: debug
 
 netmap: CXXFLAGS += -I./libs/netmap/libpcap -I./libs/netmap/lib
