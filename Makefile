@@ -3,7 +3,7 @@
 # @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
 # @date
 #  - Created: 08.02.2017
-#  - Edited:  18.05.2017 00:37
+#  - Edited:  20.05.2017 21:50
 # @version    1.0.0
 # @par        make: GNU Make 3.81
 
@@ -75,7 +75,7 @@ libs:
 	@cd scripts && ./install_libs.sh
 	
 pf_ring: CXXFLAGS += -I./libs/PF_RING/libpcap -I./libs/PF_RING/userland/lib
-pf_ring: LDFLAGS += -lpfring -L./libs/PF_RING/libpcap -L./libs/PF_RING/userland/lib
+pf_ring: LDFLAGS += -L./libs/PF_RING/libpcap -L./libs/PF_RING/userland/lib #-lpfring 
 pf_ring: debug
 
 netmap: CXXFLAGS += -I./libs/netmap/libpcap -I./libs/netmap/lib
@@ -97,15 +97,15 @@ test: all
 
 # -------------------------------------
 pack: clean
-	tar czf xzuzel00.tar.gz src/ tests/ win32/ doc/ Makefile README.md doxygen.conf
+	tar czf bp.tar.gz src/ tests/ win32/ doc/ Makefile README.md doxygen.conf
 #	zip -r
 
 doxygen:
 	doxygen doc/doxygen.conf
 
 clean: 
-	rm -f  $(BINDIR)/$(BIN) xzuzel00.tar.gz .fuse_hidden*
-	rm -rf *.dSYM $(OBJDIR)
+	rm -f xzuzel00.tar.gz .fuse_hidden*
+	rm -rf *.dSYM $(OBJDIR) $(BINDIR)
 clean-tests:
 	rm -f $(TESTS)
 	rm -rf $(TESTSDIR)/*.dSYM

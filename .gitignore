@@ -7,3 +7,5 @@
 *.dSYM
 *.swp
 *.vs
+bin/
+libs/
