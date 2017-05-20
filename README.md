@@ -51,7 +51,7 @@ On Windows, **npcap-sdk** must be located in libs/ folder
 
 ## Run parameters
     tool [-v[<level>]] [-i <interface>] [-w <output_file>]
-    * **-v**/--verbosity      Verbosity level. (0-3)
+    * **-v**/--verbosity      Verbosity level. Possible values are 0(NONE), 1(ERR), 2(WARNING), 3(INFO). If no value is specified, 1 is used.
     * **-i**/--interface      Capturing interfec. If the tool is run without this parameter, available interfaces will be printed
     * **-w**/--output-file    Name of the output file. Default filename is tool_capturedTraffic.pcapng
     * **-h**/--help           Print help message.
