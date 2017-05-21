@@ -3,12 +3,12 @@
 # @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
 # @date
 #  - Created: 08.02.2017
-#  - Edited:  20.05.2017 21:50
+#  - Edited:  22.05.2017 00:18
 # @version    1.0.0
 # @par        make: GNU Make 3.81
 
 ######################## Compiler & flags  ##########################
-CXX=g++
+#CXX=g++
 CXXFLAGS=-std=c++14 -O3 -Wall -Wextra -pedantic
 LDFLAGS=-lpcap -pthread
 
