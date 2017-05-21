@@ -27,7 +27,7 @@ Detailed class documentation can be found at https://thekuko.github.io/BP-doc/
 - Windows: Npcap/WinPcap
 - Linux: libpcap
 
-##Installation
+## Installation
 On Windows, **npcap-sdk** must be located in libs/ folder
     
     git clone https://github.com/TheKuko/BP.git
@@ -35,6 +35,7 @@ On Windows, **npcap-sdk** must be located in libs/ folder
     make
 
 **Makefile parameters**
+
     * make              - build the tool
     * make debug        - build the tool with debug info and without optimisations
     * make libs         - run helper script to download & install PF_RING/netmap/PFQ (interactive, TODO)
