@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 18.02.2017 22:45
- *   - Edited:  20.05.2017 21:09
+ *   - Edited:  21.05.2017 15:39
  *   @todo      determine platform in scripts
  *   @todo      IPv6 implementation tests
  *   @todo      EnhancedPacketBlock disable pragma 1 -> speed up working with ringBuffer?
@@ -130,7 +130,7 @@ int startCapture(const char *oFilename)
 			}
 
 			if (i == 0)
-				throw "No interfaces found! Make sure npcap/libpcap is installed.";
+				throw "No interfaces found! Make sure npcap/libpcap is installed and you have permission to capture packets.";
 
 			cout << "Enter the interface number (1-" << i << "): ";
 			cin >> inum;
@@ -270,10 +270,11 @@ void packetHandler(unsigned char *arg_array, const struct pcap_pkthdr *header, c
 	}
 	//! @todo What to do with 802.3?
 	// We can't determine app for IGMP, ICMP, etc. https://en.wikipedia.org/wiki/List_of_IP_protocol_numbers
+	//! @todo check 4480
 	if (eth_hdr->ether_type != PROTO_IPv4 && eth_hdr->ether_type != PROTO_IPv6)
 		return;
 
-	uint64_t usecUnixTime = header->ts.tv_sec * (uint64_t)1000000 + header->ts.tv_sec;
+	uint64_t usecUnixTime = header->ts.tv_sec * (uint64_t)1000000 + header->ts.tv_usec;
 	n.setStartTime(usecUnixTime);
 	n.setEndTime(usecUnixTime);
 

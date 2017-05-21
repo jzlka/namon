@@ -11,6 +11,8 @@ matrix:
         apt:
           packages:
             - g++-5
+            - libpcap-dev
+            - make
           sources: &sources
             - llvm-toolchain-precise-3.8
             - ubuntu-toolchain-r-test
@@ -20,13 +22,9 @@ matrix:
         apt:
           packages:
             - clang-3.8
+            - libpcap-dev
+            - make
           sources: *sources
-
-addons:
-  apt:
-      packages:
-      - libpcap-dev
-      - make
 
 branches:
   only:
