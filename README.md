@@ -35,14 +35,13 @@ On Windows, **npcap-sdk** must be located in libs/ folder
     make
 
 **Makefile parameters**
-
     * make              - build the tool
     * make debug        - build the tool with debug info and without optimisations
-    * make libs         - run helper script to download & install PF_RING/netmap/PFQ (interactive, TODO)
-    * make pf_ring      - build against <i>PF_RING</i> downloaded in libs/ folder
-    * make netmap       - build against <i>netmap</i> downloaded in libs/ folder (TODO)
-    * make pfq          - build against <i>PFQ</i> downloaded in libs/ folder (TODO)
-    * make test         - run basic tests (TODO)
+    * make libs         - run helper script to download & install PF_RING/netmap/PFQ (interactive)(**TODO**)
+    * make pf_ring      - build against *PF_RING* downloaded in libs/ folder
+    * make netmap       - build against *netmap* downloaded in libs/ folder (**TODO**)
+    * make pfq          - build against *PFQ* downloaded in libs/ folder (**TODO**)
+    * make test         - run basic tests (**TODO**)
     * make pack         - create gzip file
     * make doxygen      - make doxygen documentation in doc/ folder
     * make clean        - clean compiled binary, archive file, object files and \*.dSYM files
@@ -51,7 +50,7 @@ On Windows, **npcap-sdk** must be located in libs/ folder
     * make clean-all    - clean, clean-tests, clean-doc
 
 ## Run parameters
-    tool [-v[<level>]] [-i <interface>] [-w <output_file>]
+    ./tool [-v[<level>]] [-i <interface>] [-w <output_file>]
     * **-v**/--verbosity      Verbosity level. Possible values are 0(NONE), 1(ERR), 2(WARNING), 3(INFO). If no value is specified, 1 is used.
     * **-i**/--interface      Capturing interfec. If the tool is run without this parameter, available interfaces will be printed
     * **-w**/--output-file    Name of the output file. Default filename is tool_capturedTraffic.pcapng
