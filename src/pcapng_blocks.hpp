@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 06.03.2017 13:33
- *   - Edited:  18.05.2017 09:29
+ *   - Edited:  21.05.2017 23:58
  */
 
 #pragma once
@@ -359,28 +359,33 @@ public:
         file.write(reinterpret_cast<char*>(&PrivateEnterpriseNumber), sizeof(PrivateEnterpriseNumber));
         
         unsigned int writtenBytes = 0;
-        uint8_t skipByte = 0;
+        string appname;
         for (auto app : g_finalResults)
         {
             uint8_t size = app.first.length();
-            // check terminating '\0', (sometimes it in procfs)
+            appname = app.first;
 #ifdef _WIN32 // windows appname is in quotes
-            if (app.first[0] == '"')
+            if (appname[0] == '"')
             {
-                app.first[size-1] = '\0';
-                skipByte = 1;
-                size--; // we skip first byte
+                appname.erase(0);                 // delete the first quote
+                replace(appname.begin(),appname.end(),' ','\0'); // replace spaces with \0
+                appname[size - 1] = '\0';        // substitute the last '"' with terminating zero
+                size--;                          // we skip the first byte
             }
             else
-                skipByte = 0;
+                log(LogLevel::ERR, "Should not happen");
 #else // linux sometimes does not have terminating \0 in /proc/pid/fd/cmdline
-            if (app.first[size-1] != '\0')
+            if (app.first[size - 1] != '\0')
+            {
                 size++;
+                appname.append(1,'\0');           // append terminating \0
+            }
 #endif
+
             file.write(reinterpret_cast<char*>(&size), sizeof(size));
             writtenBytes += sizeof(size);
 
-            file.write(&app.first.c_str()[skipByte], size);
+            file.write(appname.c_str(), size);
             writtenBytes += size;
 
             //! @todo app.second->sort()
@@ -414,4 +419,4 @@ public:
  */
 
 
-}	// namespace TOOL
+}   // namespace TOOL

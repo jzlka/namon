@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 22.03.2017 17:04
- *   - Edited:  26.04.2017 01:41
+ *   - Edited:  21.05.2017 15:33
  */
 
 
@@ -21,7 +21,8 @@ int RingBuffer<EnhancedPacketBlock>::push(const pcap_pkthdr *header, const u_cha
         last = 0;
 
     buffer[last].setOriginalPacketLength(header->len);
-    buffer[last].setTimestamp(header->ts.tv_usec); //! @todo    Will usec be precise enough?
+	uint64_t usecUnixTime = header->ts.tv_sec * (uint64_t)1000000 + header->ts.tv_usec;
+    buffer[last].setTimestamp(usecUnixTime);
     buffer[last].setPacketData(packet, header->caplen);
     ++last;
     ++size;
