@@ -18,10 +18,11 @@ environment:
 
 install:
 - appveyor DownloadFile https://nmap.org/npcap/dist/npcap-sdk-0.1.zip
-- 7z x .\npcap-sdk-0.1.zip -o.\libs\npcap-sdk\
+- 7z x .\npcap-sdk-0.1.zip -o.\libs\
 
 before_build:
-- ls libs\npcap-sdk\
+- cd libs\
+- ren npcap-sdk-0.1 npcap-sdk
 
 build_script:
 - if "%compiler%"=="vs2015" powershell -command "msbuild win32\BP.sln /p:Configuration=%config% /p:Platform=%platform%"
