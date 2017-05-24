@@ -1,9 +1,8 @@
+#Inspired by https://github.com/seladb/PcapPlusPlus/blob/master/appveyor.yml
 version: 1.0.{build}
 
 environment:
   matrix:
-    - compiler: mingw32
-    - compiler: mingw-w64
     - compiler: vs2015
       platform: x86
       config: Debug
@@ -22,8 +21,7 @@ install:
 - 7z x .\npcap-sdk-0.1.zip -o.\libs\npcap-sdk\
 
 before_build:
+- ls libs\npcap-sdk\
 
 build_script:
-- if "%compiler%"=="mingw32" mingw32-make all
-- if "%compiler%"=="mingw-w64" mingw32-make all
 - if "%compiler%"=="vs2015" powershell -command "msbuild win32\BP.sln /p:Configuration=%config% /p:Platform=%platform%"

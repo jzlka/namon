@@ -35,10 +35,9 @@ Detailed class documentation can be found at https://thekuko.github.io/BP-doc/
     $ make
 
 **Windows**
-
-    1. Clone https://github.com/TheKuko/BP.git
-    2. Download [npcap-sdk](https://nmap.org/npcap/) into _libs/_ folder, extract it and rename extracted folder to *npcap-sdk*
-    3. Build *win32/BP.sln* using Visual Studio
+1. Clone https://github.com/TheKuko/BP.git
+2. Download [npcap-sdk](https://nmap.org/npcap/) into _libs/_ folder, extract it and rename extracted folder to *npcap-sdk*
+3. Build *win32/BP.sln* using Visual Studio
 
 Final binary is located in _bin/_ folder.
 
@@ -60,9 +59,9 @@ Final binary is located in _bin/_ folder.
 
 ## Run parameters
     ./tool [-v[<level>]] [-i <interface>] [-w <output_file>]
-    * -v/--verbosity      Verbosity level. Possible values are 0(NONE), 1(ERR), 2(WARNING), 3(INFO). If no value is specified, 1 is used.
-    * -i/--interface      Capturing interfec. If the tool is run without this parameter, available interfaces will be printed
-    * -w/--output-file    Name of the output file. Default filename is tool_capturedTraffic.pcapng
-    * -h/--help           Print help message.
+       -v/--verbosity      Verbosity level. Possible values are 0(NONE), 1(ERR), 2(WARNING), 3(INFO). If no value is specified, 1 is used.
+       -i/--interface      Capturing interfec. If the tool is run without this parameter, available interfaces will be printed
+       -w/--output-file    Name of the output file. Default filename is tool_capturedTraffic.pcapng
+       -h/--help           Print help message.
 
 ## TODO
