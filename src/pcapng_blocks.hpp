@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 06.03.2017 13:33
- *   - Edited:  21.05.2017 23:58
+ *   - Edited:  24.05.2017 13:23
  */
 
 #pragma once
@@ -368,7 +368,8 @@ public:
             if (appname[0] == '"')
             {
                 appname.erase(0);                 // delete the first quote
-                replace(appname.begin(),appname.end(),' ','\0'); // replace spaces with \0
+               // replace(appname.begin(),appname.end(),' ','\0'); // replace spaces with \0
+                appname.Replace(' ','\0'); // replace spaces with \0
                 appname[size - 1] = '\0';        // substitute the last '"' with terminating zero
                 size--;                          // we skip the first byte
             }

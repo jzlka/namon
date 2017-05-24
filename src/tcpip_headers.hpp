@@ -4,7 +4,7 @@
  * @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  * @date
  *  - Created: 12.04.2017 23:21
- *  - Edited:  19.05.2017 01:45
+ *  - Edited:  24.05.2017 13:18
  * @todo       rename namespace
 */
 
@@ -81,6 +81,7 @@ struct ip4_hdr {
     uint8_t ihl:4;
 #else
 # error "Please fix <bits/endian.h>"
+    //https://stackoverflow.com/questions/4239993/determining-endianness-at-compile-time
 #endif
 	uint8_t   ip_tos;		/* type of service */
 	uint16_t  ip_len;		/* total length */
