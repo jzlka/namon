@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 06.03.2017 13:33
- *   - Edited:  24.05.2017 13:23
+ *   - Edited:  24.05.2017 14:21
  */
 
 #pragma once
@@ -365,16 +365,17 @@ public:
             uint8_t size = app.first.length();
             appname = app.first;
 #ifdef _WIN32 // windows appname is in quotes
+/*
             if (appname[0] == '"')
             {
-                appname.erase(0);                 // delete the first quote
-               // replace(appname.begin(),appname.end(),' ','\0'); // replace spaces with \0
-                appname.Replace(' ','\0'); // replace spaces with \0
-                appname[size - 1] = '\0';        // substitute the last '"' with terminating zero
+                appname.erase(0,1);                 // delete the first quote
+                //appname.replace(appname.begin(), appname.end(),' ','\0'); // replace spaces with \0
+                //appname[size - 1] = ' ';        // substitute the last '"' with terminating zero
                 size--;                          // we skip the first byte
             }
             else
                 log(LogLevel::ERR, "Should not happen");
+*/
 #else // linux sometimes does not have terminating \0 in /proc/pid/fd/cmdline
             if (app.first[size - 1] != '\0')
             {
