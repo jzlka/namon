@@ -1,7 +1,8 @@
 BP
 ===
 [![Build Status](https://travis-ci.org/TheKuko/BP.svg?branch=master)](https://travis-ci.org/TheKuko/BP)
-#https://ci.appveyor.com/project/TheKuko/bp
+[![Build status](https://ci.appveyor.com/api/projects/status/3mxuyc2dmaml6dr0?svg=true)](https://ci.appveyor.com/project/TheKuko/bp)
+
 
 Multiplatform C++ tool which captures network traffic into pcap-ng file and extends it with application tags. 
 The application tag consists of recognized application and its socket records. The socket record uniquely identifies group of packets which belong to one applications socket.  
