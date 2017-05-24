@@ -1,9 +1,9 @@
 language: generic
 sudo: true
 
-os: osx
-
 matrix:
+  allow_failures:
+    - os: osx
   include:
     - os: linux
       env: COMPILER_NAME=gcc CXX=g++-5 CC=gcc-5

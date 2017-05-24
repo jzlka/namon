@@ -27,12 +27,20 @@ Detailed class documentation can be found at https://thekuko.github.io/BP-doc/
 - Windows: Npcap/WinPcap
 - Linux: libpcap
 
-## Installation
-On Windows, **npcap-sdk** must be located in _libs/_ folder
-    
+## Build
+**Linux**    
+
     $ git clone https://github.com/TheKuko/BP.git
     $ cd BP
     $ make
+
+**Windows**
+
+    1. Clone https://github.com/TheKuko/BP.git
+    2. Download [npcap-sdk](https://nmap.org/npcap/) into _libs/_ folder, extract it and rename extracted folder to *npcap-sdk*
+    3. Build *win32/BP.sln* using Visual Studio
+
+Final binary is located in _bin/_ folder.
 
 **Makefile parameters**
 
