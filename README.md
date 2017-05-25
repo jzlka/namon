@@ -6,7 +6,7 @@ Network Traffic Capturing With Application Tags
 
 Multiplatform C++ tool which captures network traffic into pcap-ng file and extends it with application tags. 
 The application tag consists of recognized application and its socket records. The socket record uniquely identifies group of packets which belong to one applications socket.  
-Application tags are appended to the end of the capture pcap-ng file as one Custom Block. Structure of the block is documented in *doc/xzuzel00_BP.pdf* (Chapter 6).
+Application tags are appended to the end of the capture pcap-ng file as one Custom Block. Structure of the block is documented in *[thesis.pdf](https://thekuko.github.io/BP/docs/thesis.pdf)* (Chapter 6).
 
 **Features**
 - Works on Windows and Linux (FreeBSD and MacOS support will be added in the future)
@@ -21,8 +21,6 @@ The application was tested on the following platforms:
     - lubuntu (17.04)
     - Debian (8 Jessie)
     - Kali (2016.1, 2016.2)
-
-Detailed class documentation can be found at https://thekuko.github.io/BP-doc/
 
 **Dependencies**
 - Windows: Npcap/WinPcap
@@ -45,21 +43,19 @@ Final binary is located in _bin/_ folder.
 
 **Makefile parameters**
 
-|Command            |Description                                                                       |
-|-------------------|----------------------------------------------------------------------------------|
-|`make`             |build the tool                                                                    |
-|`make debug`       |build the tool with debug info and without optimisations                          |
-|`make libs`        |run helper script to download & install PF_RING/netmap/PFQ (interactive)(**TODO**)|
-|`make pf_ring`     |build against PF_RING downloaded in libs/ folder                                  |
-|`make netmap`      |build against netmap downloaded in libs/ folder (**TODO**)                        |
-|`make pfq`         |build against PFQ downloaded in libs/ folder (**TODO**)                           |
-|`make test`        |run basic tests (**TODO**)                                                        |
-|`make pack`        |create gzip file                                                                  |
-|`make doxygen`     |make doxygen documentation in doc/ folder                                         |
-|`make clean`       |clean compiled binary, archive file, object files and \*.dSYM files               |
-|`make clean-tests` |clean compiled tests                                                              |
-|`make clean-doc`   |delete generated documentation                                                    |
-|`make clean-all`   |clean, clean-tests, clean-doc                                                     |
+* make              - build the tool
+* make debug        - build the tool with debug info and without optimisations
+* make libs         - run helper script to download & install PF_RING/netmap/PFQ (interactive)(**TODO**)
+* make pf_ring      - build against PF_RING downloaded in libs/ folder
+* make netmap       - build against netmap downloaded in libs/ folder (**TODO**)
+* make pfq          - build against PFQ downloaded in libs/ folder (**TODO**)
+* make test         - run basic tests (**TODO**)
+* make pack         - create gzip file
+* make doxygen      - make doxygen documentation in doc/ folder
+* make clean        - clean compiled binary, archive file, object files and \*.dSYM files
+* make clean-tests  - clean compiled tests
+* make clean-doc    - delete generated documentation
+* make clean-all    - clean, clean-tests, clean-doc
 
 ## Program arguments
 ```bash
@@ -79,4 +75,4 @@ Jozef Zuzelka <jozef.zuzelka@gmail.com>
 
 * ZUZELKA, Jozef. *Network traffc capturing with application tags*. Brno, 2017. Bachelor’s thesis. Brno University of Technology, Faculty of Information Technology. Supervisor Ing. Jan Pluskal ([thesis.pdf](https://thekuko.github.io/BP/docs/thesis.pdf))
 * _"Network Traffc Capturing with Application Tags"_: Excel@FIT Conference (April 2017, Brno) ([paper](https://thekuko.github.io/BP/docs/clanek.pdf), [poster](https://thekuko.github.io/BP/docs/poster.pdf))
-* [Class documentation](https://thekuko.github.io/BP/docs/html/index.html)
+* [Class documentation](https://thekuko.github.io/BP/docs/html/index.xhtml)
