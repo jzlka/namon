@@ -4,7 +4,7 @@
  * @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  * @date
  *  - Created: 12.04.2017 23:21
- *  - Edited:  24.05.2017 13:18
+ *  - Edited:  25.05.2017 12:57
  * @todo       rename namespace
 */
 
@@ -105,6 +105,7 @@ struct ip4_hdr {
 #define IPv6_ADDRLEN	16			//!< Length of IPv6 address
 #define IPv6_HDRLEN		40			//!< Size of IPv6 header
 #define AF_INET6	10 //! @todo check other platforms
+//! @bug 23 on windows, include Ws2def.h
 
 //! IPv6 address
 struct ip6_addr {

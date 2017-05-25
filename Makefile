@@ -3,7 +3,7 @@
 # @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
 # @date
 #  - Created: 08.02.2017
-#  - Edited:  22.05.2017 00:18
+#  - Edited:  25.05.2017 17:03
 # @version    1.0.0
 # @par        make: GNU Make 3.81
 
@@ -97,11 +97,11 @@ test: all
 
 # -------------------------------------
 pack: clean
-	tar czf bp.tar.gz src/ tests/ win32/ doc/ Makefile README.md doxygen.conf
+	tar czf bp.tar.gz src/ tests/ win32/ docs/*.pdf docs/mainpage.dox docs/doxygen.conf Makefile README.md LICENSE appveyor.yml .travis.yml
 #	zip -r
 
 doxygen:
-	doxygen doc/doxygen.conf
+	doxygen docs/doxygen.conf
 
 clean: 
 	rm -f xzuzel00.tar.gz .fuse_hidden*
@@ -110,5 +110,5 @@ clean-tests:
 	rm -f $(TESTS)
 	rm -rf $(TESTSDIR)/*.dSYM
 clean-doc:
-	rm -rf doc/latex doc/html
+	rm -rf docs/latex docs/html
 clean-all: clean clean-tests clean-doc

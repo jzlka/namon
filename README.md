@@ -1,4 +1,4 @@
-BP
+Network Traffic Capturing With Application Tags
 ===
 [![Build Status](https://travis-ci.org/TheKuko/BP.svg?branch=master)](https://travis-ci.org/TheKuko/BP)
 [![Build status](https://ci.appveyor.com/api/projects/status/3mxuyc2dmaml6dr0?svg=true)](https://ci.appveyor.com/project/TheKuko/bp)
@@ -30,10 +30,11 @@ Detailed class documentation can be found at https://thekuko.github.io/BP-doc/
 
 ## Build
 **Linux**    
-
-    $ git clone https://github.com/TheKuko/BP.git
-    $ cd BP
-    $ make
+```bash
+git clone https://github.com/TheKuko/BP.git
+cd BP
+make
+```
 
 **Windows**
 1. Clone https://github.com/TheKuko/BP.git
@@ -43,26 +44,32 @@ Detailed class documentation can be found at https://thekuko.github.io/BP-doc/
 Final binary is located in _bin/_ folder.
 
 **Makefile parameters**
-
-    * make              - build the tool
-    * make debug        - build the tool with debug info and without optimisations
-    * make libs         - run helper script to download & install PF_RING/netmap/PFQ (interactive)(**TODO**)
-    * make pf_ring      - build against PF_RING downloaded in libs/ folder
-    * make netmap       - build against netmap downloaded in libs/ folder (**TODO**)
-    * make pfq          - build against PFQ downloaded in libs/ folder (**TODO**)
-    * make test         - run basic tests (**TODO**)
-    * make pack         - create gzip file
-    * make doxygen      - make doxygen documentation in doc/ folder
-    * make clean        - clean compiled binary, archive file, object files and \*.dSYM files
-    * make clean-tests  - clean compiled tests
-    * make clean-doc    - delete generated documentation
-    * make clean-all    - clean, clean-tests, clean-doc
+|Command            |Description                                                                       |
+|-------------------|----------------------------------------------------------------------------------|
+|`make`             |build the tool                                                                    |
+|`make debug`       |build the tool with debug info and without optimisations                          |
+|`make libs`        |run helper script to download & install PF_RING/netmap/PFQ (interactive)(**TODO**)|
+|`make pf_ring`     |build against PF_RING downloaded in libs/ folder                                  |
+|`make netmap`      |build against netmap downloaded in libs/ folder (**TODO**)                        |
+|`make pfq`         |build against PFQ downloaded in libs/ folder (**TODO**)                           |
+|`make test`        |run basic tests (**TODO**)                                                        |
+|`make pack`        |create gzip file                                                                  |
+|`make doxygen`     |make doxygen documentation in doc/ folder                                         |
+|`make clean`       |clean compiled binary, archive file, object files and \*.dSYM files               |
+|`make clean-tests` |clean compiled tests                                                              |
+|`make clean-doc`   |delete generated documentation                                                    |
+|`make clean-all`   |clean, clean-tests, clean-doc                                                     |
 
 ## Run parameters
-    ./tool [-v[<level>]] [-i <interface>] [-w <output_file>]
-       -v/--verbosity      Verbosity level. Possible values are 0(NONE), 1(ERR), 2(WARNING), 3(INFO). If no value is specified, 1 is used.
-       -i/--interface      Capturing interfec. If the tool is run without this parameter, available interfaces will be printed
-       -w/--output-file    Name of the output file. Default filename is tool_capturedTraffic.pcapng
-       -h/--help           Print help message.
+```bash
+tool [-v[<level>]] [-i <interface>] [-w <output_file>]
+```
+|Argument                                |Description                                                                                                                    |
+|----------------------------------------|-------------------------------------------------------------------------------------------------------------------------------|
+|`-h`, `--help`                          |Show help message and exit.                                                                                                    |
+|`-v`, `--verbosity`                     |Select verbosity level 0(_disabled_), 1(_error_), 2(_warning_), 3(_info_). If no value is specified `1` is used by default.    |
+|`-i <interface>`, `--interface`         |Capturing interface. If the tool is run without this parameter, available interfaces will be printed.                          |
+|`-w <output_file>`, `--output-file`     |Name of the output file. Default filename is `tool_capturedTraffic.pcapng`.                                                    |
 
-## TODO
+## Reference
+ZUZELKA, Jozef. *Network traffc capturing with application tags*. Brno, 2017. Bachelor’s thesis. Brno University of Technology, Faculty of Information Technology. Supervisor Ing. Jan Pluskal
