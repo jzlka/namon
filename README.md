@@ -44,6 +44,7 @@ make
 Final binary is located in _bin/_ folder.
 
 **Makefile parameters**
+
 |Command            |Description                                                                       |
 |-------------------|----------------------------------------------------------------------------------|
 |`make`             |build the tool                                                                    |
@@ -60,7 +61,7 @@ Final binary is located in _bin/_ folder.
 |`make clean-doc`   |delete generated documentation                                                    |
 |`make clean-all`   |clean, clean-tests, clean-doc                                                     |
 
-## Run parameters
+## Program arguments
 ```bash
 tool [-v[<level>]] [-i <interface>] [-w <output_file>]
 ```
@@ -71,5 +72,11 @@ tool [-v[<level>]] [-i <interface>] [-w <output_file>]
 |`-i <interface>`, `--interface`         |Capturing interface. If the tool is run without this parameter, available interfaces will be printed.                          |
 |`-w <output_file>`, `--output-file`     |Name of the output file. Default filename is `tool_capturedTraffic.pcapng`.                                                    |
 
-## Reference
-ZUZELKA, Jozef. *Network traffc capturing with application tags*. Brno, 2017. Bachelor’s thesis. Brno University of Technology, Faculty of Information Technology. Supervisor Ing. Jan Pluskal
+## Author
+Jozef Zuzelka <jozef.zuzelka@gmail.com>
+
+## More information
+
+* ZUZELKA, Jozef. *Network traffc capturing with application tags*. Brno, 2017. Bachelor’s thesis. Brno University of Technology, Faculty of Information Technology. Supervisor Ing. Jan Pluskal ([thesis.pdf](https://thekuko.github.io/BP/docs/thesis.pdf))
+* _"Network Traffc Capturing with Application Tags"_: Excel@FIT Conference (April 2017, Brno) ([paper](https://thekuko.github.io/BP/docs/clanek.pdf), [poster](https://thekuko.github.io/BP/docs/poster.pdf))
+* [Class documentation](https://thekuko.github.io/BP/docs/html/index.html)
