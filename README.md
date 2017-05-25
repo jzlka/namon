@@ -61,6 +61,7 @@ Final binary is located in _bin/_ folder.
 ```bash
 tool [-v[<level>]] [-i <interface>] [-w <output_file>]
 ```
+
 |Argument                                |Description                                                                                                                    |
 |----------------------------------------|-------------------------------------------------------------------------------------------------------------------------------|
 |`-h`, `--help`                          |Show help message and exit.                                                                                                    |
@@ -73,6 +74,6 @@ Jozef Zuzelka <jozef.zuzelka@gmail.com>
 
 ## More information
 
+* [Doxygen documentation](https://thekuko.github.io/BP/docs/html/index.xhtml)
 * ZUZELKA, Jozef. *Network traffc capturing with application tags*. Brno, 2017. Bachelor’s thesis. Brno University of Technology, Faculty of Information Technology. Supervisor Ing. Jan Pluskal ([thesis.pdf](https://thekuko.github.io/BP/docs/thesis.pdf))
 * _"Network Traffc Capturing with Application Tags"_: Excel@FIT Conference (April 2017, Brno) ([paper](https://thekuko.github.io/BP/docs/clanek.pdf), [poster](https://thekuko.github.io/BP/docs/poster.pdf))
-* [Doxygen documentation](https://thekuko.github.io/BP/docs/html/index.xhtml)
