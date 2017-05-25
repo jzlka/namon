@@ -1,0 +1,4 @@
+<map id="TOOL::TEntryOrTTree" name="TOOL::TEntryOrTTree">
+<area shape="rect" id="node2" href="$class_t_o_o_l_1_1_t_entry.xhtml" title="Class with application name, its socket inode (Linux) or PID (windows) and a pointer to Netflow class..." alt="" coords="5,79,109,104"/>
+<area shape="rect" id="node3" href="$class_t_o_o_l_1_1_t_tree.xhtml" title="Class with pointers to subtrees. " alt="" coords="133,79,233,104"/>
+</map>

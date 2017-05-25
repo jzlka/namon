@@ -1,0 +1,5 @@
+<map id="TOOL::setDevMac" name="TOOL::setDevMac">
+<area shape="rect" id="node2" href="$tool_8cpp.xhtml#aa97bd89bdff783d43ffca0a0335286f1" title="Identifies application, which has opened socket which belongs to some IP, proto and port..." alt="" coords="185,29,333,55"/>
+<area shape="rect" id="node3" href="$debug_8hpp.xhtml#a9340c95e0607709d793dc427c8b630e8" title="Function that prints log messages. " alt="" coords="381,29,463,55"/>
+<area shape="rect" id="node4" href="$debug_8cpp.xhtml#ad6ba0645e5c2cdd3f7533aa4f15dbe71" title="Sets #TOOL::generalLogLevel;. " alt="" coords="511,29,648,55"/>
+</map>
