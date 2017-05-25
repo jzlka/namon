@@ -43,19 +43,19 @@ Final binary is located in _bin/_ folder.
 
 **Makefile parameters**
 
-* make              - build the tool
-* make debug        - build the tool with debug info and without optimisations
-* make libs         - run helper script to download & install PF_RING/netmap/PFQ (interactive)(**TODO**)
-* make pf_ring      - build against PF_RING downloaded in libs/ folder
-* make netmap       - build against netmap downloaded in libs/ folder (**TODO**)
-* make pfq          - build against PFQ downloaded in libs/ folder (**TODO**)
-* make test         - run basic tests (**TODO**)
-* make pack         - create gzip file
-* make doxygen      - make doxygen documentation in doc/ folder
-* make clean        - clean compiled binary, archive file, object files and \*.dSYM files
-* make clean-tests  - clean compiled tests
-* make clean-doc    - delete generated documentation
-* make clean-all    - clean, clean-tests, clean-doc
+    * make              - build the tool
+    * make debug        - build the tool with debug info and without optimisations
+    * make libs         - run helper script to download & install PF_RING/netmap/PFQ (interactive)(**TODO**)
+    * make pf_ring      - build against PF_RING downloaded in libs/ folder
+    * make netmap       - build against netmap downloaded in libs/ folder (**TODO**)
+    * make pfq          - build against PFQ downloaded in libs/ folder (**TODO**)
+    * make test         - run basic tests (**TODO**)
+    * make pack         - create gzip file
+    * make doxygen      - make doxygen documentation in doc/ folder
+    * make clean        - clean compiled binary, archive file, object files and \*.dSYM files
+    * make clean-tests  - clean compiled tests
+    * make clean-doc    - delete generated documentation
+    * make clean-all    - clean, clean-tests, clean-doc
 
 ## Program arguments
 ```bash
@@ -75,4 +75,4 @@ Jozef Zuzelka <jozef.zuzelka@gmail.com>
 
 * ZUZELKA, Jozef. *Network traffc capturing with application tags*. Brno, 2017. Bachelor’s thesis. Brno University of Technology, Faculty of Information Technology. Supervisor Ing. Jan Pluskal ([thesis.pdf](https://thekuko.github.io/BP/docs/thesis.pdf))
 * _"Network Traffc Capturing with Application Tags"_: Excel@FIT Conference (April 2017, Brno) ([paper](https://thekuko.github.io/BP/docs/clanek.pdf), [poster](https://thekuko.github.io/BP/docs/poster.pdf))
-* [Class documentation](https://thekuko.github.io/BP/docs/html/index.xhtml)
+* [Doxygen documentation](https://thekuko.github.io/BP/docs/html/index.xhtml)
