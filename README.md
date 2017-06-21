@@ -29,15 +29,15 @@ The application was tested on the following platforms:
 ## Build
 **Linux**    
 ```bash
-git clone https://github.com/TheKuko/BP.git
-cd BP
+git clone https://github.com/TheKuko/namon.git
+cd namon
 make
 ```
 
 **Windows**
-1. Clone https://github.com/TheKuko/BP.git
+1. Clone https://github.com/TheKuko/namon.git
 2. Download [npcap-sdk](https://nmap.org/npcap/) into _libs/_ folder, extract it and rename extracted folder to *npcap-sdk*
-3. Build *win32/BP.sln* using Visual Studio
+3. Build *win32/namon.sln* using Visual Studio
 
 Final binary is located in _bin/_ folder.
 
