@@ -1,6 +1,0 @@
-<map id="TOOL::TEntry::levelCompare" name="TOOL::TEntry::levelCompare">
-<area shape="rect" id="node2" href="$class_t_o_o_l_1_1_netflow.xhtml#a236c3017659c725da82f3f9abd025851" title="Get method for TOOL::Netflow::localPort. " alt="" coords="247,5,439,31"/>
-<area shape="rect" id="node3" href="$class_t_o_o_l_1_1_netflow.xhtml#a90e60833b8662f06ca181452aafaa27e" title="Get method for TOOL::Netflow::proto. " alt="" coords="259,55,426,80"/>
-<area shape="rect" id="node4" href="$class_t_o_o_l_1_1_netflow.xhtml#a1b36fe95c3c9c18fd8ddc646281474b8" title="Get method for TOOL::Netflow::ipVersion. " alt="" coords="247,104,438,129"/>
-<area shape="rect" id="node5" href="$class_t_o_o_l_1_1_netflow.xhtml#a075c89c1c339bb8aaf54c6f9749f309b" title="Get method for TOOL::Netflow::localIp. " alt="" coords="254,153,432,179"/>
-</map>

@@ -6,9 +6,9 @@
 <area shape="rect" id="node7" href="$main_8cpp.xhtml" title="Main source file. " alt="" coords="519,299,616,324"/>
 <area shape="rect" id="node8" href="$file_handler_8cpp.xhtml" title="File handler source file. " alt="" coords="184,152,315,177"/>
 <area shape="rect" id="node9" href="$debug_8cpp.xhtml" title="Debug variables. " alt="" coords="639,79,744,104"/>
-<area shape="rect" id="node10" href="$tool_8cpp.xhtml" title="Network Traffic Capturing With Application Tags. " alt="" coords="768,79,858,104"/>
-<area shape="rect" id="node11" href="$tool__linux_8cpp.xhtml" title="Determining applications and their sockets in Linux. " alt="" coords="882,79,1006,104"/>
-<area shape="rect" id="node12" href="$tool__win_8cpp.xhtml" title="Determining the applications and their sockets on Windows. " alt="" coords="1029,79,1146,104"/>
-<area shape="rect" id="node13" href="$utils_8cpp.xhtml" title="Small useful functions. " alt="" coords="1170,79,1262,104"/>
+<area shape="rect" id="node10" href="$namon_8cpp.xhtml" title="Network Traffic Capturing With Application Tags. " alt="" coords="768,79,877,104"/>
+<area shape="rect" id="node11" href="$namon__linux_8cpp.xhtml" title="Determining applications and their sockets in Linux. " alt="" coords="901,79,1045,104"/>
+<area shape="rect" id="node12" href="$namon__win_8cpp.xhtml" title="Determining the applications and their sockets on Windows. " alt="" coords="1069,79,1205,104"/>
+<area shape="rect" id="node13" href="$utils_8cpp.xhtml" title="Small useful functions. " alt="" coords="1229,79,1320,104"/>
 <area shape="rect" id="node4" href="$ring_buffer_8hpp.xhtml" title="Ring Buffer header file. " alt="" coords="338,152,464,177"/>
 </map>

@@ -1,4 +1,4 @@
 <map id="parseIp" name="parseIp">
-<area shape="rect" id="node2" href="$debug_8hpp.xhtml#a9340c95e0607709d793dc427c8b630e8" title="Function that prints log messages. " alt="" coords="119,29,202,55"/>
-<area shape="rect" id="node3" href="$debug_8cpp.xhtml#ad6ba0645e5c2cdd3f7533aa4f15dbe71" title="Sets #TOOL::generalLogLevel;. " alt="" coords="250,29,386,55"/>
+<area shape="rect" id="node2" href="$debug_8hpp.xhtml#a9f1c1527f51faaaca3be83b5a8928ca5" title="Function that prints log messages. " alt="" coords="119,29,215,55"/>
+<area shape="rect" id="node3" href="$debug_8cpp.xhtml#a1a395cd89e6df6f9fd16ed25601ac351" title="Sets #NAMON::generalLogLevel;. " alt="" coords="263,29,414,55"/>
 </map>

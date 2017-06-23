@@ -1,4 +1,0 @@
-<map id="TOOL::TEntry::getAppName" name="TOOL::TEntry::getAppName">
-<area shape="rect" id="node2" href="$class_t_o_o_l_1_1_t_tree.xhtml#a767c53849c7d02f696e5b115b8169244" title="Finds invalid entries and saves them in g_finalResults. " alt="" coords="244,5,424,31"/>
-<area shape="rect" id="node3" href="$class_t_o_o_l_1_1_cache.xhtml#af97cbe252896a34b737765d1fb3be743" title="Finds expired entries and saves them in g_finalResults. " alt="" coords="243,55,426,80"/>
-</map>

@@ -46,7 +46,7 @@ if (edges && edges.length) {
         </defs>
 
 <script type="text/javascript">
-var viewWidth = 599;
+var viewWidth = 628;
 var viewHeight = 82;
 var sectionId = 'dynsection-1';
 </script>
@@ -54,12 +54,12 @@ var sectionId = 'dynsection-1';
 <svg id="graph" class="graph">
 <g id="viewport">
 <title>src/utils.hpp</title>
-<polygon fill="#ffffff" stroke="transparent" points="-4,4 -4,-78 595.2437,-78 595.2437,4 -4,4"/>
+<polygon fill="#ffffff" stroke="transparent" points="-4,4 -4,-78 624.2437,-78 624.2437,4 -4,4"/>
 <!-- Node5 -->
 <g id="node1" class="node">
 <title>Node5</title>
-<polygon fill="#bfbfbf" stroke="#000000" points="265.1699,-55.5 265.1699,-73.5 334.5244,-73.5 334.5244,-55.5 265.1699,-55.5"/>
-<text text-anchor="middle" x="299.8472" y="-61.5" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#000000">src/utils.hpp</text>
+<polygon fill="#bfbfbf" stroke="#000000" points="286.1699,-55.5 286.1699,-73.5 355.5244,-73.5 355.5244,-55.5 286.1699,-55.5"/>
+<text text-anchor="middle" x="320.8472" y="-61.5" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#000000">src/utils.hpp</text>
 </g>
 <!-- Node6 -->
 <g id="node2" class="node">
@@ -73,8 +73,8 @@ var sectionId = 'dynsection-1';
 <!-- Node5&#45;&gt;Node6 -->
 <g id="edge1" class="edge">
 <title>Node5&#45;&gt;Node6</title>
-<path fill="none" stroke="#191970" d="M255.05,-55.06C205.1384,-44.5422 125.2426,-27.7059 77.8212,-17.7129"/>
-<polygon fill="#191970" stroke="#191970" points="254.4115,-58.5022 264.9184,-57.1395 255.855,-51.6527 254.4115,-58.5022"/>
+<path fill="none" stroke="#191970" d="M276.0711,-55.8397C228.9674,-46.7183 152.681,-31.9153 86.8472,-19 83.9295,-18.4276 80.9125,-17.8342 77.8777,-17.2361"/>
+<polygon fill="#191970" stroke="#191970" points="275.4698,-59.2882 285.9528,-57.7527 276.8004,-52.4158 275.4698,-59.2882"/>
 </g>
 <!-- Node7 -->
 <g id="node3" class="node">
@@ -88,68 +88,68 @@ var sectionId = 'dynsection-1';
 <!-- Node5&#45;&gt;Node7 -->
 <g id="edge2" class="edge">
 <title>Node5&#45;&gt;Node7</title>
-<path fill="none" stroke="#191970" d="M264.2897,-52.1224C234.9511,-41.9096 194.0114,-27.6584 167.7138,-18.5042"/>
-<polygon fill="#191970" stroke="#191970" points="263.1619,-55.4357 273.7567,-55.4179 265.4632,-48.8248 263.1619,-55.4357"/>
+<path fill="none" stroke="#191970" d="M281.4278,-52.3879C248.1336,-42.1578 201.2037,-27.7381 171.1518,-18.5042"/>
+<polygon fill="#191970" stroke="#191970" points="280.702,-55.8263 291.289,-55.4179 282.758,-49.1351 280.702,-55.8263"/>
 </g>
 <!-- Node8 -->
 <g id="node4" class="node">
 <title>Node8</title>
-<g id="a_node4"><a xlink:href="netflow_8cpp.xhtml" target="_top" xlink:title="Netflow structure source file. ">
-<polygon fill="#ffffff" stroke="#000000" points="205.7734,-.5 205.7734,-18.5 287.9209,-18.5 287.9209,-.5 205.7734,-.5"/>
-<text text-anchor="middle" x="246.8472" y="-6.5" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#000000">src/netflow.cpp</text>
+<g id="a_node4"><a xlink:href="namon__linux_8cpp.xhtml" target="_top" xlink:title="Determining applications and their sockets in Linux. ">
+<polygon fill="#ffffff" stroke="#000000" points="205.9902,-.5 205.9902,-18.5 313.7041,-18.5 313.7041,-.5 205.9902,-.5"/>
+<text text-anchor="middle" x="259.8472" y="-6.5" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#000000">src/namon_linux.cpp</text>
 </a>
 </g>
 </g>
 <!-- Node5&#45;&gt;Node8 -->
 <g id="edge3" class="edge">
 <title>Node5&#45;&gt;Node8</title>
-<path fill="none" stroke="#191970" d="M283.9596,-48.0129C274.743,-38.4485 263.4749,-26.7552 255.7892,-18.7795"/>
-<polygon fill="#191970" stroke="#191970" points="281.6361,-50.6457 291.0953,-55.4179 286.6766,-45.7884 281.6361,-50.6457"/>
+<path fill="none" stroke="#191970" d="M303.195,-48.5841C292.4741,-38.9177 279.1616,-26.9147 270.1389,-18.7795"/>
+<polygon fill="#191970" stroke="#191970" points="301.0036,-51.3209 310.7743,-55.4179 305.6911,-46.122 301.0036,-51.3209"/>
 </g>
 <!-- Node9 -->
 <g id="node5" class="node">
 <title>Node9</title>
-<g id="a_node5"><a xlink:href="tool__linux_8cpp.xhtml" target="_top" xlink:title="Determining applications and their sockets in Linux. ">
-<polygon fill="#ffffff" stroke="#000000" points="306.2168,-.5 306.2168,-18.5 399.4775,-18.5 399.4775,-.5 306.2168,-.5"/>
-<text text-anchor="middle" x="352.8472" y="-6.5" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#000000">src/tool_linux.cpp</text>
+<g id="a_node5"><a xlink:href="namon__win_8cpp.xhtml" target="_top" xlink:title="Determining the applications and their sockets on Windows. ">
+<polygon fill="#ffffff" stroke="#000000" points="331.771,-.5 331.771,-18.5 433.9233,-18.5 433.9233,-.5 331.771,-.5"/>
+<text text-anchor="middle" x="382.8472" y="-6.5" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#000000">src/namon_win.cpp</text>
 </a>
 </g>
 </g>
 <!-- Node5&#45;&gt;Node9 -->
 <g id="edge4" class="edge">
 <title>Node5&#45;&gt;Node9</title>
-<path fill="none" stroke="#191970" d="M315.7347,-48.0129C324.9513,-38.4485 336.2195,-26.7552 343.9051,-18.7795"/>
-<polygon fill="#191970" stroke="#191970" points="313.0177,-45.7884 308.599,-55.4179 318.0583,-50.6457 313.0177,-45.7884"/>
+<path fill="none" stroke="#191970" d="M338.7887,-48.5841C349.6853,-38.9177 363.2161,-26.9147 372.3867,-18.7795"/>
+<polygon fill="#191970" stroke="#191970" points="336.2433,-46.1634 331.0852,-55.4179 340.8886,-51.4 336.2433,-46.1634"/>
 </g>
 <!-- Node10 -->
 <g id="node6" class="node">
 <title>Node10</title>
-<g id="a_node6"><a xlink:href="tool__win_8cpp.xhtml" target="_top" xlink:title="Determining the applications and their sockets on Windows. ">
-<polygon fill="#ffffff" stroke="#000000" points="416.9976,-.5 416.9976,-18.5 504.6968,-18.5 504.6968,-.5 416.9976,-.5"/>
-<text text-anchor="middle" x="460.8472" y="-6.5" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#000000">src/tool_win.cpp</text>
+<g id="a_node6"><a xlink:href="netflow_8cpp.xhtml" target="_top" xlink:title="Netflow structure source file. ">
+<polygon fill="#ffffff" stroke="#000000" points="451.7734,-.5 451.7734,-18.5 533.9209,-18.5 533.9209,-.5 451.7734,-.5"/>
+<text text-anchor="middle" x="492.8472" y="-6.5" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#000000">src/netflow.cpp</text>
 </a>
 </g>
 </g>
 <!-- Node5&#45;&gt;Node10 -->
 <g id="edge5" class="edge">
 <title>Node5&#45;&gt;Node10</title>
-<path fill="none" stroke="#191970" d="M336.0798,-52.1224C365.9754,-41.9096 407.6924,-27.6584 434.4894,-18.5042"/>
-<polygon fill="#191970" stroke="#191970" points="334.7646,-48.873 326.433,-55.4179 337.0276,-55.4972 334.7646,-48.873"/>
+<path fill="none" stroke="#191970" d="M359.1394,-52.2554C391.1056,-42.0336 435.9363,-27.6983 464.6885,-18.5042"/>
+<polygon fill="#191970" stroke="#191970" points="357.7083,-49.0383 349.2495,-55.4179 359.8404,-55.7058 357.7083,-49.0383"/>
 </g>
 <!-- Node11 -->
 <g id="node7" class="node">
 <title>Node11</title>
 <g id="a_node7"><a xlink:href="utils_8cpp.xhtml" target="_top" xlink:title="Small useful functions. ">
-<polygon fill="#ffffff" stroke="#000000" points="522.4507,-.5 522.4507,-18.5 591.2437,-18.5 591.2437,-.5 522.4507,-.5"/>
-<text text-anchor="middle" x="556.8472" y="-6.5" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#000000">src/utils.cpp</text>
+<polygon fill="#ffffff" stroke="#000000" points="551.4507,-.5 551.4507,-18.5 620.2437,-18.5 620.2437,-.5 551.4507,-.5"/>
+<text text-anchor="middle" x="585.8472" y="-6.5" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#000000">src/utils.cpp</text>
 </a>
 </g>
 </g>
 <!-- Node5&#45;&gt;Node11 -->
 <g id="edge6" class="edge">
 <title>Node5&#45;&gt;Node11</title>
-<path fill="none" stroke="#191970" d="M344.6419,-55.0839C387.9546,-45.9538 455.4249,-31.6642 513.8472,-19 516.537,-18.4169 519.3207,-17.81 522.1186,-17.1974"/>
-<polygon fill="#191970" stroke="#191970" points="343.7715,-51.6904 334.7079,-57.1768 345.2146,-58.54 343.7715,-51.6904"/>
+<path fill="none" stroke="#191970" d="M365.8689,-55.4824C410.7486,-46.4439 481.6227,-32.0365 542.8472,-19 545.5391,-18.4268 548.3243,-17.827 551.1233,-17.2193"/>
+<polygon fill="#191970" stroke="#191970" points="364.9845,-52.0901 355.8713,-57.4937 366.3652,-58.9526 364.9845,-52.0901"/>
 </g>
 </g>
 </svg>

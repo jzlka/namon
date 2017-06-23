@@ -1,9 +1,0 @@
-<map id="src/tool_linux.cpp" name="src/tool_linux.cpp">
-<area shape="rect" id="node6" href="$tcpip__headers_8hpp.xhtml" title="Protocol headers. " alt="" coords="353,225,484,251"/>
-<area shape="rect" id="node8" href="$netflow_8hpp.xhtml" title="Netflow structure header file. " alt="" coords="378,152,467,177"/>
-<area shape="rect" id="node10" href="$cache_8hpp.xhtml" title="Cache implementation header file. " alt="" coords="586,79,669,104"/>
-<area shape="rect" id="node14" href="$debug_8hpp.xhtml" title="Debugging functions. " alt="" coords="1219,79,1303,104"/>
-<area shape="rect" id="node17" href="$utils_8hpp.xhtml" title="Small useful functions header file. " alt="" coords="952,79,1023,104"/>
-<area shape="rect" id="node21" href="$tool__linux_8hpp.xhtml" title="Determining applications and their sockets on Linux. " alt="" coords="429,79,533,104"/>
-<area shape="rect" id="node20" href="$utils_8tpp.xhtml" title="Small useful templated functions. " alt="" coords="1134,152,1201,177"/>
-</map>

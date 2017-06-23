@@ -1,7 +1,0 @@
-<map id="TOOL::TTree::insert" name="TOOL::TTree::insert">
-<area shape="rect" id="node2" href="$class_t_o_o_l_1_1_t_entry.xhtml#af9bb543217d0fb9d47f41bc2d086fcc8" title="Get method for TOOL::TEntry::n. " alt="" coords="193,5,385,31"/>
-<area shape="rect" id="node3" href="$debug_8hpp.xhtml#a9340c95e0607709d793dc427c8b630e8" title="Function that prints log messages. " alt="" coords="248,79,330,104"/>
-<area shape="rect" id="node5" href="$class_t_o_o_l_1_1_t_entry_or_t_tree.xhtml#a5ed89469fcaab6aa829e371921793cb2" title="Get method for TOOL::TEntryOrTTree::level. " alt="" coords="212,128,366,167"/>
-<area shape="rect" id="node6" href="$class_t_o_o_l_1_1_t_entry_or_t_tree.xhtml#a4778552d1b9264fcce3ce796ba9cffca" title="Set method for TOOL::TEntryOrTTree::level. " alt="" coords="212,191,366,229"/>
-<area shape="rect" id="node4" href="$debug_8cpp.xhtml#ad6ba0645e5c2cdd3f7533aa4f15dbe71" title="Sets #TOOL::generalLogLevel;. " alt="" coords="433,79,569,104"/>
-</map>

@@ -153,19 +153,19 @@ Enumerations</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a66d66c5f9a4235b784cbae69bcfefbd1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="capturing_8hpp.xhtml#a04f362029ec2a624fbcb7a30b20ff5f5">Directions</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="capturing_8hpp.xhtml#a66d66c5f9a4235b784cbae69bcfefbd1">getPacketDirection</a> (<a class="el" href="struct_t_o_o_l_1_1ether__hdr.xhtml">TOOL::ether_hdr</a> *eth_hdr)</td></tr>
-<tr class="memdesc:a66d66c5f9a4235b784cbae69bcfefbd1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Determines packet derection.  <a href="#a66d66c5f9a4235b784cbae69bcfefbd1">More...</a><br /></td></tr>
-<tr class="separator:a66d66c5f9a4235b784cbae69bcfefbd1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a39b0e4ebc788767093d4663596525c20"><td class="memItemLeft" align="right" valign="top"><a class="el" href="capturing_8hpp.xhtml#a04f362029ec2a624fbcb7a30b20ff5f5">Directions</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="capturing_8hpp.xhtml#a39b0e4ebc788767093d4663596525c20">getPacketDirection</a> (<a class="el" href="struct_n_a_m_o_n_1_1ether__hdr.xhtml">NAMON::ether_hdr</a> *eth_hdr)</td></tr>
+<tr class="memdesc:a39b0e4ebc788767093d4663596525c20"><td class="mdescLeft">&#160;</td><td class="mdescRight">Determines packet derection.  <a href="#a39b0e4ebc788767093d4663596525c20">More...</a><br /></td></tr>
+<tr class="separator:a39b0e4ebc788767093d4663596525c20"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a796d8f82917739002736e8d61c6fb635"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="capturing_8hpp.xhtml#a796d8f82917739002736e8d61c6fb635">startCapture</a> (const char *oFilename)</td></tr>
 <tr class="memdesc:a796d8f82917739002736e8d61c6fb635"><td class="mdescLeft">&#160;</td><td class="mdescRight">Starts network traffic capture.  <a href="#a796d8f82917739002736e8d61c6fb635">More...</a><br /></td></tr>
 <tr class="separator:a796d8f82917739002736e8d61c6fb635"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5b519a162338237e3935db3c8a3f8638"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="capturing_8hpp.xhtml#a5b519a162338237e3935db3c8a3f8638">packetHandler</a> (unsigned char *args, const struct pcap_pkthdr *header, const unsigned char *bytes)</td></tr>
 <tr class="memdesc:a5b519a162338237e3935db3c8a3f8638"><td class="mdescLeft">&#160;</td><td class="mdescRight">Function that processes every packet.  <a href="#a5b519a162338237e3935db3c8a3f8638">More...</a><br /></td></tr>
 <tr class="separator:a5b519a162338237e3935db3c8a3f8638"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8fd309d5e9252e6de3b1bea1802e8453"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="capturing_8hpp.xhtml#a8fd309d5e9252e6de3b1bea1802e8453">parseIp</a> (<a class="el" href="class_t_o_o_l_1_1_netflow.xhtml">Netflow</a> &amp;n, unsigned int &amp;ip_size, <a class="el" href="capturing_8hpp.xhtml#a04f362029ec2a624fbcb7a30b20ff5f5">Directions</a> dir, void *const ip_hdr, const unsigned short ether_type)</td></tr>
+<tr class="memitem:a8fd309d5e9252e6de3b1bea1802e8453"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="capturing_8hpp.xhtml#a8fd309d5e9252e6de3b1bea1802e8453">parseIp</a> (<a class="el" href="class_n_a_m_o_n_1_1_netflow.xhtml">Netflow</a> &amp;n, unsigned int &amp;ip_size, <a class="el" href="capturing_8hpp.xhtml#a04f362029ec2a624fbcb7a30b20ff5f5">Directions</a> dir, void *const ip_hdr, const unsigned short ether_type)</td></tr>
 <tr class="memdesc:a8fd309d5e9252e6de3b1bea1802e8453"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parses IP header.  <a href="#a8fd309d5e9252e6de3b1bea1802e8453">More...</a><br /></td></tr>
 <tr class="separator:a8fd309d5e9252e6de3b1bea1802e8453"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a30a4aa41a243aeb1e88c49d09e65a48e"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="capturing_8hpp.xhtml#a30a4aa41a243aeb1e88c49d09e65a48e">parsePorts</a> (<a class="el" href="class_t_o_o_l_1_1_netflow.xhtml">Netflow</a> &amp;n, <a class="el" href="capturing_8hpp.xhtml#a04f362029ec2a624fbcb7a30b20ff5f5">Directions</a> dir, void *hdr)</td></tr>
+<tr class="memitem:a30a4aa41a243aeb1e88c49d09e65a48e"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="capturing_8hpp.xhtml#a30a4aa41a243aeb1e88c49d09e65a48e">parsePorts</a> (<a class="el" href="class_n_a_m_o_n_1_1_netflow.xhtml">Netflow</a> &amp;n, <a class="el" href="capturing_8hpp.xhtml#a04f362029ec2a624fbcb7a30b20ff5f5">Directions</a> dir, void *hdr)</td></tr>
 <tr class="memdesc:a30a4aa41a243aeb1e88c49d09e65a48e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parses layer 4 header.  <a href="#a30a4aa41a243aeb1e88c49d09e65a48e">More...</a><br /></td></tr>
 <tr class="separator:a30a4aa41a243aeb1e88c49d09e65a48e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8ee3282bc313e547dbbb8d4f4010db61"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="capturing_8hpp.xhtml#a8ee3282bc313e547dbbb8d4f4010db61">signalHandler</a> (int signum)</td></tr>
@@ -184,7 +184,7 @@ std::atomic&lt; int &gt;&#160;</td><td class="memItemRight" valign="bottom"><a c
 <dl class="section author"><dt>Author</dt><dd>Jozef Zuzelka <a href="#" onclick="location.href='mai'+'lto:'+'xzu'+'ze'+'l00'+'@s'+'tud'+'.f'+'it.'+'vu'+'tbr'+'.c'+'z'; return false;">xzuze<span style="display: none;">.nosp@m.</span>l00@<span style="display: none;">.nosp@m.</span>stud.<span style="display: none;">.nosp@m.</span>fit.<span style="display: none;">.nosp@m.</span>vutbr<span style="display: none;">.nosp@m.</span>.cz</a> </dd></dl>
 <dl class="section date"><dt>Date</dt><dd><ul>
 <li>Created: 18.02.2017 22:48</li>
-<li>Edited: 18.05.2017 00:12 </li>
+<li>Edited: 23.06.2017 12:00 </li>
 </ul>
 </dd></dl>
 
@@ -225,8 +225,8 @@ std::atomic&lt; int &gt;&#160;</td><td class="memItemRight" valign="bottom"><a c
 </div>
 </div>
 <h2 class="groupheader">Function Documentation</h2>
-<a id="a66d66c5f9a4235b784cbae69bcfefbd1"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a66d66c5f9a4235b784cbae69bcfefbd1">&#9670;&nbsp;</a></span>getPacketDirection()</h2>
+<a id="a39b0e4ebc788767093d4663596525c20"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a39b0e4ebc788767093d4663596525c20">&#9670;&nbsp;</a></span>getPacketDirection()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -234,7 +234,7 @@ std::atomic&lt; int &gt;&#160;</td><td class="memItemRight" valign="bottom"><a c
         <tr>
           <td class="memname"><a class="el" href="capturing_8hpp.xhtml#a04f362029ec2a624fbcb7a30b20ff5f5">Directions</a> getPacketDirection </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="struct_t_o_o_l_1_1ether__hdr.xhtml">TOOL::ether_hdr</a> *&#160;</td>
+          <td class="paramtype"><a class="el" href="struct_n_a_m_o_n_1_1ether__hdr.xhtml">NAMON::ether_hdr</a> *&#160;</td>
           <td class="paramname"><em>eth_hdr</em></td><td>)</td>
           <td></td>
         </tr>
@@ -248,13 +248,13 @@ std::atomic&lt; int &gt;&#160;</td><td class="memItemRight" valign="bottom"><a c
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>Returns TOOL::Direction </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>Returns NAMON::Direction </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="capturing_8cpp_source.xhtml#l00306">306</a> of file <a class="el" href="capturing_8cpp_source.xhtml">capturing.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="capturing_8cpp_source.xhtml#l00308">308</a> of file <a class="el" href="capturing_8cpp_source.xhtml">capturing.cpp</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><iframe scrolling="no" frameborder="0" src="capturing_8hpp_a66d66c5f9a4235b784cbae69bcfefbd1_cgraph.svg" width="459" height="60"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe>
+<div class="center"><iframe scrolling="no" frameborder="0" src="capturing_8hpp_a39b0e4ebc788767093d4663596525c20_cgraph.svg" width="487" height="60"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe>
 </div>
 </div>
 
@@ -305,11 +305,11 @@ Here is the call graph for this function:</div>
 <dl class="todo"><dt><b><a class="el" href="todo.xhtml#_todo000015">Todo:</a></b></dt><dd>What to do with 802.3? </dd></dl>
 <dl class="todo"><dt><b><a class="el" href="todo.xhtml#_todo000016">Todo:</a></b></dt><dd>check 4480 </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="capturing_8cpp_source.xhtml#l00255">255</a> of file <a class="el" href="capturing_8cpp_source.xhtml">capturing.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="capturing_8cpp_source.xhtml#l00257">257</a> of file <a class="el" href="capturing_8cpp_source.xhtml">capturing.cpp</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><iframe scrolling="no" frameborder="0" src="capturing_8hpp_a5b519a162338237e3935db3c8a3f8638_cgraph.svg" width="515" height="110"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe>
+<div class="center"><iframe scrolling="no" frameborder="0" src="capturing_8hpp_a5b519a162338237e3935db3c8a3f8638_cgraph.svg" width="542" height="110"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe>
 </div>
 </div>
 
@@ -327,7 +327,7 @@ Here is the call graph for this function:</div>
         <tr>
           <td class="memname">int parseIp </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="class_t_o_o_l_1_1_netflow.xhtml">Netflow</a> &amp;&#160;</td>
+          <td class="paramtype"><a class="el" href="class_n_a_m_o_n_1_1_netflow.xhtml">Netflow</a> &amp;&#160;</td>
           <td class="paramname"><em>n</em>, </td>
         </tr>
         <tr>
@@ -380,11 +380,11 @@ Here is the call graph for this function:</div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>IP header's validity </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="capturing_8cpp_source.xhtml#l00332">332</a> of file <a class="el" href="capturing_8cpp_source.xhtml">capturing.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="capturing_8cpp_source.xhtml#l00334">334</a> of file <a class="el" href="capturing_8cpp_source.xhtml">capturing.cpp</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><iframe scrolling="no" frameborder="0" src="capturing_8hpp_a8fd309d5e9252e6de3b1bea1802e8453_cgraph.svg" width="392" height="60"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe>
+<div class="center"><iframe scrolling="no" frameborder="0" src="capturing_8hpp_a8fd309d5e9252e6de3b1bea1802e8453_cgraph.svg" width="419" height="60"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe>
 </div>
 </div>
 
@@ -402,7 +402,7 @@ Here is the call graph for this function:</div>
         <tr>
           <td class="memname">int parsePorts </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="class_t_o_o_l_1_1_netflow.xhtml">Netflow</a> &amp;&#160;</td>
+          <td class="paramtype"><a class="el" href="class_n_a_m_o_n_1_1_netflow.xhtml">Netflow</a> &amp;&#160;</td>
           <td class="paramname"><em>n</em>, </td>
         </tr>
         <tr>
@@ -442,11 +442,11 @@ Here is the call graph for this function:</div>
 <dl class="section return"><dt>Returns</dt><dd>Layer 4 header validity</dd></dl>
 <dl class="todo"><dt><b><a class="el" href="todo.xhtml#_todo000017">Todo:</a></b></dt><dd>proto can be set to 0 -&gt; arp/rarp </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="capturing_8cpp_source.xhtml#l00374">374</a> of file <a class="el" href="capturing_8cpp_source.xhtml">capturing.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="capturing_8cpp_source.xhtml#l00376">376</a> of file <a class="el" href="capturing_8cpp_source.xhtml">capturing.cpp</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><iframe scrolling="no" frameborder="0" src="capturing_8hpp_a30a4aa41a243aeb1e88c49d09e65a48e_cgraph.svg" width="496" height="110"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe>
+<div class="center"><iframe scrolling="no" frameborder="0" src="capturing_8hpp_a30a4aa41a243aeb1e88c49d09e65a48e_cgraph.svg" width="524" height="110"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe>
 </div>
 </div>
 
@@ -476,11 +476,11 @@ Here is the call graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="capturing_8cpp_source.xhtml#l00419">419</a> of file <a class="el" href="capturing_8cpp_source.xhtml">capturing.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="capturing_8cpp_source.xhtml#l00421">421</a> of file <a class="el" href="capturing_8cpp_source.xhtml">capturing.cpp</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><iframe scrolling="no" frameborder="0" src="capturing_8hpp_a8ee3282bc313e547dbbb8d4f4010db61_cgraph.svg" width="430" height="60"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe>
+<div class="center"><iframe scrolling="no" frameborder="0" src="capturing_8hpp_a8ee3282bc313e547dbbb8d4f4010db61_cgraph.svg" width="456" height="60"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe>
 </div>
 </div>
 <div class="dynheader">
@@ -519,7 +519,7 @@ Here is the caller graph for this function:</div>
 <dl class="todo"><dt><b><a class="el" href="todo.xhtml#_todo000012">Todo:</a></b></dt><dd>what to do with threads </dd></dl>
 <dl class="todo"><dt><b><a class="el" href="todo.xhtml#_todo000013">Todo:</a></b></dt><dd>do not use CustomBlock class </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="capturing_8cpp_source.xhtml#l00099">99</a> of file <a class="el" href="capturing_8cpp_source.xhtml">capturing.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="capturing_8cpp_source.xhtml#l00101">101</a> of file <a class="el" href="capturing_8cpp_source.xhtml">capturing.cpp</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -535,7 +535,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.xhtml">src</a></li><li class="navelem"><a class="el" href="capturing_8hpp.xhtml">capturing.hpp</a></li>
-    <li class="footer">Generated on Thu May 25 2017 17:05:08 for Network Traffic Capture With Application Tags by
+    <li class="footer">Generated on Fri Jun 23 2017 13:03:10 for Network Traffic Capture With Application Tags by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.13 </li>
   </ul>

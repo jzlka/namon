@@ -1,6 +1,0 @@
-<map id="TOOL::getApp" name="TOOL::getApp">
-<area shape="rect" id="node2" href="$tool__apple_8cpp.xhtml#a63c27248ec65a6590399df8a33645015" title="Finds an application with opened socket inode in parameter. " alt="" coords="161,29,268,55"/>
-<area shape="rect" id="node3" href="$utils_8cpp.xhtml#a468dec2ae199f10efd24422042e75f28" title="Converts char* string to integer. " alt="" coords="160,103,268,128"/>
-<area shape="rect" id="node4" href="$debug_8hpp.xhtml#a9340c95e0607709d793dc427c8b630e8" title="Function that prints log messages. " alt="" coords="173,176,256,201"/>
-<area shape="rect" id="node5" href="$debug_8cpp.xhtml#ad6ba0645e5c2cdd3f7533aa4f15dbe71" title="Sets #TOOL::generalLogLevel;. " alt="" coords="316,176,453,201"/>
-</map>

@@ -1,3 +1,0 @@
-<map id="TOOL::RingBuffer::write" name="TOOL::RingBuffer::write">
-<area shape="rect" id="node2" href="$class_t_o_o_l_1_1_ring_buffer.xhtml#a4b9a13204ebcead35196f3c469c24aa2" title="Callback function that is called when m_condVar.notify_*() is called. " alt="" coords="216,5,400,44"/>
-</map>

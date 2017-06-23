@@ -1,8 +1,0 @@
-<map id="TOOL::computePaddingLen" name="TOOL::computePaddingLen">
-<area shape="rect" id="node2" href="$class_t_o_o_l_1_1_section_header_block.xhtml#abfbaf079b946d2b711a91309c84dabbe" title="Class constructor. " alt="" coords="254,5,440,44"/>
-<area shape="rect" id="node3" href="$class_t_o_o_l_1_1_section_header_block.xhtml#ac5f95e429a966c9f2c026d48c5c1ddf3" title="Writes whole block into the file. " alt="" coords="254,68,440,107"/>
-<area shape="rect" id="node4" href="$class_t_o_o_l_1_1_interface_description_block.xhtml#af4e63d9a6c85283ead1c02dc13492d9f" title="Class constructor that sets options lengths and block total length. " alt="" coords="240,131,453,169"/>
-<area shape="rect" id="node5" href="$class_t_o_o_l_1_1_interface_description_block.xhtml#afbe104978bc51d590703e8c3a3922289" title="Writes the whole block into the file. " alt="" coords="255,193,438,232"/>
-<area shape="rect" id="node6" href="$class_t_o_o_l_1_1_enhanced_packet_block.xhtml#a335f205270198cfe1aacfbcc61b5b6c5" title="Writes whole block into the output file. " alt="" coords="248,256,446,295"/>
-<area shape="rect" id="node7" href="$class_t_o_o_l_1_1_custom_block.xhtml#aef9b0da921b7014d415c3afc4b2f3dab" title="Writes the whole block into the file. " alt="" coords="271,319,422,357"/>
-</map>

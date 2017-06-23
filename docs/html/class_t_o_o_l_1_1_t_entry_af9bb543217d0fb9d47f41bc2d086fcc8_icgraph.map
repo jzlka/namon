@@ -1,7 +1,0 @@
-<map id="TOOL::TEntry::getNetflowPtr" name="TOOL::TEntry::getNetflowPtr">
-<area shape="rect" id="node2" href="$class_t_o_o_l_1_1_t_tree.xhtml#a16d14c1d6d1c451e569a3e0b5e459248" title="Function inserts a new TEntry into a decision tree. " alt="" coords="267,5,406,31"/>
-<area shape="rect" id="node3" href="$class_t_o_o_l_1_1_cache.xhtml#a5936010932979fe258f3e501b5aec703" title="Function inserts new TEntry into the TTree node. " alt="" coords="476,31,620,56"/>
-<area shape="rect" id="node4" href="$class_t_o_o_l_1_1_t_tree.xhtml#a767c53849c7d02f696e5b115b8169244" title="Finds invalid entries and saves them in g_finalResults. " alt="" coords="247,107,426,132"/>
-<area shape="rect" id="node5" href="$class_t_o_o_l_1_1_cache.xhtml#abb8781e377e41322c132c7a24c3c96ec" title="Function finds a Netflow record in a cache. " alt="" coords="270,156,403,181"/>
-<area shape="rect" id="node6" href="$class_t_o_o_l_1_1_cache.xhtml#af97cbe252896a34b737765d1fb3be743" title="Finds expired entries and saves them in g_finalResults. " alt="" coords="245,205,428,231"/>
-</map>

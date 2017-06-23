@@ -1,0 +1,8 @@
+<map id="NAMON::computePaddingLen" name="NAMON::computePaddingLen">
+<area shape="rect" id="node2" href="$class_n_a_m_o_n_1_1_section_header_block.xhtml#a1af577c6ff41b82f251d098df1fa95a5" title="Class constructor. " alt="" coords="261,5,460,44"/>
+<area shape="rect" id="node3" href="$class_n_a_m_o_n_1_1_section_header_block.xhtml#a24dadbc5fa9da77fd032fe1d8f22bcf8" title="Writes whole block into the file. " alt="" coords="261,68,460,107"/>
+<area shape="rect" id="node4" href="$class_n_a_m_o_n_1_1_interface_description_block.xhtml#aea625046914a1726033a30734a30653d" title="Class constructor that sets options lengths and block total length. " alt="" coords="254,131,467,169"/>
+<area shape="rect" id="node5" href="$class_n_a_m_o_n_1_1_interface_description_block.xhtml#adab39d43a4a5d9fde993d2c271aa4a8a" title="Writes the whole block into the file. " alt="" coords="262,193,459,232"/>
+<area shape="rect" id="node6" href="$class_n_a_m_o_n_1_1_enhanced_packet_block.xhtml#a1150b18dd5f1faf6b896f0c96d4ded4b" title="Writes whole block into the output file. " alt="" coords="254,256,466,295"/>
+<area shape="rect" id="node7" href="$class_n_a_m_o_n_1_1_custom_block.xhtml#a7799e6c09eda458e7749e9e7f29d005e" title="Writes the whole block into the file. " alt="" coords="282,319,439,357"/>
+</map>

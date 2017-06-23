@@ -1,7 +1,7 @@
 <map id="startCapture" name="startCapture">
-<area shape="rect" id="node2" href="$capturing_8cpp.xhtml#a8ee3282bc313e547dbbb8d4f4010db61" title="Signal handler function. " alt="" coords="350,5,453,31"/>
-<area shape="rect" id="node3" href="$debug_8hpp.xhtml#a9340c95e0607709d793dc427c8b630e8" title="Function that prints log messages. " alt="" coords="523,56,606,81"/>
-<area shape="rect" id="node5" href="$tool__apple_8cpp.xhtml#abffa8d5a00da5ef52e025864e1b86829" title="Sets mac address of g_dev interface into g_devMac. " alt="" coords="148,131,280,156"/>
-<area shape="rect" id="node4" href="$debug_8cpp.xhtml#ad6ba0645e5c2cdd3f7533aa4f15dbe71" title="Sets #TOOL::generalLogLevel;. " alt="" coords="654,56,791,81"/>
-<area shape="rect" id="node6" href="$tool_8cpp.xhtml#aa97bd89bdff783d43ffca0a0335286f1" title="Identifies application, which has opened socket which belongs to some IP, proto and port..." alt="" coords="328,131,475,156"/>
+<area shape="rect" id="node2" href="$capturing_8cpp.xhtml#a8ee3282bc313e547dbbb8d4f4010db61" title="Signal handler function. " alt="" coords="169,5,272,31"/>
+<area shape="rect" id="node3" href="$debug_8hpp.xhtml#a9f1c1527f51faaaca3be83b5a8928ca5" title="Function that prints log messages. " alt="" coords="374,31,470,56"/>
+<area shape="rect" id="node5" href="$namon__apple_8cpp.xhtml#a3f33b2f8e1e02244d4291332e760796e" title="Sets mac address of g_dev interface into g_devMac. " alt="" coords="148,131,293,156"/>
+<area shape="rect" id="node4" href="$debug_8cpp.xhtml#a1a395cd89e6df6f9fd16ed25601ac351" title="Sets #NAMON::generalLogLevel;. " alt="" coords="550,31,701,56"/>
+<area shape="rect" id="node6" href="$namon_8cpp.xhtml#ae908895e58096afddac49d147777aee9" title="Identifies application, which has opened socket which belongs to some IP, proto and port..." alt="" coords="341,131,502,156"/>
 </map>

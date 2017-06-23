@@ -1,0 +1,7 @@
+<map id="NAMON::TTree::insert" name="NAMON::TTree::insert">
+<area shape="rect" id="node2" href="$class_n_a_m_o_n_1_1_t_entry.xhtml#af0fae8cb7b437ff71eee166b58111fa9" title="Get method for NAMON::TEntry::n. " alt="" coords="207,5,412,31"/>
+<area shape="rect" id="node3" href="$debug_8hpp.xhtml#a9f1c1527f51faaaca3be83b5a8928ca5" title="Function that prints log messages. " alt="" coords="261,79,357,104"/>
+<area shape="rect" id="node5" href="$class_n_a_m_o_n_1_1_t_entry_or_t_tree.xhtml#afd79f5ba5cbe063e8e557c288826cbe7" title="Get method for NAMON::TEntryOrTTree::level. " alt="" coords="226,128,393,167"/>
+<area shape="rect" id="node6" href="$class_n_a_m_o_n_1_1_t_entry_or_t_tree.xhtml#a133099e2ed5580107c782181a8d5301d" title="Set method for NAMON::TEntryOrTTree::level. " alt="" coords="226,191,393,229"/>
+<area shape="rect" id="node4" href="$debug_8cpp.xhtml#a1a395cd89e6df6f9fd16ed25601ac351" title="Sets #NAMON::generalLogLevel;. " alt="" coords="460,79,610,104"/>
+</map>

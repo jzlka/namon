@@ -95,72 +95,44 @@ $(document).ready(function(){initNavTree('todo.xhtml','');});
 <div class="contents">
 <div class="textblock"><dl class="reflist">
 <dt><a class="anchor" id="_todo000010"></a>File <a class="el" href="capturing_8cpp.xhtml">capturing.cpp</a>  </dt>
-<dd><p class="startdd">determine platform in scripts </p>
+<dd><p class="startdd">name: ncap, netcat, ncat, netcap, necai </p>
+<p>determine platform in scripts </p>
 <p>IPv6 implementation tests </p>
 <p>EnhancedPacketBlock disable pragma 1 -&gt; speed up working with ringBuffer? </p>
 <p>raw sockets in procfs </p>
 <p>What to do when the cache contains invalid record and getInode returns inode == 0 Save it to cache or the packet belongs to the old record? </p>
 <p>Broadcast and multicast packets (239.255.255.250, 0.0.0.0, 224.0.0.7, 1.13.0.0, 192.168.1.255) -&gt; use address 0.0.0.0 instead? </p>
+<p>check linux distros with little endian (local port) </p>
 <p>getting incorrect udp packet err </p>
 <p>os_version_info from Wireshark </p>
 <p>windows appname &gt; 256 </p>
 <p>Pridat kazdemu vlaknu svoju cond variable a nech zamkne mutex ked kontroluje shouldStop </p>
-<p>upravit <a class="el" href="tool_8cpp.xhtml#aa97bd89bdff783d43ffca0a0335286f1" title="Identifies application, which has opened socket which belongs to some IP, proto and port...">determineApp()</a> aby vracal ukazatel s naplnenym TEntry </p>
+<p>upravit <a class="el" href="namon_8cpp.xhtml#ae908895e58096afddac49d147777aee9" title="Identifies application, which has opened socket which belongs to some IP, proto and port...">determineApp()</a> aby vracal ukazatel s naplnenym TEntry </p>
 <p class="enddd">Add end of levels entry to the TreeLevel  </p>
 </dd>
-<dt><a class="anchor" id="_todo000020"></a>Member <a class="el" href="main_8cpp.xhtml#a0ddf1224851353fc92bfbff6f499fa97">main</a>  (int argc, char *argv[])</dt>
-<dd>zmenit tool za nazov nastroja  </dd>
-<dt><a class="anchor" id="_todo000019"></a>File <a class="el" href="main_8cpp.xhtml">main.cpp</a>  </dt>
-<dd>change tool name  </dd>
-<dt><a class="anchor" id="_todo000014"></a>Member <a class="el" href="capturing_8hpp.xhtml#a5b519a162338237e3935db3c8a3f8638">packetHandler</a>  (unsigned char *args, const struct pcap_pkthdr *header, const unsigned char *bytes)</dt>
-<dd><p class="startdd">When the packet is not saved into the output file, we don't process this packet. Valid behavior? </p>
-<p>What to do with 802.3? </p>
-<p class="enddd">check 4480  </p>
-</dd>
-<dt><a class="anchor" id="_todo000014"></a>Member <a class="el" href="capturing_8hpp.xhtml#a5b519a162338237e3935db3c8a3f8638">packetHandler</a>  (unsigned char *args, const struct pcap_pkthdr *header, const unsigned char *bytes)</dt>
-<dd><p class="startdd">When the packet is not saved into the output file, we don't process this packet. Valid behavior? </p>
-<p>What to do with 802.3? </p>
-<p class="enddd">check 4480  </p>
-</dd>
-<dt><a class="anchor" id="_todo000017"></a>Member <a class="el" href="capturing_8hpp.xhtml#a30a4aa41a243aeb1e88c49d09e65a48e">parsePorts</a>  (Netflow &amp;n, Directions dir, void *hdr)</dt>
-<dd>proto can be set to 0 -&gt; arp/rarp  </dd>
-<dt><a class="anchor" id="_todo000021"></a>Member <a class="el" href="main_8hpp.xhtml#aead97c99e70c0da7036fbbe230ef68b6">printUsage</a>  ()</dt>
-<dd>zmenit nazov nastroja  </dd>
-<dt><a class="anchor" id="_todo000037"></a>Member <a class="el" href="tcpip__headers_8hpp.xhtml#a811a9c0dd5d4b0f0bb5848e764d91017">PROTO_UDP</a>  </dt>
-<dd>ipv6 - flow labels  </dd>
-<dt><a class="anchor" id="_todo000012"></a>Member <a class="el" href="capturing_8hpp.xhtml#a796d8f82917739002736e8d61c6fb635">startCapture</a>  (const char *oFilename)</dt>
-<dd><p class="startdd">what to do with threads </p>
-<p class="enddd">do not use CustomBlock class  </p>
-</dd>
-<dt><a class="anchor" id="_todo000036"></a>File <a class="el" href="tcpip__headers_8hpp.xhtml">tcpip_headers.hpp</a>  </dt>
-<dd>rename namespace  </dd>
-<dt><a class="anchor" id="_todo000038"></a>File <a class="el" href="tool_8cpp.xhtml">tool.cpp</a>  </dt>
-<dd>rename file  </dd>
-<dt><a class="anchor" id="_todo000040"></a>File <a class="el" href="tool_8hpp.xhtml">tool.hpp</a>  </dt>
-<dd>rename file  </dd>
-<dt><a class="anchor" id="_todo000009"></a>Member <a class="el" href="class_t_o_o_l_1_1_cache.xhtml#a5936010932979fe258f3e501b5aec703">TOOL::Cache::insert</a>  (<a class="el" href="class_t_o_o_l_1_1_t_entry.xhtml" title="Class with application name, its socket inode (Linux) or PID (windows) and a pointer to Netflow class...">TEntry</a> *e)</dt>
+<dt><a class="anchor" id="_todo000009"></a>Member <a class="el" href="class_n_a_m_o_n_1_1_cache.xhtml#a7a097b6420be4d276bca506ff7ffe6bb">NAMON::Cache::insert</a>  (<a class="el" href="class_n_a_m_o_n_1_1_t_entry.xhtml" title="Class with application name, its socket inode (Linux) or PID (windows) and a pointer to Netflow class...">TEntry</a> *e)</dt>
 <dd>what to do?  </dd>
-<dt><a class="anchor" id="_todo000031"></a>Member <a class="el" href="class_t_o_o_l_1_1_custom_block.xhtml#a71d010d73d728a103b2caedd10add285">TOOL::CustomBlock::UNUSED</a>  (uint32_t blockTotalLength2)</dt>
+<dt><a class="anchor" id="_todo000035"></a>Member <a class="el" href="class_n_a_m_o_n_1_1_custom_block.xhtml#aac25a1ae1d4b82a894c53fd45145ee41">NAMON::CustomBlock::UNUSED</a>  (uint32_t blockTotalLength2)</dt>
 <dd>PEN  </dd>
-<dt><a class="anchor" id="_todo000032"></a>Member <a class="el" href="class_t_o_o_l_1_1_custom_block.xhtml#aef9b0da921b7014d415c3afc4b2f3dab">TOOL::CustomBlock::write</a>  (ofstream &amp;file)</dt>
+<dt><a class="anchor" id="_todo000036"></a>Member <a class="el" href="class_n_a_m_o_n_1_1_custom_block.xhtml#a7799e6c09eda458e7749e9e7f29d005e">NAMON::CustomBlock::write</a>  (ofstream &amp;file)</dt>
 <dd><p class="startdd">dat do dokumentacie, ze in_addr velkost sa moze menit (je tam long) takze musi sediet pocet netflow zaznameov a velkost tam niekam doplnit </p>
 <p class="enddd">app.second-&gt;sort()  </p>
 </dd>
-<dt><a class="anchor" id="_todo000039"></a>Member <a class="el" href="tool_8cpp.xhtml#aa97bd89bdff783d43ffca0a0335286f1">TOOL::determineApp</a>  (<a class="el" href="class_t_o_o_l_1_1_netflow.xhtml" title="Netflow class contains information about packet needed to uniquely determine a netflow it belongs to...">Netflow</a> *n, <a class="el" href="class_t_o_o_l_1_1_t_entry.xhtml" title="Class with application name, its socket inode (Linux) or PID (windows) and a pointer to Netflow class...">TEntry</a> &amp;e, const char mode)</dt>
+<dt><a class="anchor" id="_todo000019"></a>Member <a class="el" href="namon_8cpp.xhtml#ae908895e58096afddac49d147777aee9">NAMON::determineApp</a>  (<a class="el" href="class_n_a_m_o_n_1_1_netflow.xhtml" title="Netflow class contains information about packet needed to uniquely determine a netflow it belongs to...">Netflow</a> *n, <a class="el" href="class_n_a_m_o_n_1_1_t_entry.xhtml" title="Class with application name, its socket inode (Linux) or PID (windows) and a pointer to Netflow class...">TEntry</a> &amp;e, const char mode)</dt>
 <dd>packets destined for closed socket  </dd>
-<dt><a class="anchor" id="_todo000028"></a>Member <a class="el" href="class_t_o_o_l_1_1_enhanced_packet_block.xhtml#a81bc9f2c6948d94ae92dabf38fa7325a">TOOL::EnhancedPacketBlock::EnhancedPacketBlock</a>  ()</dt>
+<dt><a class="anchor" id="_todo000032"></a>Member <a class="el" href="class_n_a_m_o_n_1_1_enhanced_packet_block.xhtml#af030660de41a15c0804d2b7a3c46f0fa">NAMON::EnhancedPacketBlock::EnhancedPacketBlock</a>  ()</dt>
 <dd>Catch exception  </dd>
-<dt><a class="anchor" id="_todo000029"></a>Member <a class="el" href="class_t_o_o_l_1_1_enhanced_packet_block.xhtml#a193a880e22349e25d2c8cc0dfb595045">TOOL::EnhancedPacketBlock::setPacketData</a>  (const uint8_t *ptr, uint32_t len)</dt>
+<dt><a class="anchor" id="_todo000033"></a>Member <a class="el" href="class_n_a_m_o_n_1_1_enhanced_packet_block.xhtml#a6775122bd8f93c5369c02e4e533b65bd">NAMON::EnhancedPacketBlock::setPacketData</a>  (const uint8_t *ptr, uint32_t len)</dt>
 <dd><p class="startdd">Catch error </p>
 <p class="enddd">catch and free  </p>
 </dd>
-<dt><a class="anchor" id="_todo000049"></a>Member <a class="el" href="tool__linux_8cpp.xhtml#acecfe465c85a3ca3a91897379f4de033">TOOL::getApp</a>  (const int inode, string &amp;appName)</dt>
+<dt><a class="anchor" id="_todo000024"></a>Member <a class="el" href="namon__linux_8cpp.xhtml#af8138eb0e99de9e8740d0b93c935a759">NAMON::getApp</a>  (const int inode, string &amp;appName)</dt>
 <dd><p class="startdd">size </p>
 <p>WMI implement </p>
 <p>WMI implement </p>
 <p class="enddd">WMI implement  </p>
 </dd>
-<dt><a class="anchor" id="_todo000046"></a>Member <a class="el" href="tool__apple_8cpp.xhtml#aa5dccf12eda74373d0d26ca2c6f17643">TOOL::getInode</a>  (<a class="el" href="class_t_o_o_l_1_1_netflow.xhtml" title="Netflow class contains information about packet needed to uniquely determine a netflow it belongs to...">Netflow</a> *n)</dt>
+<dt><a class="anchor" id="_todo000021"></a>Member <a class="el" href="namon__apple_8cpp.xhtml#ac0c693432c4fa48fedeffcdf4b147929">NAMON::getInode</a>  (<a class="el" href="class_n_a_m_o_n_1_1_netflow.xhtml" title="Netflow class contains information about packet needed to uniquely determine a netflow it belongs to...">Netflow</a> *n)</dt>
 <dd><p class="startdd">why 0? </p>
 <p>getc stucked </p>
 <p>for sure lines have same length? </p>
@@ -175,61 +147,67 @@ $(document).ready(function(){initNavTree('todo.xhtml','');});
 <p>getc stucked </p>
 <p class="enddd">for sure lines have same length?  </p>
 </dd>
-<dt><a class="anchor" id="_todo000052"></a>Member <a class="el" href="tool__win_8cpp.xhtml#a9e18a4a833145ab3a4fc36ac31e086d6">TOOL::getPid</a>  (<a class="el" href="class_t_o_o_l_1_1_netflow.xhtml" title="Netflow class contains information about packet needed to uniquely determine a netflow it belongs to...">Netflow</a> *n)</dt>
+<dt><a class="anchor" id="_todo000025"></a>Member <a class="el" href="namon__win_8cpp.xhtml#af6cf842d92f651f6778dc20dbef81a5b">NAMON::getPid</a>  (<a class="el" href="class_n_a_m_o_n_1_1_netflow.xhtml" title="Netflow class contains information about packet needed to uniquely determine a netflow it belongs to...">Netflow</a> *n)</dt>
 <dd>convert to template function  </dd>
-<dt><a class="anchor" id="_todo000055"></a>Member <a class="el" href="utils_8cpp.xhtml#af53fd763583dad3d27aae4c4b96d3cab">TOOL::inet_ntop4</a>  (const void *src, char *dst, size_t size)</dt>
+<dt><a class="anchor" id="_todo000042"></a>Member <a class="el" href="utils_8cpp.xhtml#ae2e90146442e37ba0216dbb0ac0f6688">NAMON::inet_ntop4</a>  (const void *src, char *dst, size_t size)</dt>
 <dd>n+'0'  </dd>
-<dt><a class="anchor" id="_todo000025"></a>Member <a class="el" href="class_t_o_o_l_1_1_interface_description_block.xhtml#af4e63d9a6c85283ead1c02dc13492d9f">TOOL::InterfaceDescriptionBlock::InterfaceDescriptionBlock</a>  (string &amp;os)</dt>
+<dt><a class="anchor" id="_todo000029"></a>Member <a class="el" href="class_n_a_m_o_n_1_1_interface_description_block.xhtml#aea625046914a1726033a30734a30653d">NAMON::InterfaceDescriptionBlock::InterfaceDescriptionBlock</a>  (string &amp;os)</dt>
 <dd>performed on vs performed at  </dd>
-<dt><a class="anchor" id="_todo000018"></a>Member <a class="el" href="debug_8hpp.xhtml#a9340c95e0607709d793dc427c8b630e8">TOOL::log</a>  (LogLevel ll, Ts &amp;&amp;... args)</dt>
+<dt><a class="anchor" id="_todo000018"></a>Member <a class="el" href="debug_8hpp.xhtml#a9f1c1527f51faaaca3be83b5a8928ca5">NAMON::log</a>  (LogLevel ll, Ts &amp;&amp;... args)</dt>
 <dd>Improve param description  </dd>
-<dt><a class="anchor" id="_todo000023"></a>Member <a class="el" href="class_t_o_o_l_1_1_netflow.xhtml#a01c4d9d3260d470566ea83b68bc863fc">TOOL::Netflow::operator=</a>  (const <a class="el" href="class_t_o_o_l_1_1_netflow.xhtml" title="Netflow class contains information about packet needed to uniquely determine a netflow it belongs to...">Netflow</a> &amp;other)</dt>
+<dt><a class="anchor" id="_todo000028"></a>Member <a class="el" href="class_n_a_m_o_n_1_1_netflow.xhtml#a2607ecc338a85c43aa2d27d8a23ae0cc">NAMON::Netflow::operator=</a>  (const <a class="el" href="class_n_a_m_o_n_1_1_netflow.xhtml" title="Netflow class contains information about packet needed to uniquely determine a netflow it belongs to...">Netflow</a> &amp;other)</dt>
 <dd>catch  </dd>
-<dt><a class="anchor" id="_todo000022"></a>Member <a class="el" href="class_t_o_o_l_1_1_netflow.xhtml#ae3e4eedc7bc31262e7ab721aeeda7f28">TOOL::Netflow::write</a>  (std::ofstream &amp;file)</dt>
+<dt><a class="anchor" id="_todo000027"></a>Member <a class="el" href="class_n_a_m_o_n_1_1_netflow.xhtml#a8c2bdd0a7eab6711a301fb4b5c51d548">NAMON::Netflow::write</a>  (std::ofstream &amp;file)</dt>
 <dd>Can ipVersion contain other number?  </dd>
-<dt><a class="anchor" id="_todo000034"></a>Member <a class="el" href="class_t_o_o_l_1_1_ring_buffer.xhtml#afe1bfc1344659d31ec56627448aebfea">TOOL::RingBuffer&lt; T &gt;::push</a>  (T &amp;elem)</dt>
+<dt><a class="anchor" id="_todo000038"></a>Member <a class="el" href="class_n_a_m_o_n_1_1_ring_buffer.xhtml#a073b24109874e113e6edf54f9c5c0e0a">NAMON::RingBuffer&lt; T &gt;::push</a>  (T &amp;elem)</dt>
 <dd>ked prepisujeme novy prvok tak dealokovat alokovanu pamat v starom prvku (ip v netflow)  </dd>
-<dt><a class="anchor" id="_todo000035"></a>Member <a class="el" href="class_t_o_o_l_1_1_ring_buffer.xhtml#af824b93f12c5454587cc8f2d77a780f7">TOOL::RingBuffer&lt; T &gt;::write</a>  (ofstream &amp;file)</dt>
+<dt><a class="anchor" id="_todo000039"></a>Member <a class="el" href="class_n_a_m_o_n_1_1_ring_buffer.xhtml#a441195cade86476a0dbad754d0b2ba71">NAMON::RingBuffer&lt; T &gt;::write</a>  (ofstream &amp;file)</dt>
 <dd>catch it  </dd>
-<dt><a class="anchor" id="_todo000045"></a>Member <a class="el" href="tool__apple_8cpp.xhtml#abffa8d5a00da5ef52e025864e1b86829">TOOL::setDevMac</a>  ()</dt>
+<dt><a class="anchor" id="_todo000020"></a>Member <a class="el" href="namon__apple_8cpp.xhtml#a3f33b2f8e1e02244d4291332e760796e">NAMON::setDevMac</a>  ()</dt>
 <dd>reimplement to MAC address + multicast sysctl with the MIB { CTL_NET, PF_ROUTE, 0, AF_LINK, NET_RT_IFLIST, 0 } SIOCGIFADDR and SIOCGIFHWADDR <a href="http://stackoverflow.com/questions/2283494/get-ip-address-of-an-interface-on-linux/9436692#9436692">http://stackoverflow.com/questions/2283494/get-ip-address-of-an-interface-on-linux/9436692#9436692</a>  </dd>
-<dt><a class="anchor" id="_todo000001"></a>Member <a class="el" href="class_t_o_o_l_1_1_t_entry.xhtml#a6a286dc8f1ab0e592932115a6f3e60f4">TOOL::TEntry::levelCompare</a>  (<a class="el" href="class_t_o_o_l_1_1_netflow.xhtml" title="Netflow class contains information about packet needed to uniquely determine a netflow it belongs to...">Netflow</a> *n1)</dt>
+<dt><a class="anchor" id="_todo000001"></a>Member <a class="el" href="class_n_a_m_o_n_1_1_t_entry.xhtml#a9faba1b923d35a52c53bf7f7a76f7a32">NAMON::TEntry::levelCompare</a>  (<a class="el" href="class_n_a_m_o_n_1_1_netflow.xhtml" title="Netflow class contains information about packet needed to uniquely determine a netflow it belongs to...">Netflow</a> *n1)</dt>
 <dd><p class="startdd">catch </p>
 <p class="enddd">catch  </p>
 </dd>
-<dt><a class="anchor" id="_todo000004"></a>Member <a class="el" href="class_t_o_o_l_1_1_t_tree.xhtml#a16d14c1d6d1c451e569a3e0b5e459248">TOOL::TTree::insert</a>  (<a class="el" href="class_t_o_o_l_1_1_t_entry.xhtml" title="Class with application name, its socket inode (Linux) or PID (windows) and a pointer to Netflow class...">TEntry</a> *entry)</dt>
+<dt><a class="anchor" id="_todo000004"></a>Member <a class="el" href="class_n_a_m_o_n_1_1_t_tree.xhtml#a7c2a0cc5654377b4b8ca63feb050fa62">NAMON::TTree::insert</a>  (<a class="el" href="class_n_a_m_o_n_1_1_t_entry.xhtml" title="Class with application name, its socket inode (Linux) or PID (windows) and a pointer to Netflow class...">TEntry</a> *entry)</dt>
 <dd>what to do?  </dd>
-<dt><a class="anchor" id="_todo000007"></a>Member <a class="el" href="class_t_o_o_l_1_1_t_tree.xhtml#ade063acb83e5a7fe144fbee267fe5164">TOOL::TTree::levelCompare</a>  (<a class="el" href="class_t_o_o_l_1_1_netflow.xhtml" title="Netflow class contains information about packet needed to uniquely determine a netflow it belongs to...">Netflow</a> *n)</dt>
+<dt><a class="anchor" id="_todo000007"></a>Member <a class="el" href="class_n_a_m_o_n_1_1_t_tree.xhtml#a9d653ac69fd4e434543f99c77af734b7">NAMON::TTree::levelCompare</a>  (<a class="el" href="class_n_a_m_o_n_1_1_netflow.xhtml" title="Netflow class contains information about packet needed to uniquely determine a netflow it belongs to...">Netflow</a> *n)</dt>
 <dd><p class="startdd">catch </p>
 <p class="enddd">catch  </p>
 </dd>
-<dt><a class="anchor" id="_todo000005"></a>Member <a class="el" href="class_t_o_o_l_1_1_t_tree.xhtml#a82dde6ad8b94ec9b2d60ecb57dc6276c">TOOL::TTree::setCommonValue</a>  (<a class="el" href="class_t_o_o_l_1_1_netflow.xhtml" title="Netflow class contains information about packet needed to uniquely determine a netflow it belongs to...">Netflow</a> *n)</dt>
+<dt><a class="anchor" id="_todo000005"></a>Member <a class="el" href="class_n_a_m_o_n_1_1_t_tree.xhtml#a4e9f8f0a46da002c0836ca5a15526a59">NAMON::TTree::setCommonValue</a>  (<a class="el" href="class_n_a_m_o_n_1_1_netflow.xhtml" title="Netflow class contains information about packet needed to uniquely determine a netflow it belongs to...">Netflow</a> *n)</dt>
 <dd><p class="startdd">catch </p>
 <p class="enddd">catch  </p>
 </dd>
-<dt><a class="anchor" id="_todo000003"></a>Member <a class="el" href="class_t_o_o_l_1_1_t_tree.xhtml#a54a740cf71745a8014725d2f96326562">TOOL::TTree::~TTree</a>  ()</dt>
+<dt><a class="anchor" id="_todo000003"></a>Member <a class="el" href="class_n_a_m_o_n_1_1_t_tree.xhtml#a1614243d93274ddad34fd64f91d311c2">NAMON::TTree::~TTree</a>  ()</dt>
 <dd>catch  </dd>
-<dt><a class="anchor" id="_todo000041"></a>File <a class="el" href="tool__apple_8cpp.xhtml">tool_apple.cpp</a>  </dt>
-<dd>rename this file  </dd>
-<dt><a class="anchor" id="_todo000042"></a>File <a class="el" href="tool__apple_8hpp.xhtml">tool_apple.hpp</a>  </dt>
-<dd>rename file  </dd>
-<dt><a class="anchor" id="_todo000043"></a>File <a class="el" href="tool__bsd_8hpp.xhtml">tool_bsd.hpp</a>  </dt>
-<dd>rename file  </dd>
-<dt><a class="anchor" id="_todo000044"></a>File <a class="el" href="tool__linux_8cpp.xhtml">tool_linux.cpp</a>  </dt>
-<dd>rename file  </dd>
-<dt><a class="anchor" id="_todo000050"></a>File <a class="el" href="tool__linux_8hpp.xhtml">tool_linux.hpp</a>  </dt>
-<dd>rename file  </dd>
-<dt><a class="anchor" id="_todo000051"></a>File <a class="el" href="tool__win_8cpp.xhtml">tool_win.cpp</a>  </dt>
-<dd>rename this file  </dd>
-<dt><a class="anchor" id="_todo000054"></a>File <a class="el" href="tool__win_8hpp.xhtml">tool_win.hpp</a>  </dt>
-<dd>rename file </dd>
+<dt><a class="anchor" id="_todo000014"></a>Member <a class="el" href="capturing_8hpp.xhtml#a5b519a162338237e3935db3c8a3f8638">packetHandler</a>  (unsigned char *args, const struct pcap_pkthdr *header, const unsigned char *bytes)</dt>
+<dd><p class="startdd">When the packet is not saved into the output file, we don't process this packet. Valid behavior? </p>
+<p>What to do with 802.3? </p>
+<p class="enddd">check 4480  </p>
+</dd>
+<dt><a class="anchor" id="_todo000014"></a>Member <a class="el" href="capturing_8hpp.xhtml#a5b519a162338237e3935db3c8a3f8638">packetHandler</a>  (unsigned char *args, const struct pcap_pkthdr *header, const unsigned char *bytes)</dt>
+<dd><p class="startdd">When the packet is not saved into the output file, we don't process this packet. Valid behavior? </p>
+<p>What to do with 802.3? </p>
+<p class="enddd">check 4480  </p>
+</dd>
+<dt><a class="anchor" id="_todo000017"></a>Member <a class="el" href="capturing_8hpp.xhtml#a30a4aa41a243aeb1e88c49d09e65a48e">parsePorts</a>  (<a class="el" href="class_n_a_m_o_n_1_1_netflow.xhtml" title="Netflow class contains information about packet needed to uniquely determine a netflow it belongs to...">Netflow</a> &amp;n, Directions dir, void *hdr)</dt>
+<dd>proto can be set to 0 -&gt; arp/rarp  </dd>
+<dt><a class="anchor" id="_todo000041"></a>Member <a class="el" href="tcpip__headers_8hpp.xhtml#a811a9c0dd5d4b0f0bb5848e764d91017">PROTO_UDP</a>  </dt>
+<dd>ipv6 - flow labels  </dd>
+<dt><a class="anchor" id="_todo000012"></a>Member <a class="el" href="capturing_8hpp.xhtml#a796d8f82917739002736e8d61c6fb635">startCapture</a>  (const char *oFilename)</dt>
+<dd><p class="startdd">what to do with threads </p>
+<p class="enddd">do not use <a class="el" href="class_n_a_m_o_n_1_1_custom_block.xhtml" title="Class with custom data. ">CustomBlock</a> class  </p>
+</dd>
+<dt><a class="anchor" id="_todo000040"></a>File <a class="el" href="tcpip__headers_8hpp.xhtml">tcpip_headers.hpp</a>  </dt>
+<dd>rename namespace </dd>
 </dl>
 </div></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Generated on Thu May 25 2017 17:05:08 for Network Traffic Capture With Application Tags by
+    <li class="footer">Generated on Fri Jun 23 2017 13:03:10 for Network Traffic Capture With Application Tags by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.13 </li>
   </ul>

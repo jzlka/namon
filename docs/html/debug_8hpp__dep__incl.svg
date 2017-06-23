@@ -46,7 +46,7 @@ if (edges && edges.length) {
         </defs>
 
 <script type="text/javascript">
-var viewWidth = 950;
+var viewWidth = 994;
 var viewHeight = 247;
 var sectionId = 'dynsection-1';
 </script>
@@ -54,7 +54,7 @@ var sectionId = 'dynsection-1';
 <svg id="graph" class="graph">
 <g id="viewport">
 <title>src/debug.hpp</title>
-<polygon fill="#ffffff" stroke="transparent" points="-4,4 -4,-243 946.2437,-243 946.2437,4 -4,4"/>
+<polygon fill="#ffffff" stroke="transparent" points="-4,4 -4,-243 990.2437,-243 990.2437,4 -4,4"/>
 <!-- Node3 -->
 <g id="node1" class="node">
 <title>Node3</title>
@@ -169,62 +169,62 @@ var sectionId = 'dynsection-1';
 <!-- Node12 -->
 <g id="node10" class="node">
 <title>Node12</title>
-<g id="a_node10"><a xlink:href="tool_8cpp.xhtml" target="_top" xlink:title="Network Traffic Capturing With Application Tags. ">
-<polygon fill="#ffffff" stroke="#000000" points="572.2808,-165.5 572.2808,-183.5 639.4136,-183.5 639.4136,-165.5 572.2808,-165.5"/>
-<text text-anchor="middle" x="605.8472" y="-171.5" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#000000">src/tool.cpp</text>
+<g id="a_node10"><a xlink:href="namon_8cpp.xhtml" target="_top" xlink:title="Network Traffic Capturing With Application Tags. ">
+<polygon fill="#ffffff" stroke="#000000" points="572.0542,-165.5 572.0542,-183.5 653.6401,-183.5 653.6401,-165.5 572.0542,-165.5"/>
+<text text-anchor="middle" x="612.8472" y="-171.5" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#000000">src/namon.cpp</text>
 </a>
 </g>
 </g>
 <!-- Node3&#45;&gt;Node12 -->
 <g id="edge15" class="edge">
 <title>Node3&#45;&gt;Node12</title>
-<path fill="none" stroke="#191970" d="M483.4046,-217.1224C512.7432,-206.9096 553.6829,-192.6584 579.9805,-183.5042"/>
-<polygon fill="#191970" stroke="#191970" points="482.2312,-213.8248 473.9377,-220.4179 484.5325,-220.4357 482.2312,-213.8248"/>
+<path fill="none" stroke="#191970" d="M484.581,-217.2554C515.2463,-207.0336 558.2524,-192.6983 585.8345,-183.5042"/>
+<polygon fill="#191970" stroke="#191970" points="483.4736,-213.9351 475.0936,-220.4179 485.6872,-220.5759 483.4736,-213.9351"/>
 </g>
 <!-- Node13 -->
 <g id="node11" class="node">
 <title>Node13</title>
-<g id="a_node11"><a xlink:href="tool__linux_8cpp.xhtml" target="_top" xlink:title="Determining applications and their sockets in Linux. ">
-<polygon fill="#ffffff" stroke="#000000" points="657.2168,-165.5 657.2168,-183.5 750.4775,-183.5 750.4775,-165.5 657.2168,-165.5"/>
-<text text-anchor="middle" x="703.8472" y="-171.5" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#000000">src/tool_linux.cpp</text>
+<g id="a_node11"><a xlink:href="namon__linux_8cpp.xhtml" target="_top" xlink:title="Determining applications and their sockets in Linux. ">
+<polygon fill="#ffffff" stroke="#000000" points="671.9902,-165.5 671.9902,-183.5 779.7041,-183.5 779.7041,-165.5 671.9902,-165.5"/>
+<text text-anchor="middle" x="725.8472" y="-171.5" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#000000">src/namon_linux.cpp</text>
 </a>
 </g>
 </g>
 <!-- Node3&#45;&gt;Node13 -->
 <g id="edge16" class="edge">
 <title>Node3&#45;&gt;Node13</title>
-<path fill="none" stroke="#191970" d="M497.3923,-218.8555C545.2162,-208.5809 616.8259,-193.196 661.9059,-183.5108"/>
-<polygon fill="#191970" stroke="#191970" points="496.608,-215.4441 487.5663,-220.9666 498.0784,-222.2879 496.608,-215.4441"/>
+<path fill="none" stroke="#191970" d="M497.6371,-219.6495C549.4284,-209.403 629.8329,-193.4956 680.0798,-183.5547"/>
+<polygon fill="#191970" stroke="#191970" points="496.8083,-216.2455 487.6778,-221.6198 498.167,-223.1124 496.8083,-216.2455"/>
 </g>
 <!-- Node14 -->
 <g id="node12" class="node">
 <title>Node14</title>
-<g id="a_node12"><a xlink:href="tool__win_8cpp.xhtml" target="_top" xlink:title="Determining the applications and their sockets on Windows. ">
-<polygon fill="#ffffff" stroke="#000000" points="767.9976,-165.5 767.9976,-183.5 855.6968,-183.5 855.6968,-165.5 767.9976,-165.5"/>
-<text text-anchor="middle" x="811.8472" y="-171.5" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#000000">src/tool_win.cpp</text>
+<g id="a_node12"><a xlink:href="namon__win_8cpp.xhtml" target="_top" xlink:title="Determining the applications and their sockets on Windows. ">
+<polygon fill="#ffffff" stroke="#000000" points="797.771,-165.5 797.771,-183.5 899.9233,-183.5 899.9233,-165.5 797.771,-165.5"/>
+<text text-anchor="middle" x="848.8472" y="-171.5" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#000000">src/namon_win.cpp</text>
 </a>
 </g>
 </g>
 <!-- Node3&#45;&gt;Node14 -->
 <g id="edge17" class="edge">
 <title>Node3&#45;&gt;Node14</title>
-<path fill="none" stroke="#191970" d="M498.0478,-222.7441C559.7698,-214.3075 667.6799,-199.1347 759.8472,-184 762.4734,-183.5688 765.1719,-183.1133 767.8926,-182.6447"/>
-<polygon fill="#191970" stroke="#191970" points="497.2471,-219.3208 487.8115,-224.1394 498.1926,-226.2567 497.2471,-219.3208"/>
+<path fill="none" stroke="#191970" d="M497.9887,-223.1982C564.5251,-214.7469 685.6241,-199.0561 788.8472,-184 791.6649,-183.589 794.5557,-183.159 797.4727,-182.7187"/>
+<polygon fill="#191970" stroke="#191970" points="497.27,-219.7612 487.7896,-224.4912 498.1505,-226.7056 497.27,-219.7612"/>
 </g>
 <!-- Node15 -->
 <g id="node13" class="node">
 <title>Node15</title>
 <g id="a_node13"><a xlink:href="utils_8cpp.xhtml" target="_top" xlink:title="Small useful functions. ">
-<polygon fill="#ffffff" stroke="#000000" points="873.4507,-165.5 873.4507,-183.5 942.2437,-183.5 942.2437,-165.5 873.4507,-165.5"/>
-<text text-anchor="middle" x="907.8472" y="-171.5" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#000000">src/utils.cpp</text>
+<polygon fill="#ffffff" stroke="#000000" points="917.4507,-165.5 917.4507,-183.5 986.2437,-183.5 986.2437,-165.5 917.4507,-165.5"/>
+<text text-anchor="middle" x="951.8472" y="-171.5" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#000000">src/utils.cpp</text>
 </a>
 </g>
 </g>
 <!-- Node3&#45;&gt;Node15 -->
 <g id="edge18" class="edge">
 <title>Node3&#45;&gt;Node15</title>
-<path fill="none" stroke="#191970" d="M497.8045,-225.8159C576.2971,-219.6306 733.1492,-205.6671 864.8472,-184 867.563,-183.5532 870.3653,-183.0442 873.1761,-182.4993"/>
-<polygon fill="#191970" stroke="#191970" points="497.4132,-222.3357 487.7153,-226.602 497.957,-229.3145 497.4132,-222.3357"/>
+<path fill="none" stroke="#191970" d="M497.9607,-226.5155C582.893,-221.0199 760.364,-207.6436 908.8472,-184 911.5652,-183.5672 914.3692,-183.0682 917.1811,-182.5303"/>
+<polygon fill="#191970" stroke="#191970" points="497.582,-223.0325 487.8252,-227.1622 498.0278,-230.0183 497.582,-223.0325"/>
 </g>
 <!-- Node6 -->
 <g id="node4" class="node">

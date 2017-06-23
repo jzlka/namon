@@ -1,5 +1,5 @@
 <map id="parsePorts" name="parsePorts">
-<area shape="rect" id="node2" href="$class_t_o_o_l_1_1_netflow.xhtml#a90e60833b8662f06ca181452aafaa27e" title="Get method for TOOL::Netflow::proto. " alt="" coords="139,5,306,31"/>
-<area shape="rect" id="node3" href="$debug_8hpp.xhtml#a9340c95e0607709d793dc427c8b630e8" title="Function that prints log messages. " alt="" coords="181,79,264,104"/>
-<area shape="rect" id="node4" href="$debug_8cpp.xhtml#ad6ba0645e5c2cdd3f7533aa4f15dbe71" title="Sets #TOOL::generalLogLevel;. " alt="" coords="354,79,491,104"/>
+<area shape="rect" id="node2" href="$class_n_a_m_o_n_1_1_netflow.xhtml#acd9ecb6f7bac62db7294f5dd76094b38" title="Get method for NAMON::Netflow::proto. " alt="" coords="139,5,320,31"/>
+<area shape="rect" id="node3" href="$debug_8hpp.xhtml#a9f1c1527f51faaaca3be83b5a8928ca5" title="Function that prints log messages. " alt="" coords="181,79,278,104"/>
+<area shape="rect" id="node4" href="$debug_8cpp.xhtml#a1a395cd89e6df6f9fd16ed25601ac351" title="Sets #NAMON::generalLogLevel;. " alt="" coords="368,79,518,104"/>
 </map>

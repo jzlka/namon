@@ -1,6 +1,0 @@
-<map id="TOOL::TTree::setCommonValue" name="TOOL::TTree::setCommonValue">
-<area shape="rect" id="node2" href="$class_t_o_o_l_1_1_netflow.xhtml#a236c3017659c725da82f3f9abd025851" title="Get method for TOOL::Netflow::localPort. " alt="" coords="266,5,457,31"/>
-<area shape="rect" id="node3" href="$class_t_o_o_l_1_1_netflow.xhtml#a90e60833b8662f06ca181452aafaa27e" title="Get method for TOOL::Netflow::proto. " alt="" coords="278,55,445,80"/>
-<area shape="rect" id="node4" href="$class_t_o_o_l_1_1_netflow.xhtml#a1b36fe95c3c9c18fd8ddc646281474b8" title="Get method for TOOL::Netflow::ipVersion. " alt="" coords="266,104,457,129"/>
-<area shape="rect" id="node5" href="$class_t_o_o_l_1_1_netflow.xhtml#a075c89c1c339bb8aaf54c6f9749f309b" title="Get method for TOOL::Netflow::localIp. " alt="" coords="272,153,450,179"/>
-</map>

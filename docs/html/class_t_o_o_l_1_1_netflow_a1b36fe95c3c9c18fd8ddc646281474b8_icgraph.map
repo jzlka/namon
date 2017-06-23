@@ -1,6 +1,0 @@
-<map id="TOOL::Netflow::getIpVersion" name="TOOL::Netflow::getIpVersion">
-<area shape="rect" id="node2" href="$class_t_o_o_l_1_1_t_entry.xhtml#a6a286dc8f1ab0e592932115a6f3e60f4" title="Compares values important at a specific #TOOL::TreeLevel. " alt="" coords="253,5,447,31"/>
-<area shape="rect" id="node3" href="$class_t_o_o_l_1_1_t_tree.xhtml#a82dde6ad8b94ec9b2d60ecb57dc6276c" title="Set method for TOOL::TTree::cv union. " alt="" coords="244,55,456,80"/>
-<area shape="rect" id="node5" href="$class_t_o_o_l_1_1_t_tree.xhtml#ade063acb83e5a7fe144fbee267fe5164" title="Compares values important at a specific #TOOL::TreeLevel. " alt="" coords="256,104,445,129"/>
-<area shape="rect" id="node4" href="$class_t_o_o_l_1_1_cache.xhtml#a5936010932979fe258f3e501b5aec703" title="Function inserts new TEntry into the TTree node. " alt="" coords="504,55,648,80"/>
-</map>

@@ -1,0 +1,6 @@
+<map id="NAMON::getApp" name="NAMON::getApp">
+<area shape="rect" id="node2" href="$namon__apple_8cpp.xhtml#a3bbbb69bc9ea2cecaa22e05a285bc9fb" title="Finds an application with opened socket inode in parameter. " alt="" coords="174,29,295,55"/>
+<area shape="rect" id="node3" href="$utils_8cpp.xhtml#ab5404d89c33dfee3caf9d6e2879bd9b1" title="Converts char* string to integer. " alt="" coords="174,103,295,128"/>
+<area shape="rect" id="node4" href="$debug_8hpp.xhtml#a9f1c1527f51faaaca3be83b5a8928ca5" title="Function that prints log messages. " alt="" coords="187,176,283,201"/>
+<area shape="rect" id="node5" href="$debug_8cpp.xhtml#a1a395cd89e6df6f9fd16ed25601ac351" title="Sets #NAMON::generalLogLevel;. " alt="" coords="343,176,494,201"/>
+</map>
