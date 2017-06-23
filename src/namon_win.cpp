@@ -1,11 +1,10 @@
 /**
- *  @file       tool_win.cpp
+ *  @file       namon_win.cpp
  *  @brief      Determining the applications and their sockets on Windows
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 13.04.2017 00:11
- *   - Edited:  17.05.2017 19:47
- *  @todo       rename this file
+ *   - Edited:  23.06.2017 12:12
  */
 
 
@@ -22,7 +21,7 @@
 #include "cache.hpp"			//  Cache
 #include "debug.hpp"			//	log()
 #include "utils.hpp"			//	concatenate()
-#include "tool_win.hpp"
+#include "namon_win.hpp"
 
 
 #pragma comment(lib, "Iphlpapi.lib")	//	GetAdaptersAddresses(), GetExtended*Table()
@@ -37,12 +36,12 @@ typedef int(__cdecl *MYPROC)(HANDLE, PROCESSINFOCLASS, PVOID, ULONG, PULONG);
 #define FREE(x) HeapFree(GetProcessHeap(), 0, (x))
 
 extern const char *g_dev;
-extern TOOL::mac_addr g_devMac;
+extern NAMON::mac_addr g_devMac;
 
 
 
 
-namespace TOOL
+namespace NAMON
 {
 
 
@@ -489,4 +488,4 @@ int getApp(const int pid, string &appname)
 }
 
 
-}	// namespace TOOL
+}	// namespace NAMON

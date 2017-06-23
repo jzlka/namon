@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 15.03.2017 23:27
- *   - Edited:  18.05.2017 14:24
+ *   - Edited:  23.06.2017 12:03
  */
 
 #include <iostream>				//  cout, endl
@@ -25,7 +25,7 @@
 
 
 
-namespace TOOL
+namespace NAMON
 {
 	
 
@@ -113,4 +113,4 @@ void Netflow::print()
 }
 
 
-}	// namespace TOOL
+}	// namespace NAMON

@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 22.03.2017 17:04
- *   - Edited:  18.05.2017 00:21
+ *   - Edited:  23.06.2017 12:04
  */
 
 #pragma once
@@ -17,14 +17,14 @@
 #include <pcap.h>               //  pcap_pkthdr
 
 #include "pcapng_blocks.hpp"    //  EnhancedPacketBlock
-#include "tool.hpp"             //  determineApp()
+#include "namon.hpp"             //  determineApp()
 
 extern std::atomic<int> shouldStop;
 
 
 
 
-namespace TOOL
+namespace NAMON
 {
 
 
@@ -47,7 +47,7 @@ class RingBuffer
 	//! @brief  Number of dropped elements
 	unsigned int droppedElem = 0;
 
-	//! @brief  Mutex used to lock #TOOL::RingBuffer::m_condVar
+	//! @brief  Mutex used to lock #NAMON::RingBuffer::m_condVar
 	std::mutex m_condVar;
 	//! @brief  Condition variable used to notify thread when a new packet is stored in the buffer
 	std::condition_variable cv_condVar;
@@ -66,7 +66,7 @@ public:
      */
 	bool full() const { return size == buffer.size(); }
 	/*!
-     * @brief   Get method for #TOOL::RingBuffer::droppedElem
+     * @brief   Get method for #NAMON::RingBuffer::droppedElem
      * @return  Number of dropped elements
      */
 	unsigned int getDroppedElem() { return droppedElem; }
@@ -85,7 +85,7 @@ public:
      */
 	int push(const pcap_pkthdr *header, const u_char *packet);
 	/*!
-     * @brief   Moves #TOOL::RingBuffer::first to the next element
+     * @brief   Moves #NAMON::RingBuffer::first to the next element
      */
 	void pop();
 	/*!
@@ -93,8 +93,8 @@ public:
      */
 	T & top() { return buffer[last - 1]; }
 	/*!
-     * @brief   Function notify all threads to check #TOOL::RingBuffer::m_condVar
-     * @details Because #TOOL::RingBuffer::m_condVar is private member of this class this method
+     * @brief   Function notify all threads to check #NAMON::RingBuffer::m_condVar
+     * @details Because #NAMON::RingBuffer::m_condVar is private member of this class this method
      *           is used to notify threads from main.
      */
 	void notifyCondVar() { cv_condVar.notify_all(); }
@@ -118,4 +118,4 @@ public:
 #include "ringBuffer.tpp"   //  class members
 
 
-}	// namespace TOOL
+}	// namespace NAMON

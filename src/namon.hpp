@@ -1,11 +1,10 @@
 /** 
- *  @file       tool.hpp
+ *  @file       namon.hpp
  *  @brief      Determining applications header file
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 20.03.2017 16:56
- *   - Edited:  18.05.2017 00:18
- *  @todo       rename file
+ *   - Edited:  23.06.2017 12:12
  */
 
 #pragma once
@@ -20,7 +19,7 @@
 
 
 
-namespace TOOL
+namespace NAMON
 {
 
 
@@ -33,10 +32,10 @@ namespace TOOL
   * @param[out]  e       Set application and socket inode number with netflow structure
   * @param[in]   mode    Update of expired record or inserting new record
   * @return      Value bigger than zero if there wasn't any error.
-  *              -1 is returned if application or inode wasn't found - in this case #TOOL::TEntry::appName
+  *              -1 is returned if application or inode wasn't found - in this case #NAMON::TEntry::appName
   *              is set to empty string. If there were any Input/Output error, -2 is returned.
   */
 int determineApp(Netflow *n, TEntry &e, const char mode);
 
 
-}	// namespace TOOL
+}	// namespace NAMON

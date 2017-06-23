@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 26.02.2017 23:13
- *   - Edited:  18.05.2017 00:21
+ *   - Edited:  23.06.2017 12:03
  */
 
 #pragma once
@@ -17,7 +17,7 @@
 
 
 
-namespace TOOL
+namespace NAMON
 {
 
 
@@ -34,7 +34,7 @@ class Netflow
     uint8_t ipVersion       =0;         //!< IP header version
     /*!
      * @brief   Pointer to a structure containing local IP address
-     * @details Type of the pointer is determined using #TOOL::Netflow::ipVersion
+     * @details Type of the pointer is determined using #NAMON::Netflow::ipVersion
      */
     void *localIp           = nullptr;
     uint16_t localPort      =0;         //!< Local port
@@ -47,26 +47,26 @@ public:
      */
     Netflow()                               {}
     /*!
-     * @brief   Destructor cleans memory pointed by #TOOL::Netflow::localIp
+     * @brief   Destructor cleans memory pointed by #NAMON::Netflow::localIp
      */
     ~Netflow();
     /*! 
-     * @brief   Get method for #TOOL::Netflow::ipVersion
+     * @brief   Get method for #NAMON::Netflow::ipVersion
      * @return  IP header version
      */
     uint8_t getIpVersion()                  { return ipVersion; }
     /*! 
-     * @brief       Set method for #TOOL::Netflow::ipVersion
+     * @brief       Set method for #NAMON::Netflow::ipVersion
      * @param[in]   ipV       IP header version
      */
     void setIpVersion(uint8_t ipV)          { ipVersion = ipV; }
     /*! 
-     * @brief   Get method for #TOOL::Netflow::localIp
+     * @brief   Get method for #NAMON::Netflow::localIp
      * @return  Pointer to local IP structure
      */
     void * getLocalIp()                     { return localIp; }
     /*! 
-     * @brief       Set method for #TOOL::Netflow::localIp
+     * @brief       Set method for #NAMON::Netflow::localIp
      * @pre         newIp must point to a valid in*_addr structure
      * @post        Memory pointed by newIp must exist as long as Netflow object exists.
      *              Then it will be freed in destructor.
@@ -74,42 +74,42 @@ public:
      */
     void setLocalIp(void *newIp)            { localIp = newIp; }
     /*! 
-     * @brief   Get method for #TOOL::Netflow::localPort
+     * @brief   Get method for #NAMON::Netflow::localPort
      * @return  Local port
      */
     uint16_t getLocalPort()                 { return localPort; }
     /*! 
-     * @brief       Set method for #TOOL::Netflow::localPort
+     * @brief       Set method for #NAMON::Netflow::localPort
      * @param[in]   newPort   Local port
      */
     void setLocalPort(uint16_t newPort)     { localPort = newPort; }
     /*! 
-     * @brief   Get method for #TOOL::Netflow::proto
+     * @brief   Get method for #NAMON::Netflow::proto
      * @return  Layer 4 protocol
      */
     uint8_t getProto()                      { return proto; }
     /*! 
-     * @brief       Set method for #TOOL::Netflow::proto
+     * @brief       Set method for #NAMON::Netflow::proto
      * @param[in]   newProto  Layer 4 protocol
      */
     void setProto(uint8_t newProto)         { proto = newProto; }
     /*! 
-     * @brief   Get method for #TOOL::Netflow::startTime
+     * @brief   Get method for #NAMON::Netflow::startTime
      * @return  Time of the first packet which belongs to this netflow
      */
     uint64_t getStartTime()                 { return startTime; }
     /*! 
-     * @brief       Set method for #TOOL::Netflow::startTime
+     * @brief       Set method for #NAMON::Netflow::startTime
      * @param[in]   newTime   Time of the first packet which belongs to this netflow
      */
     void setStartTime(uint64_t newTime)     { startTime = newTime; }
     /*! 
-     * @brief   Get method for #TOOL::Netflow::endTime
+     * @brief   Get method for #NAMON::Netflow::endTime
      * @return  Time of the last packet which belongs to this netflow
      */
     uint64_t getEndTime()                   { return endTime; }
     /*! 
-     * @brief       Set method for #TOOL::Netflow::endTime
+     * @brief       Set method for #NAMON::Netflow::endTime
      * @param[in]   newTime   Time of the last packet which belongs to this netflow
      */
     void setEndTime(uint64_t newTime)       { endTime = newTime; }
@@ -204,4 +204,4 @@ public:
 };
 
 
-}	// namespace TOOL
+}	// namespace NAMON

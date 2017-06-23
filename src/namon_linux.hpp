@@ -1,11 +1,10 @@
 /**
- *  @file       tool_linux.hpp
+ *  @file       namon_linux.hpp
  *  @brief      Determining applications and their sockets on Linux
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 18.02.2017 22:55
- *   - Edited:  25.04.2017 16:22
- *  @todo       rename file
+ *   - Edited:  23.06.2017 12:12
  */
 
 #pragma once
@@ -17,7 +16,7 @@
 
 
 
-namespace TOOL
+namespace NAMON
 {
 
 
@@ -49,4 +48,4 @@ int getInode(Netflow *n);
 int getApp(const int inode, std::string &appName);
 
 
-}	// namespace TOOL
+}	// namespace NAMON

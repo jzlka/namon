@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 06.03.2017 14:51
- *   - Edited:  21.04.2017 00:55
+ *   - Edited:  23.06.2017 12:01
  */
 
 #include <string>                   //  string
@@ -34,7 +34,7 @@
 
 
 
-namespace TOOL
+namespace NAMON
 {
 
 
@@ -177,4 +177,4 @@ int initOFile(std::ofstream &oFile)
 }
 
 
-}	// namespace TOOL
+}	// namespace NAMON

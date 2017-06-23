@@ -1,23 +1,20 @@
 /**
- *  @file       tool_bsd.hpp
- *  @brief      Determining applications and their sockets on FreeBSD
+ *  @file       namon_apple.hpp
+ *  @brief      Determining applications and their sockets on macOS
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
- *   - Created: 
- *   - Edited:  21.04.2017 01:02
- *  @todo       rename file
+ *   - Created: 18.02.2017 22:55
+ *   - Edited:  23.06.2017 12:12
  */
 
 #pragma once
-
-#include <string>			//	string
 
 #include "netflow.hpp"      //  Netflow
 
 
 
 
-namespace TOOL
+namespace NAMON
 {
 
 
@@ -41,4 +38,4 @@ int getInode(Netflow *n);
 int getApp(const int inode, std::string &appName);
 
 
-}	// namespace TOOL
+}	// namespace NAMON

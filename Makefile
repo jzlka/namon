@@ -3,7 +3,7 @@
 # @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
 # @date
 #  - Created: 08.02.2017
-#  - Edited:  25.05.2017 17:03
+#  - Edited:  23.06.2017 11:54
 # @version    1.0.0
 # @par        make: GNU Make 3.81
 
@@ -19,19 +19,19 @@ SRCDIR=src
 OBJDIR=obj
 TESTSDIR=tests
 BINDIR=bin
-BIN=tool
+BIN=namon
 SRC_TMP=$(wildcard $(SRCDIR)/*.cpp)
-SRC=$(filter-out src/tool_%,$(SRC_TMP))
+SRC=$(filter-out src/namon_%,$(SRC_TMP))
 
 ifeq ($(OS),Windows_NT)
-	SRC += $(SRCDIR)/tool_win.cpp
+	SRC += $(SRCDIR)/namon_win.cpp
 else
 	UNAME_S := $(shell uname -s)
 	ifeq ($(UNAME_S),Linux)
-		SRC += $(SRCDIR)/tool_linux.cpp
+		SRC += $(SRCDIR)/namon_linux.cpp
 	endif
 	ifeq ($(UNAME_S),Darwin)
-		SRC += $(SRCDIR)/tool_apple.cpp
+		SRC += $(SRCDIR)/namon_apple.cpp
 	endif
 endif
 

@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 28.03.2017 14:09
- *   - Edited:  11.04.2017 00:10
+ *   - Edited:  23.06.2017 12:08
  */
 
 #pragma once
@@ -21,7 +21,7 @@ using std::string;
 
 
 
-namespace TOOL
+namespace NAMON
 {
 
 
@@ -54,14 +54,15 @@ namespace TOOL
 
 	inline uint16_t ntohs(uint16_t num)
 	{
-		return ((num << 8) | ((num >> 8) & 0x00ff));
+        uint8_t *np = reinterpret_cast<uint8_t *>(&num);
+		return ((uint16_t)np[0] << 8) | (uint16_t)np[1];
 	}
 
 
 #include "utils.tpp"
 
 
-}	// namespace TOOL
+}	// namespace NAMON
 
 
 

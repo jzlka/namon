@@ -4,11 +4,11 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 29.03.2017 02:11
- *   - Edited:  30.03.2017 17:58
+ *   - Edited:  23.06.2017 12:17
  */
 
 #include <iostream>         //  cout, cerr, endl
-#include "tool_linux.hpp"   //  getApp()
+#include "namon_linux.hpp"   //  getApp()
 
 using namespace std;
 

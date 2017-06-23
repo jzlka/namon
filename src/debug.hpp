@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 26.09.2016 23:59
- *   - Edited:  18.05.2017 00:13
+ *   - Edited:  23.06.2017 12:01
  */
 
 #pragma once
@@ -15,7 +15,7 @@
 
 
 
-namespace TOOL
+namespace NAMON
 {
 
 
@@ -81,13 +81,13 @@ void log(LogLevel ll, Ts&&... args)
 }
 
 /*!
- * @brief       Sets #TOOL::generalLogLevel;
- * @param[in]   ll  #TOOL::LogLevel
+ * @brief       Sets #NAMON::generalLogLevel;
+ * @param[in]   ll  #NAMON::LogLevel
  */
 void setLogLevel(char *ll);
 
 
-}	// namespace TOOL
+}	// namespace NAMON
 
 
 

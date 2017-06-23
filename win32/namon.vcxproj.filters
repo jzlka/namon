@@ -36,10 +36,10 @@
     <ClCompile Include="..\src\netflow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\tool.cpp">
+    <ClCompile Include="..\src\namon.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\tool_win.cpp">
+    <ClCompile Include="..\src\namon_win.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\src\utils.cpp">
@@ -77,19 +77,19 @@
     <ClInclude Include="..\src\tcpip_headers.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\tool.hpp">
+    <ClInclude Include="..\src\namon.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\tool_apple.hpp">
+    <ClInclude Include="..\src\namon_apple.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\tool_bsd.hpp">
+    <ClInclude Include="..\src\namon_bsd.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\tool_linux.hpp">
+    <ClInclude Include="..\src\namon_linux.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\tool_win.hpp">
+    <ClInclude Include="..\src\namon_win.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\src\utils.hpp">
@@ -98,8 +98,8 @@
     <ClInclude Include="..\src\ringBuffer.tpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\src\tool_win.tpp" />
-    <None Include="..\src\tool_linux.cpp">
+    <None Include="..\src\namon_win.tpp" />
+    <None Include="..\src\namon_linux.cpp">
       <Filter>Source Files</Filter>
     </None>
   </ItemGroup>

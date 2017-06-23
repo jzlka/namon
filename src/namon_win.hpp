@@ -1,11 +1,10 @@
 /**
- *  @file       tool_win.hpp
+ *  @file       namon_win.hpp
  *  @brief      Determining applications and their sockets on Windows
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 
- *   - Edited:  25.04.2017 16:23
- *  @todo       rename file
+ *   - Edited:  23.06.2017 12:12
  */
 
 #pragma once
@@ -17,7 +16,7 @@
 
 
 
-namespace TOOL
+namespace NAMON
 {
 
 
@@ -44,7 +43,7 @@ void cleanWmiConnection();
 int connectToWmi();
 
 
-//#include "tool_win.tpp"
+//#include "namon_win.tpp"
 
 
-}	// namespace TOOL
+}	// namespace NAMON

@@ -1,11 +1,10 @@
 /**
- *  @file       tool_apple.cpp
+ *  @file       namon_apple.cpp
  *  @brief      Determining the applications and their sockets on macOS
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 26.03.2017 14:40
- *   - Edited:  21.04.2017 01:02
- *  @todo       rename this file
+ *   - Edited:  23.06.2017 12:12
  */
 
 #include "netflow.hpp"      //  Netflow
@@ -14,7 +13,7 @@
 
 
 
-namespace TOOL
+namespace NAMON
 {
 
 

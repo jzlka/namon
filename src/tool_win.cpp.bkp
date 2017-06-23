@@ -1,5 +1,5 @@
 /**
-*  @file       tool_win.cpp
+*  @file       namon_win.cpp
 *  @brief      Determining the applications and their sockets on macOS
 *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
 *  @date
@@ -20,7 +20,7 @@
 #include "netflow.hpp"      //  Netflow
 #include "cache.hpp"        //  Cache
 #include "debug.hpp"		//	log()
-#include "tool_win.hpp"
+#include "namon_win.hpp"
 
 
 #pragma comment(lib, "Iphlpapi.lib")	//	GetAdaptersAddresses(), GetExtended*Table()
@@ -29,7 +29,7 @@
 
 
 
-namespace TOOL
+namespace NAMON
 {
 
 
@@ -126,4 +126,4 @@ int getApp(const int pid, string &appname)
 }
 
 
-}	// namespace TOOL
+}	// namespace NAMON

@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 18.02.2017 22:48
- *   - Edited:  18.05.2017 00:12
+ *   - Edited:  23.06.2017 12:00
  */
 
 #pragma once
@@ -21,12 +21,12 @@
 #include "debug.hpp"            //  log()
 
 
-using TOOL::ip4_addr;
-using TOOL::ether_hdr;
-using TOOL::Netflow;
-using TOOL::TEntry;
-using TOOL::EnhancedPacketBlock;
-using TOOL::RingBuffer;
+using NAMON::ip4_addr;
+using NAMON::ether_hdr;
+using NAMON::Netflow;
+using NAMON::TEntry;
+using NAMON::EnhancedPacketBlock;
+using NAMON::RingBuffer;
 
 
 //! Size of a libpcap error buffer
@@ -63,9 +63,9 @@ struct PacketHandlerParams
 /*!
 * @brief       Determines packet derection
 * @param[in]   eth_hdr   Ethernet header
-* @return      Returns TOOL::Direction
+* @return      Returns NAMON::Direction
 */
-Directions getPacketDirection(TOOL::ether_hdr *eth_hdr);
+Directions getPacketDirection(NAMON::ether_hdr *eth_hdr);
 /*!
 * @brief       Starts network traffic capture
 * @param[in]   oFilename   Output file name

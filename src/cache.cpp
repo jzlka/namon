@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 26.02.2017 23:52
- *   - Edited:  17.05.2017 19:16
+ *   - Edited:  23.06.2017 11:56
  */
 
 #include <iostream>             //  cout, endl;
@@ -28,13 +28,13 @@
 using namespace std;
 
 
-extern map<string, vector<TOOL::Netflow *>> g_finalResults;
+extern map<string, vector<NAMON::Netflow *>> g_finalResults;
 extern const atomic<int> shouldStop;
 
 
 
 
-namespace TOOL
+namespace NAMON
 {
 
 
@@ -397,4 +397,4 @@ void Cache::print()
 }
 
 
-}	// namespace TOOL
+}	// namespace NAMON

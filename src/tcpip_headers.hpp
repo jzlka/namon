@@ -4,7 +4,7 @@
  * @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  * @date
  *  - Created: 12.04.2017 23:21
- *  - Edited:  25.05.2017 12:57
+ *  - Edited:  23.06.2017 12:05
  * @todo       rename namespace
 */
 
@@ -14,7 +14,7 @@
 
 
 
-namespace TOOL 
+namespace NAMON 
 {
 
 
@@ -71,7 +71,7 @@ struct ip4_hdr {
 #if (defined(__BYTE_ORDER) && __BYTE_ORDER == __LITTLE_ENDIAN) || defined(__LITTLE_ENDIAN__) || \
     defined(__ARMEL__) || defined(__THUMBEL__) || defined(__AARCH64EL__) || \
     defined(_MIPSEL) || defined(__MIPSEL) || defined(__MIPSEL__) || \
-	defined(M_IX86) || defined(_M_X64) || defined(_M_IA64) || defined(_M_ARM)
+	defined(M_IX86) || defined(_M_X64) || defined(_M_IA64) || defined(_M_ARM) || defined(_WIN32)
 	uint8_t ihl:4;
     uint8_t version:4;
 #elif (defined(__BYTE_ORDER) && __BYTE_ORDER == __BIG_ENDIAN) || defined(__BIG_ENDIAN__) || \
@@ -177,21 +177,20 @@ struct tcp_hdr {
 	uint16_t	th_dport;			//!< destination port
 	uint32_t	th_seq;				//!< sequence number
 	uint32_t	th_ack;				//!< acknowledgement number
-#if (defined(__BYTE_ORDER) && __BYTE_ORDER == __BIG_ENDIAN) || defined(__BIG_ENDIAN__) || \
-    defined(__ARMEB__) || defined(__THUMBEB__) || defined(__AARCH64EB__) || \
-    defined(_MIBSEB) || defined(__MIBSEB) || defined(__MIBSEB__) || defined(_M_PPC)
-        uint8_t	th_x2:4;            //!< (unused)
-        uint8_t	th_off:4;           //!< data offset
-#endif
 #if (defined(__BYTE_ORDER) && __BYTE_ORDER == __LITTLE_ENDIAN) || defined(__LITTLE_ENDIAN__) || \
     defined(__ARMEL__) || defined(__THUMBEL__) || defined(__AARCH64EL__) || \
     defined(_MIPSEL) || defined(__MIPSEL) || defined(__MIPSEL__) || \
-	defined(M_IX86) || defined(_M_X64) || defined(_M_IA64) || defined(_M_ARM)
-       // uint8_t	th_off:4;           //!< data offset
-       // uint8_t	th_x2:4;            //!< (unused)
-       //! @todo repair
+	defined(M_IX86) || defined(_M_X64) || defined(_M_IA64) || defined(_M_ARM) || defined(_WIN32)
 		uint8_t	th_x2 : 4;            //!< (unused)
 		uint8_t	th_off : 4;           //!< data offset
+#elif (defined(__BYTE_ORDER) && __BYTE_ORDER == __BIG_ENDIAN) || defined(__BIG_ENDIAN__) || \
+    defined(__ARMEB__) || defined(__THUMBEB__) || defined(__AARCH64EB__) || \
+    defined(_MIBSEB) || defined(__MIBSEB) || defined(__MIBSEB__) || defined(_M_PPC)
+        uint8_t	th_off:4;           //!< data offset
+        uint8_t	th_x2:4;            //!< (unused)
+#else
+# error "Please fix <bits/endian.h>"
+    //https://stackoverflow.com/questions/4239993/determining-endianness-at-compile-time
 #endif
 	uint8_t		th_flags;
 	uint16_t	th_win;				//!< window
@@ -202,4 +201,4 @@ struct tcp_hdr {
 #pragma pack(pop)
 
 
-}	// namespace TOOL
+}	// namespace NAMON

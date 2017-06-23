@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 06.03.2017 14:50
- *   - Edited:  18.05.2017 00:14
+ *   - Edited:  23.06.2017 12:01
  */
 
 #pragma once
@@ -14,7 +14,7 @@
 
 
 
-namespace TOOL
+namespace NAMON
 {
 
 
@@ -26,4 +26,4 @@ namespace TOOL
 int initOFile(std::ofstream & oFile);
 
 
-}	// namespace TOOL
+}	// namespace NAMON

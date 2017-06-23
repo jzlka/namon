@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 06.03.2017 13:33
- *   - Edited:  24.05.2017 14:21
+ *   - Edited:  23.06.2017 12:04
  */
 
 #pragma once
@@ -44,12 +44,12 @@
 using namespace std;
 
 extern const char * g_dev;
-extern map<string, vector<TOOL::Netflow *>> g_finalResults;
+extern map<string, vector<NAMON::Netflow *>> g_finalResults;
 
 
 
 
-namespace TOOL
+namespace NAMON
 {
    
 
@@ -92,7 +92,7 @@ class SectionHeaderBlock {
         struct {
             UNUSED(uint16_t optionCode)     = 4;
             UNUSED(uint16_t optionLength)   = 5;
-            UNUSED(char optionValue[5])     = "tool";   //! @todo Change tool name
+            UNUSED(char optionValue[6])     = "namon";
             UNUSED(uint8_t padding[3])      = {0};
         } shb_userappl;
         struct endOfOption {
@@ -105,7 +105,7 @@ class SectionHeaderBlock {
 public:
     /*!
      * @brief       Class constructor
-     * @details     Sets length of the #TOOL::SectionHeaderBlock::options::shb_os option 
+     * @details     Sets length of the #NAMON::SectionHeaderBlock::options::shb_os option 
      *               and the block length
      * @param[in]   os  Platform and version of the OS we are capturing on
      */
@@ -271,23 +271,23 @@ public:
      */
     ~EnhancedPacketBlock()    { free(packetData); }
     /*!
-     * @brief       Set method for #TOOL::EnhancedPacketBlock::timestampHi 
-     *               and #TOOL::EnhancedPacketBlock::timestampLo
+     * @brief       Set method for #NAMON::EnhancedPacketBlock::timestampHi 
+     *               and #NAMON::EnhancedPacketBlock::timestampLo
      * @param[in]   timestamp   Packet timestamp
      */
     void setTimestamp(uint64_t timestamp) { timestampLo = timestamp & 0xffffffff; timestampHi = timestamp >> 32; }
     /*!
-     * @brief       Set method for #TOOL::EnhancedPacketBlock::capturedPacketLength
+     * @brief       Set method for #NAMON::EnhancedPacketBlock::capturedPacketLength
      * @param[in]   len Captured length
      */
     void setCapturedPacketLength(uint32_t len) { capturedPacketLength = len; }
     /*!
-     * @brief       Set method for #TOOL::EnhancedPacketBlock::originalPacketLength
+     * @brief       Set method for #NAMON::EnhancedPacketBlock::originalPacketLength
      * @param[in]   len Length of the packet as it was on the wire
      */
     void setOriginalPacketLength(uint32_t len) { originalPacketLength = len; }
     /*!
-     * @brief       Set method for #TOOL::EnhancedPacketBlock::packetData
+     * @brief       Set method for #NAMON::EnhancedPacketBlock::packetData
      * @details     Copies a memory pointed by ptr into the preallocated space.
      *              Copy is faster than memmove
      * @todo        Catch error
@@ -421,4 +421,4 @@ public:
  */
 
 
-}   // namespace TOOL
+}   // namespace NAMON

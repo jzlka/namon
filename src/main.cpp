@@ -6,9 +6,8 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 18.02.2017 08:03
- *   - Edited:  18.05.2017 00:15
+ *   - Edited:  23.06.2017 12:02
  *  @version:    1.0.0
- *  @todo       change tool name
  */
 
 #include <iostream>             //  EXIT_*, cout, cerr
@@ -46,7 +45,7 @@ static const struct option longopts[] =
 
 int main (int argc, char *argv[])
 {
-    char const *oFilename = "tool_capturedTraffic.pcapng"; //! @todo zmenit tool za nazov nastroja
+    char const *oFilename = "namon_capturedTraffic.pcapng";
 
     int optionIndex = 0;
     char opt = 0;
@@ -63,7 +62,7 @@ int main (int argc, char *argv[])
             case 0:                          break;
             case 'i':   g_dev = optarg;      break;
             case 'w':   oFilename = optarg;  break;
-			case 'v':   TOOL::setLogLevel(optarg); break;
+			case 'v':   NAMON::setLogLevel(optarg); break;
             case 'h':   printUsage();   return EXIT_SUCCESS;
             default:    printUsage();   return EXIT_FAILURE;
         }
@@ -75,10 +74,10 @@ int main (int argc, char *argv[])
 
 void printUsage()
 {
-    cout << "Usage: tool [-v[<level>]] [-i <interface>] [-w <output_filename>]" << endl; //! @todo zmenit nazov nastroja
+    cout << "Usage: namon [-v[<level>]] [-i <interface>] [-w <output_filename>]" << endl;
     cout << "\t-v\tVerbosity level. Possible values are 0-3." << endl;
     cout << "\t-i\tCapturing interface." << endl;
     cout << "\t-w\tOutput file." << endl;
     cout << "\t-h\tPrints this message." << endl;
-    cout << "Note: 'tool_capturedTraffic.pcapng' is used as default filename" << endl; // TODO zmenit nazov suboru
+    cout << "Note: 'namon_capturedTraffic.pcapng' is used as default filename" << endl; // TODO zmenit nazov suboru
 }

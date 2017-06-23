@@ -1,11 +1,10 @@
 /**
- *  @file       tool_linux.cpp
+ *  @file       namon_linux.cpp
  *  @brief      Determining applications and their sockets in Linux
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 18.02.2017 23:32
- *   - Edited:  17.05.2017 19:44
- *  @todo       rename file
+ *   - Edited:  23.06.2017 12:12
  */
 
 #include <fstream>              //  ifstream
@@ -18,18 +17,18 @@
 #include "cache.hpp"            //  Cache, TEntry
 #include "debug.hpp"            //  log()
 #include "utils.hpp"            //  pidToInt()
-#include "tool_linux.hpp"
+#include "namon_linux.hpp"
 
 using namespace std;
 
 extern const char *g_dev;
 extern unsigned int g_notFoundApps;
-extern TOOL::mac_addr g_devMac;
+extern NAMON::mac_addr g_devMac;
 
 
 
 
-namespace TOOL
+namespace NAMON
 {
 
 
@@ -135,7 +134,7 @@ int getInode(Netflow *n)
 
         static streamoff pos_localIp, pos_localPort, pos_inode;
         static string dummyStr;
-        static unsigned int lineLength, inode;
+        static int lineLength, inode;
         static uint16_t foundPort;
         static uint16_t wantedPort;
 
@@ -282,6 +281,8 @@ int getInode(Netflow *n)
         for (iter i = file_begin; i != file_end; ++i)
             std::clog << *i;
 #endif
+        if (inode == -1)
+            log(LogLevel::WARNING, "Inode not found for port <",wantedPort,">");
         return inode;
     }
     catch(char const *msg)

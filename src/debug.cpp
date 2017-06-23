@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 16.03.2017 05:39
- *   - Edited:  21.04.2017 00:53
+ *   - Edited:  23.06.2017 12:00
  */
 
 #include "debug.hpp"
@@ -12,7 +12,7 @@
 
 
 
-namespace TOOL
+namespace NAMON
 {
 
 
@@ -32,4 +32,4 @@ void setLogLevel(char *ll)
 }
 
 
-}	// namespace TOOL
+}	// namespace NAMON

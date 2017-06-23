@@ -4,7 +4,7 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 28.03.2017 14:14
- *   - Edited:  20.04.2017 08:23
+ *   - Edited:  23.06.2017 12:08
  */
 
 #include <cctype>				//  isdigit()
@@ -23,7 +23,7 @@
 
 
 
-namespace TOOL
+namespace NAMON
 {
 
 
@@ -196,7 +196,7 @@ int inet_ntop(const int af, const void *src, char *dst, size_t size)
 }
 
 
-}	// namespace TOOL
+}	// namespace NAMON
 
 
 #ifdef _WIN32

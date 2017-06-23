@@ -4,7 +4,8 @@
  *  @author     Jozef Zuzelka <xzuzel00@stud.fit.vutbr.cz>
  *  @date
  *   - Created: 18.02.2017 22:45
- *   - Edited:  24.05.2017 19:39
+ *   - Edited:  23.06.2017 12:00
+ *   @todo      name: ncap, netcat, ncat, netcap, necai
  *   @todo      determine platform in scripts
  *   @todo      IPv6 implementation tests
  *   @todo      EnhancedPacketBlock disable pragma 1 -> speed up working with ringBuffer?
@@ -12,6 +13,7 @@
  *   @todo      What to do when the cache contains invalid record and getInode returns inode == 0
  *              Save it to cache or the packet belongs to the old record?
  *   @todo      Broadcast and multicast packets (239.255.255.250, 0.0.0.0, 224.0.0.7, 1.13.0.0, 192.168.1.255) -> use address 0.0.0.0 instead?
+ *   @todo      check linux distros with little endian (local port)
  *   @todo      getting incorrect udp packet err
  *   @todo      os_version_info from Wireshark
  *   @todo      windows appname > 256
@@ -46,15 +48,15 @@
 
 #if defined(__linux__)
 #include <signal.h>             //  signal(), SIGINT, SIGTERM, SIGABRT, SIGSEGV
-#include "tool_linux.hpp"		//	setDevMac()
+#include "namon_linux.hpp"		//	setDevMac()
 
 #elif defined(__APPLE__)
-#include "tool_apple.hpp"		//	setDevMac()
+#include "namon_apple.hpp"		//	setDevMac()
 
 #elif defined(_WIN32)
 //#include <Windows.h>			//	SetConsoleCtrlHandler()
 #include <signal.h>			//	signal()
-#include "tool_win.hpp"			//	setDevMac()
+#include "namon_win.hpp"			//	setDevMac()
 #endif
 
 #include "tcpip_headers.hpp"	//	
@@ -74,7 +76,7 @@
 #endif
 
 
-using namespace TOOL;
+using namespace NAMON;
 
 
 const unsigned int      FILE_RING_BUFFER_SIZE	= 2000;   //!< Size of the ring buffer
@@ -385,9 +387,9 @@ inline int parsePorts(Netflow &n, Directions dir, void *hdr)
                 return EXIT_FAILURE;
             }
             if (dir == Directions::INBOUND)
-                n.setLocalPort(TOOL::ntohs(tcp_hdr->th_dport));
+                n.setLocalPort(NAMON::ntohs(tcp_hdr->th_dport));
             else
-                n.setLocalPort(TOOL::ntohs(tcp_hdr->th_sport));
+                n.setLocalPort(NAMON::ntohs(tcp_hdr->th_sport));
             break;
         }
         case PROTO_UDP:
@@ -401,9 +403,9 @@ inline int parsePorts(Netflow &n, Directions dir, void *hdr)
                 return EXIT_FAILURE;
             }
             if (dir == Directions::INBOUND)
-                n.setLocalPort(TOOL::ntohs(udp_hdr->uh_dport));
+                n.setLocalPort(NAMON::ntohs(udp_hdr->uh_dport));
             else
-                n.setLocalPort(TOOL::ntohs(udp_hdr->uh_sport));
+                n.setLocalPort(NAMON::ntohs(udp_hdr->uh_sport));
             break;
         }
         default:
