@@ -55,11 +55,16 @@ Final binary is located in **_bin/_** folder.
 [//]: <> (This is also a comment.)
 [//]: # (This is also a comment.)
 [//]: # (* This is also a comment.)
+[//]: # (* make clean-all    - clean, clean-tests, clean-doc)
+[//]: # (* make libs         - run helper script to download & install PF_RING/netmap/PFQ (interactive))
+[//]: # (* make pf_ring      - build against PF_RING downloaded in libs/ folder)
+[//]: # (* make netmap       - build against netmap downloaded in libs/ folder)
+[//]: # (* make pfq          - build against PFQ downloaded in libs/ folder)
 [//]: # (    * make clean-all    - clean, clean-tests, clean-doc)
-[//]: # (    * make libs         - run helper script to download & install PF_RING/netmap/PFQ (interactive)(**TODO**))
+[//]: # (    * make libs         - run helper script to download & install PF_RING/netmap/PFQ (interactive))
 [//]: # (    * make pf_ring      - build against PF_RING downloaded in libs/ folder)
-[//]: # (    * make netmap       - build against netmap downloaded in libs/ folder (**TODO**))
-[//]: # (    * make pfq          - build against PFQ downloaded in libs/ folder (**TODO**))
+[//]: # (    * make netmap       - build against netmap downloaded in libs/ folder)
+[//]: # (    * make pfq          - build against PFQ downloaded in libs/ folder)
 
 ## Program arguments
 ```bash
