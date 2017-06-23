@@ -1,7 +1,7 @@
 Network Traffic Capturing With Application Tags
 ===
-[![Build Status](https://travis-ci.org/TheKuko/BP.svg?branch=master)](https://travis-ci.org/TheKuko/BP)
-[![Build status](https://ci.appveyor.com/api/projects/status/3mxuyc2dmaml6dr0?svg=true)](https://ci.appveyor.com/project/TheKuko/bp)
+[![Build Status](https://travis-ci.org/TheKuko/namon.svg?branch=master)](https://travis-ci.org/TheKuko/namon)
+[![Build status](https://ci.appveyor.com/api/projects/status/gow7petki0obew78?svg=true)](https://ci.appveyor.com/project/TheKuko/namon)
 
 
 Multiplatform C++ tool which captures network traffic into pcap-ng file and extends it with application tags. 
