@@ -6,7 +6,7 @@ Network Traffic Capturing With Application Tags
 
 Multiplatform C++ tool which captures network traffic into pcap-ng file and extends it with application tags. 
 The application tag consists of recognized application and its socket records. The socket record uniquely identifies group of packets which belong to one applications socket.  
-Application tags are appended to the end of the capture pcap-ng file as one Custom Block. Structure of the block is documented in *[thesis.pdf](https://thekuko.github.io/BP/docs/thesis.pdf)* (Chapter 6).
+Application tags are appended to the end of the capture pcap-ng file as one Custom Block. Structure of the block is documented in *[thesis.pdf](https://thekuko.github.io/namon/docs/thesis.pdf)* (Chapter 6).
 
 ### Features ###
 - Works on Windows and Linux (FreeBSD and MacOS support will be added in the future)
