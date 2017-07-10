@@ -75,6 +75,6 @@ Jozef Zuzelka <jozef.zuzelka@gmail.com>
 
 ## More information
 
-* [Doxygen documentation](https://thekuko.github.io/BP/docs/html/index.xhtml)
-* ZUZELKA, Jozef. *Network traffc capturing with application tags*. Brno, 2017. Bachelor’s thesis. Brno University of Technology, Faculty of Information Technology. Supervisor Ing. Jan Pluskal ([thesis.pdf](https://thekuko.github.io/BP/docs/thesis.pdf))
-* ZUZELKA, Jozef. _Network Traffc Capture with Application Tags_: Excel@FIT Conference (April 2017, Brno) ([paper](https://thekuko.github.io/BP/docs/clanek.pdf), [poster](https://thekuko.github.io/BP/docs/poster.pdf))
+* [Doxygen documentation](https://thekuko.github.io/namon/docs/html/index.xhtml)
+* ZUZELKA, Jozef. *Network traffc capturing with application tags*. Brno, 2017. Bachelor’s thesis. Brno University of Technology, Faculty of Information Technology. Supervisor Ing. Jan Pluskal ([thesis.pdf](https://thekuko.github.io/namon/docs/thesis.pdf))
+* ZUZELKA, Jozef. _Network Traffc Capture with Application Tags_: Excel@FIT Conference (April 2017, Brno) ([paper](https://thekuko.github.io/BP/docs/clanek.pdf), [poster](https://thekuko.github.io/namon/docs/poster.pdf))
