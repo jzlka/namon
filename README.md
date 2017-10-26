@@ -6,7 +6,7 @@ Network Traffic Capturing With Application Tags
 
 Multiplatform C++ tool which captures network traffic into pcap-ng file and extends it with application tags. 
 The application tag consists of recognized application and its socket records. The socket record uniquely identifies group of packets which belong to one applications socket.  
-Application tags are appended to the end of the capture pcap-ng file as one Custom Block. Structure of the block is documented in *[thesis.pdf](https://thekuko.github.io/BP/docs/thesis.pdf)* (Chapter 6).
+Application tags are appended to the end of the capture pcap-ng file as one Custom Block. Structure of the block is documented in *[thesis.pdf](https://thekuko.github.io/namon/docs/thesis.pdf)* (Chapter 6).
 
 ### Features ###
 - Works on Windows and Linux (FreeBSD and MacOS support will be added in the future)
@@ -75,6 +75,6 @@ Jozef Zuzelka <jozef.zuzelka@gmail.com>
 
 ## More information
 
-* [Doxygen documentation](https://thekuko.github.io/BP/docs/html/index.xhtml)
-* ZUZELKA, Jozef. *Network traffc capturing with application tags*. Brno, 2017. Bachelor’s thesis. Brno University of Technology, Faculty of Information Technology. Supervisor Ing. Jan Pluskal ([thesis.pdf](https://thekuko.github.io/BP/docs/thesis.pdf))
-* ZUZELKA, Jozef. _Network Traffc Capture with Application Tags_: Excel@FIT Conference (April 2017, Brno) ([paper](https://thekuko.github.io/BP/docs/clanek.pdf), [poster](https://thekuko.github.io/BP/docs/poster.pdf))
+* [Doxygen documentation](https://thekuko.github.io/namon/docs/html/index.xhtml)
+* ZUZELKA, Jozef. *Network traffc capturing with application tags*. Brno, 2017. Bachelor’s thesis. Brno University of Technology, Faculty of Information Technology. Supervisor Ing. Jan Pluskal ([thesis.pdf](https://thekuko.github.io/namon/docs/thesis.pdf))
+* ZUZELKA, Jozef. _Network Traffc Capture with Application Tags_: Excel@FIT Conference (April 2017, Brno) ([paper](https://thekuko.github.io/namon/docs/clanek.pdf), [poster](https://thekuko.github.io/namon/docs/poster.pdf))
