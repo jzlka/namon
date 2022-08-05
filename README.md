@@ -71,7 +71,7 @@ namon [-v[<level>]] [-i <interface>] [-w <output_file>]
 |`-w <output_file>`, `--output-file`     |Name of the output file. Default filename is `namon_capturedTraffic.pcapng`.                                                    |
 
 ## Author
-Jozef Zuzelka <jozef.zuzelka@gmail.com>
+Jozef Zuzelka
 
 ## More information
 
